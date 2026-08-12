@@ -1,0 +1,27 @@
+{
+  "name": "system7web",
+  "version": "0.1.0",
+  "description": "A System 7 desktop in the browser, built on the vintage-frames component kit",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "author": "Adam Portilla",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aportilla/system7web.git"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "charset-manifest": "/tmp/fontenv/bin/python3 fonts/charset-manifest.py"
+  },
+  "dependencies": {
+    "vintage-frames": "^0.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0",
+    "vite": "^8.2.1"
+  }
+}
