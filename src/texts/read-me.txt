@@ -1,0 +1,44 @@
+SYSTEM7WEB is a small classic Macintosh desktop in the browser: a menu bar, a Finder, windows you drag by their title bars, and a handful of applications, all drawn on the 1-bit grid at true 72dpi size.
+
+Everything you see is drawn by Vintage Frames, a kit of System 7 web components published on npm. This desktop is an application built on it, held to the same public interface as anyone else's.
+
+––––––––––––––––––––––––––––––––––
+THE FINDER
+
+Your files appear as icons. Double-click one to open it; on a tablet, double-tap it, or select it and choose File → Open.
+
+Drag an icon to move it, onto a folder to file it, and onto the Trash to delete it. Nothing is gone until Special → Empty Trash…, so a trashed file comes back by dragging it out again.
+
+Click a selected icon's name to rename it. File → New Folder makes a folder in the front window, or on the desktop. Edit → Copy and Edit → Paste copy icons, folders with everything in them.
+
+Special → Clean Up puts the icons of the desktop or the front window back on the grid. View → Arrange Windows puts the windows back where they open.
+
+––––––––––––––––––––––––––––––––––
+THE APPLICATIONS
+
+Whichever window is in front, its application owns the menu bar. Click the desktop and the Finder's menus come back.
+
+  TEXT VIEWER
+  Opens read-me files like this one. Select text and choose Edit → Copy to copy it.
+
+  FONT VIEWER
+  Opens the font suitcases in Macintosh HD → Fonts. Each window shows the family's sample line at every size it comes in, then every character of one size. The Size menu picks the size.
+
+  DESKTOP PATTERNS
+  Apple menu → Desktop Patterns. Click a pattern to preview it, then Set Desktop Pattern.
+
+––––––––––––––––––––––––––––––––––
+BACKING UP YOUR FILES
+
+Your desktop is kept in this browser's own storage, and nothing is sent anywhere.
+
+Special → Back Up All Files… saves the whole desktop as one zip named for the day. Unzip it and your folders are folders and your read-me files plain text.
+
+To bring a backup back, drag the zip onto the page or choose Special → Restore from Backup… and pick it. Add puts its files beside yours; Replace swaps your desktop for the backup's.
+
+Special → Restore Default Files brings back any of the files this desktop came with that you have deleted.
+
+––––––––––––––––––––––––––––––––––
+KEYBOARD
+
+The browser keeps ⌘W, ⌘Q and ⌘N for itself, so Close, Quit and New use the Control key: ⌃W, ⌃Q, ⌃N. Every other key equivalent is the one the menu shows.

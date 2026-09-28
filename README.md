@@ -1,13 +1,13 @@
 # system7web
 
-A Mac OS System 7 desktop in the browser — menu bar, movable windows, dialogs,
-Finder icons, a utility palette and a drawn pointer, all on the 1-bit grid at
-true 72dpi size.
+A Mac OS System 7 desktop in the browser: a menu bar, a Finder with folders
+and a Trash, windows that open out of their icons, and four applications, all
+on the 1-bit grid at true 72dpi size.
 
 Everything you see is drawn by [**vintage-frames**](https://www.npmjs.com/package/vintage-frames),
 the System 7 component kit, installed from npm like any other dependency. This
-repo is the *application*: layout, behavior, content, and the imported strike
-collection the Character Set window browses.
+repo is the *application*: the shell, the applications, their content, and the
+imported strike collection the Font Viewer opens.
 
 ```sh
 npm install
@@ -19,19 +19,39 @@ npm run dev        # http://localhost:5173/system7web/
 | `npm run dev` | Vite dev server |
 | `npm run build` | static site to `dist/` |
 | `npm run preview` | serve the built copy under the deploy's base path |
-| `npm run typecheck` | `tsc --noEmit` |
+| `npm test` | unit tests for the pure logic (`node --test`) |
+| `npm run typecheck` | `tsc` over the app and the Vite config |
 | `npm run charset-manifest` | regenerate `src/charset-manifest.ts` from the strike collection |
+
+## The applications
+
+| | |
+| --- | --- |
+| **Finder** | the desktop's icons, folder windows, rename, filing by drag, the Trash, Copy and Paste, Clean Up, Back Up All Files… and Restore from Backup…, Restore Default Files |
+| **Text Viewer** | read-me files, read-only |
+| **Desktop Patterns** | Apple menu → Desktop Patterns: the kit's 38 patterns for the desktop |
+| **Font Viewer** | a font suitcase's sample line in every strike, and every character of one |
+
+Whichever window is in front, its application owns the menu bar. The files live
+in the browser's IndexedDB, and the desktop's layout in localStorage; a reload
+reopens what was open. `?fresh=1` boots a clean desktop that saves nothing.
 
 ## Layout
 
 ```
-index.html               the desktop, authored as markup
-src/main.ts              behavior only — menus, launchers, window open/close
-src/desktop.css          LAYOUT only: window placement, gaps, scroll heights
+index.html               the skeleton: desktop, menu bar, icon field, shared dialogs
+src/main.ts              the composition root
+src/shell/               what every application shares: the window manager, the
+                         menu bar, geometry, the clock, the desktop state
+src/apps/<id>/           one directory per application: menus, windows, behavior
+src/state/               the library, the backup format, the clipboard
+src/texts/               the built-in read-me files
+src/desktop.css          LAYOUT only
 src/page.css             page-level CSS the components can't reach from a shadow root
-public/icons/            the System 7 icon crops
+public/icons/            icon art served verbatim
 public/fonts/imported/   ~80 genuine Apple bitmap strikes, served verbatim
 fonts/                   the converters that built them + the manifest generator
+test/                    unit tests
 docs/SPEC.md             what's on the desktop, clause by clause
 docs/FONTS.md            the strike collection and its pipeline
 ```
@@ -51,10 +71,9 @@ strikes**, in the style of the faces Susan Kare designed for Apple's original
 Macintosh, credited to her and Apple as designers but not Apple's files.
 
 `public/fonts/imported/` is the opposite: ~80 **genuine Apple bitmap strikes**
-under their own names, converted from classic font suitcases, which the
-Character Set window browses. They moved here from the vintage-frames repo on
-2026-08-11 so the component kit distributes no Apple artwork. See
-[docs/FONTS.md](docs/FONTS.md).
+under their own names, converted from classic font suitcases, which the Font
+Viewer opens. They moved here from the vintage-frames repo on 2026-08-11 so the
+component kit distributes no Apple artwork. See [docs/FONTS.md](docs/FONTS.md).
 
 ## Working on a component instead
 

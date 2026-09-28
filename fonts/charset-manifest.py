@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Generate src/charset-manifest.ts from public/fonts/imported/*.woff2.
 
-The desktop's Character Set window picks a face and a size and renders that
+The desktop's Font Viewer sets each family's strikes and renders a chosen
 strike's full coverage; this script gives it the data — per strike, the
 characters its cmap actually carries (so the specimen can never show a
 system-font fallback), the font-rect line height the strike renders at

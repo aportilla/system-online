@@ -1,0 +1,11 @@
+<!-- Desktop Patterns menus. shell/menu-bar.ts parses this fragment;
+     apps/desktop-patterns/index.ts addresses items by data-menu and value. -->
+<vf-menu data-menu="file" label="File">
+  <!-- ⌃W: the browser takes ⌘W before the page sees it. -->
+  <vf-menu-item value="close" shortcut="⌃W">Close</vf-menu-item>
+  <!-- ⌃Q: the browser takes ⌘Q. -->
+  <vf-menu-item value="quit" shortcut="⌃Q">Quit</vf-menu-item>
+</vf-menu>
+<vf-menu data-menu="view" label="View">
+  <vf-menu-item value="arrange" shortcut="⌘J" disabled>Arrange Windows</vf-menu-item>
+</vf-menu>

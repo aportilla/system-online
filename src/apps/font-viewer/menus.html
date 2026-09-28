@@ -1,0 +1,19 @@
+<!-- Font Viewer menus. shell/menu-bar.ts parses this fragment;
+     apps/font-viewer/index.ts addresses items by data-menu and value, and
+     fills the Size menu for the active window at each activation. -->
+<vf-menu data-menu="file" label="File">
+  <!-- ⌃W: the browser takes ⌘W before the page sees it. -->
+  <vf-menu-item value="close" shortcut="⌃W">Close</vf-menu-item>
+  <!-- ⌃Q: the browser takes ⌘Q. -->
+  <vf-menu-item value="quit" shortcut="⌃Q">Quit</vf-menu-item>
+</vf-menu>
+<vf-menu data-menu="edit" label="Edit">
+  <!-- Copy is disabled unless the selection is in a font window, so ⌘C falls
+       through to the browser. -->
+  <vf-menu-item value="copy" shortcut="⌘C" disabled>Copy</vf-menu-item>
+  <vf-menu-item value="select-all" shortcut="⌘A">Select All</vf-menu-item>
+</vf-menu>
+<vf-menu data-menu="view" label="View">
+  <vf-menu-item value="arrange" shortcut="⌘J" disabled>Arrange Windows</vf-menu-item>
+</vf-menu>
+<vf-menu data-menu="size" label="Size"></vf-menu>

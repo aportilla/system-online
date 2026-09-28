@@ -1,0 +1,19 @@
+TWO KINDS OF TYPE are on this desktop, and they are not the same thing.
+
+The menus, window titles, buttons and read-me text are set in VF Display and VF Body, the Vintage Frames kit's own faces. They are re-drawn in the style of the Chicago and Geneva bitmap faces Susan Kare designed for Apple's original Macintosh, credited to her and to Apple as their designers. They are not Apple's files.
+
+The suitcases in the Fonts folder are the opposite: genuine Apple bitmap strikes, under their own names, converted from classic Macintosh font suitcases. The Font Viewer shows them exactly as they are, one design pixel to one screen pixel, with every character each strike carries and nothing borrowed from another font.
+
+––––––––––––––––––––––––––––––––––
+SIZES
+
+A bitmap font is drawn once for each size, and each drawing is a strike. The Font Viewer's Size menu lists the strikes a family has.
+
+Most strikes are named by the point size a System 7 Size menu showed for them. A few families (System, SwanSong, Mobile, Taliesin, the Espy faces and eWorld) are still named by their height in pixels, their point size unknown, and their Size menu reads in pixels.
+
+System 7 offered 9, 10, 12, 14, 18, 24 and 36 point for every font, using a real strike where one existed and scaling another where it did not. The 20 point strikes were drawn for the ImageWriter, whose best-quality mode printed each size from a strike at twice its number.
+
+––––––––––––––––––––––––––––––––––
+LINE SPACING
+
+A strike's height is not its line spacing. Chicago 12 is 15 pixels tall and was set 16 pixels apart; Geneva 9 is 12 pixels tall and was set 12 apart. Those two were measured on a real System 7 screen. Every other strike is spaced at its own height until someone measures it.

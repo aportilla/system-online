@@ -33,6 +33,10 @@ jobs:
 
       - run: npm ci
 
+      # The gates: a red check stops the deploy.
+      - run: npm run typecheck
+      - run: npm test
+
       # Reports where the site will be served from — and enables Pages on the
       # repo, with Actions as the source, the first time this runs.
       - name: Configure Pages

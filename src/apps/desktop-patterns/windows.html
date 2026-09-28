@@ -1,0 +1,32 @@
+<!-- Desktop Patterns window. windows.ts parses this fragment, clones the
+     template at each open and fills the chooser. -->
+<!-- Fixed size, 248 × 304. The body is a 222-wide column: the 222×160 preview
+     well, the 13×3 chooser of 16px cells (52 tall with rules and frame) and
+     the default button (28 with its ring), with 10px gaps. Add the stack's
+     12px pad, the 18px title bar and the 1px borders. The inset is the
+     stack's pad because a window body has none. -->
+<template id="tpl-patterns-window">
+  <vf-window heading="Desktop Patterns" movable outline-drag width="248" height="304">
+    <vf-stack pad="12">
+      <vf-stack gap="10" place="center">
+        <vf-container
+          class="patterns-well"
+          width="222"
+          height="160"
+          rule="top right bottom left"
+          role="img"
+        ></vf-container>
+        <vf-grid
+          class="patterns-grid"
+          columns="13"
+          rows="3"
+          cell-width="16"
+          cell-height="16"
+          role="radiogroup"
+          aria-label="Desktop patterns"
+        ></vf-grid>
+        <vf-button class="patterns-set" variant="default">Set Desktop Pattern</vf-button>
+      </vf-stack>
+    </vf-stack>
+  </vf-window>
+</template>

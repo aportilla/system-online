@@ -4,1250 +4,173 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>System 7</title>
+    <!-- Inline so the startup curtain paints on the first frame, before main.ts
+         loads the page CSS and defines the custom elements. Its z-index is one
+         below the kit's page-drawn pointer (2147483647). -->
+    <style>
+      html,
+      body {
+        margin: 0;
+        background: #000;
+      }
+      #curtain {
+        position: fixed;
+        inset: 0;
+        background: #000;
+        z-index: 2147483646;
+      }
+    </style>
     <script type="module" src="/src/main.ts"></script>
   </head>
   <body>
-    <!-- `bezel`: the CRT's black surround, 5 system px all around; the screen's
-         top corners wear the classic corner mask, which lands over the menu
-         bar's corners — the bar needs no `rounded` of its own in here. The
-         raster's width/height are set by main.ts: the page measures the
-         viewport and fitWithin() derives the largest whole raster on resize
-         and scale changes. -->
+    <!-- Startup curtain, removed by src/boot/curtain.ts. -->
+    <div id="curtain"></div>
+
+    <!-- `bezel`: the CRT's black surround. main.ts sets the raster size with
+         fitWithin(). Windows must be direct children of vf-desktop: its
+         stacking manager only sees direct vf-window children. Each application
+         appends its own (src/apps/<id>/windows.html). -->
     <vf-desktop id="desktop" bezel="10">
-      <!-- ============================== Menu bar ======================== -->
-      <vf-menu-bar>
-        <!-- The six-color apple as pixel art (16×16, one image px = one
-             system px), slotted into the bar title as a vf-img. The image is
-             decorative (alt=""); `label` keeps naming the menu for AT. -->
+      <!-- Menu bar. shell/menu-bar.ts inserts the front application's menus
+           (src/apps/<id>/menus.html) after the Apple menu and removes the
+           previous application's. A detached menu has no shortcuts. `shortcuts`
+           turns each item's shortcut attribute into a key equivalent (Ctrl for
+           ⌘ off-Mac). -->
+      <vf-menu-bar shortcuts>
+        <!-- The Apple menu, present in every application. The six-color apple
+             is 16×16 pixel art, decorative; `label` names the menu. After the
+             rule come the items applications install (Desktop Patterns). -->
         <vf-menu id="menu-apple" label="Apple">
           <vf-img slot="label" width="16" height="16">
             <img src="/icons/apple.png" alt="" />
           </vf-img>
-          <vf-menu-item value="about">About This Macintosh…</vf-menu-item>
-        </vf-menu>
-        <vf-menu id="menu-file" label="File">
-          <vf-menu-item value="new-window" shortcut="⌘N">New Window</vf-menu-item>
-          <vf-menu-item value="open" shortcut="⌘O">Open…</vf-menu-item>
+          <vf-menu-item value="about">About system7web…</vf-menu-item>
           <vf-separator></vf-separator>
-          <vf-menu-item value="close" shortcut="⌘W">Close</vf-menu-item>
-          <vf-menu-item value="page-setup">Page Setup…</vf-menu-item>
-          <vf-menu-item disabled shortcut="⌘P">Print</vf-menu-item>
-          <vf-separator></vf-separator>
-          <vf-menu-item value="quit" shortcut="⌘Q">Quit</vf-menu-item>
         </vf-menu>
-        <vf-menu id="menu-edit" label="Edit">
-          <vf-menu-item shortcut="⌘Z">Undo</vf-menu-item>
-          <vf-separator></vf-separator>
-          <vf-menu-item shortcut="⌘X">Cut</vf-menu-item>
-          <vf-menu-item shortcut="⌘C">Copy</vf-menu-item>
-          <vf-menu-item shortcut="⌘V">Paste</vf-menu-item>
-          <vf-separator></vf-separator>
-          <vf-menu-item value="preferences">Preferences…</vf-menu-item>
-        </vf-menu>
-        <vf-menu id="menu-view" label="View">
-          <vf-menu-item checked value="by-icon">by Icon</vf-menu-item>
-          <vf-menu-item value="by-small-icon">by Small Icon</vf-menu-item>
-          <vf-menu-item value="by-name">by Name</vf-menu-item>
-        </vf-menu>
-        <vf-menu id="menu-special" label="Special">
-          <vf-menu-item value="restart">Restart</vf-menu-item>
-          <vf-menu-item value="shut-down">Shut Down</vf-menu-item>
-          <vf-menu-item value="erase-disk">Erase Disk…</vf-menu-item>
-          <vf-separator></vf-separator>
-          <vf-menu-item value="show-all">Show All Windows</vf-menu-item>
-        </vf-menu>
+        <!-- The front application's menus are inserted here. -->
+        <!-- Menu bar clock. desktop.css puts it at the bar's right end;
+             shell/clock.ts writes the time. -->
+        <vf-label id="clock"></vf-label>
       </vf-menu-bar>
 
-      <!-- =================== "Format" dialog-style window =============== -->
-      <!-- Movable-modal lookalike; main.ts sets closable=false, so its own
-           Cancel/Format buttons are how it dismisses. -->
-      <vf-window id="win-format" heading="Format" movable hidden width="470" height="252">
-        <vf-stack fill-width gap="18">
-          <!-- place="start": the cross axis of a row is vertical, and these two
-               columns start at the top. (A row's own default is center, which
-               is what a caption beside a control wants.) -->
-          <vf-stack direction="row" gap="32" place="start">
-            <vf-stack gap="8">
-              <vf-label id="format-mode-label">Mode</vf-label>
-              <!-- Each option is a row stack: the radio fills, so its ⌘ key
-                   caption lands on the column's right edge — the group's
-                   right-aligned shortcut column, said in stacks. The group
-                   doesn't stack wrapped radios (only directly slotted ones),
-                   so the column restates its 6px rhythm. The key rides
-                   outside the radio's label: a shortcut is a hint, not part
-                   of the option's name. -->
-              <vf-radio-group
-                value="hierarchical"
-                name="mode"
-                aria-labelledby="format-mode-label"
-              >
-                <vf-stack gap="6">
-                  <vf-stack fill-width direction="row" gap="16">
-                    <vf-radio fill-width value="hierarchical"
-                      >Hierarchical</vf-radio
-                    >
-                    <vf-label>⌘H</vf-label>
-                  </vf-stack>
-                  <vf-stack fill-width direction="row" gap="16">
-                    <vf-radio fill-width value="by-level">By Level</vf-radio>
-                    <vf-label>⌘L</vf-label>
-                  </vf-stack>
-                  <vf-radio fill-width value="source-profile" disabled
-                    >Source Format Profile</vf-radio
-                  >
-                  <vf-stack fill-width direction="row" gap="16">
-                    <vf-radio fill-width value="dont-reorganize"
-                      >Don’t Reorganize</vf-radio
-                    >
-                    <vf-label>⌘R</vf-label>
-                  </vf-stack>
-                </vf-stack>
-              </vf-radio-group>
-              <!-- pad is the 12px this box used to carry as a margin-top, on
-                   top of the column's own 8px gap. -->
-              <vf-stack pad="12 0 0">
-                <vf-checkbox disabled>Selection Only</vf-checkbox>
-              </vf-stack>
-            </vf-stack>
-            <vf-stack gap="8">
-              <vf-label>Options</vf-label>
-              <vf-stack gap="10">
-                <vf-checkbox checked>Include Styles</vf-checkbox>
-                <vf-checkbox checked>Include Rulers</vf-checkbox>
-                <vf-checkbox checked>Preserve Line Breaks</vf-checkbox>
-              </vf-stack>
+      <!-- Desktop icon field. Filled, not placed, so icon positions stay
+           relative to the desktop raster and the rubber band has a surface to
+           press. apps/finder/icons.ts renders the desktop's icons into it. -->
+      <vf-icon-field id="desktop-icons" label="Desktop" fill-width fill-height></vf-icon-field>
+
+      <!-- Dialogs. The body is width − 10 by height − 10 for frame="plain".
+           Content sits 16 in from the body's top-left, and a button group's
+           origin corner 16 in from the matching body corner. -->
+
+      <!-- About box, also the boot greeting (main.ts). shell/menu-bar.ts fills
+           the version and date. Show at startup saves on change, not on OK, so
+           a light-dismiss click keeps it. -->
+      <vf-dialog
+        id="dlg-about"
+        frame="plain"
+        label="About system7web"
+        light-dismiss
+        width="464"
+        height="198"
+      >
+        <vf-stack width="416" gap="8" left="16" top="16">
+          <vf-stack direction="row" gap="8" place="start">
+            <vf-img width="32" height="32">
+              <img src="/icons/app-icon.png" alt="" />
+            </vf-img>
+            <vf-stack>
+              <vf-label>system7web</vf-label>
+              <vf-label face="body"
+                ><span id="about-version"></span> &nbsp; <span id="about-date"></span
+              ></vf-label>
+              <vf-label face="body">created by Adam Portilla</vf-label>
             </vf-stack>
           </vf-stack>
-          <!-- The action row: a column filled to the panel, its one child
-               parked at the end of that width. -->
-          <vf-stack fill-width place="end">
-            <vf-button-group>
-              <vf-button id="btn-format-cancel">Cancel ⌘.</vf-button>
-              <vf-button id="btn-format-ok" variant="default">Format</vf-button>
-            </vf-button-group>
+          <vf-stack gap="16">
+            <vf-paragraph face="body">
+              A classic Macintosh desktop in the browser: a Finder, windows, and a
+              handful of applications, drawn on the 1-bit grid at true 72dpi size.
+            </vf-paragraph>
+            <vf-paragraph face="body">
+              Every piece of it is a Vintage Frames component, the System 7 kit
+              published on npm.
+            </vf-paragraph>
           </vf-stack>
         </vf-stack>
-      </vf-window>
-
-      <!-- ================= "Controls" kitchen-sink window =============== -->
-      <vf-window id="win-controls" heading="Controls" movable hidden width="590" height="513">
-        <!-- Two columns as a row of stacks with a stated split (294 + fill),
-             not a 1fr grid: a 1fr track resolves wherever the viewport puts
-             it — a fractional-CSS box, off the device-pixel grid the layout
-             contract (rule 3) asks every container to stay on. The stated
-             split keeps both columns whole at any window position. -->
-        <vf-stack fill-width direction="row" gap="16" place="start">
-          <vf-stack width="294" gap="10">
-            <vf-fieldset fill-width legend="Text">
-              <vf-stack fill-width gap="10">
-                <!-- vf-label `for` does what a native <label for> does: click
-                     to focus, and the caption becomes the control's accessible
-                     name — which is why these fields carry no `label` attr.
-                     `width` gives the caption column one whole-pixel x for
-                     every field to start from (layout contract rule 3). -->
-                <vf-stack fill-width direction="row" gap="8">
-                  <vf-label width="80" for="ctl-name">Name:</vf-label>
-                  <vf-text-field
-                    fill-width
-                    id="ctl-name"
-                    name="name"
-                    value="Macintosh HD"
-                    placeholder="Untitled"
-                  ></vf-text-field>
-                </vf-stack>
-                <vf-stack fill-width direction="row" gap="8">
-                  <vf-label width="80" for="ctl-password"
-                    >Password:</vf-label
-                  >
-                  <vf-text-field
-                    fill-width
-                    id="ctl-password"
-                    type="password"
-                    name="password"
-                    value="hunter2"
-                  ></vf-text-field>
-                </vf-stack>
-                <vf-stack fill-width direction="row" gap="8">
-                  <vf-label width="80" for="ctl-notes">Notes:</vf-label>
-                  <vf-text-area
-                    fill-width
-                    id="ctl-notes"
-                    rows="3"
-                    name="notes"
-                    value="The city in the middle of the water."
-                  ></vf-text-area>
-                </vf-stack>
-                <!-- vf-number-field is the kit's one odd-height control —
-                     25 system px, its little-arrows sprite's native size — so
-                     a row centering the 16px caption against it lands on a
-                     half pixel, and no container can round that. Sit the
-                     caption beside the field's own 22px well instead: 1px
-                     (the well's optical-centering bias, see vf-number-field)
-                     + 3px, stated as a padded stack rather than nudged in
-                     page CSS. hit-list.md files the 25px height as the
-                     underlying fault. -->
-                <vf-stack fill-width direction="row" gap="8" place="start">
-                  <vf-stack pad="4 0 0">
-                    <vf-label width="80" for="ctl-copies">Copies:</vf-label>
-                  </vf-stack>
-                  <vf-number-field
-                    id="ctl-copies"
-                    name="copies"
-                    value="1"
-                    min="1"
-                    max="99"
-                  ></vf-number-field>
-                </vf-stack>
-              </vf-stack>
-            </vf-fieldset>
-            <!-- A progress bar and a slider are drawn as a track that IS the
-                 width, so they're the panel's width rather than their own —
-                 fill-width is that, said once per box. -->
-            <vf-fieldset fill-width legend="Progress">
-              <vf-stack fill-width gap="10">
-                <vf-progress-bar
-                  fill-width
-                  id="progress-demo"
-                  value="0"
-                  max="100"
-                ></vf-progress-bar>
-                <vf-progress-bar fill-width indeterminate></vf-progress-bar>
-              </vf-stack>
-            </vf-fieldset>
-            <vf-fieldset fill-width legend="Volume">
-              <vf-stack fill-width gap="10">
-                <vf-stack fill-width direction="row" gap="8">
-                  <!-- The slider names itself, so this caption only wires up
-                       the click-to-focus half; vf-label never overwrites a
-                       `label` the consumer set. -->
-                  <vf-label width="80" for="slider-demo">Level:</vf-label>
-                  <vf-slider
-                    fill-width
-                    id="slider-demo"
-                    name="volume"
-                    value="40"
-                    min="0"
-                    max="100"
-                    label="Volume level"
-                  ></vf-slider>
-                  <vf-label width="80" id="slider-readout">40</vf-label>
-                </vf-stack>
-                <vf-slider
-                  fill-width
-                  value="70"
-                  disabled
-                  label="Balance"
-                ></vf-slider>
-              </vf-stack>
-            </vf-fieldset>
-            <vf-fieldset fill-width legend="Swatches">
-              <!-- vf-swatch: the white-inset color well, "basically a
-                   button". The six-color palette, then a colorless cell
-                   showing the transparency checker. Flat, the default — a row
-                   of wells all shadowing each other reads as noise; `shadow`
-                   raises the lone well that stands in for a current color. -->
-              <!-- The gap stays larger than --vf-shadow-offset, so the row
-                   still reads if a swatch opts into `shadow`, which paints
-                   outside its box. -->
-              <vf-stack direction="row" gap="8">
-                <vf-swatch color="#61bb46" label="Green"></vf-swatch>
-                <vf-swatch color="#fdb827" label="Yellow"></vf-swatch>
-                <vf-swatch color="#f5821f" label="Orange"></vf-swatch>
-                <vf-swatch color="#e03a3e" label="Red"></vf-swatch>
-                <vf-swatch color="#963d97" label="Purple"></vf-swatch>
-                <vf-swatch color="#009ddc" label="Blue"></vf-swatch>
-                <vf-swatch label="No color"></vf-swatch>
-              </vf-stack>
-            </vf-fieldset>
-            <!-- A rule has no width of its own to be as wide as; fill-width is
-                 what makes it the panel's. -->
-            <vf-separator fill-width></vf-separator>
-            <!-- The button showcase: natural widths, and the three fit the
-                 294 column with room to spare — with the window a fixed box
-                 there is no narrow panel to reflow for. -->
-            <vf-button-group natural>
-              <vf-button>Button</vf-button>
-              <vf-button variant="default">Default</vf-button>
-              <vf-button disabled>Disabled</vf-button>
-            </vf-button-group>
-          </vf-stack>
-          <vf-separator vertical fill-height></vf-separator>
-          <vf-stack fill-width gap="10">
-            <vf-fieldset fill-width legend="Desk Accessories">
-              <!-- Each row's `icon` slot carries the DA's 16×16 System 7 small
-                   icon as a vf-img — real raster crops from the reference
-                   art, decorative (alt=""). -->
-              <vf-list
-                fill-width
-                multiple
-                class="da-list"
-                aria-label="Desk accessories"
-              >
-                <vf-list-item value="alarm-clock" selected>
-                  <vf-img slot="icon" width="16" height="16">
-                    <img src="/icons/alarm-clock.png" alt="" />
-                  </vf-img>
-                  Alarm Clock
-                </vf-list-item>
-                <vf-list-item value="battery" disabled>
-                  <vf-img slot="icon" width="16" height="16">
-                    <img src="/icons/battery.png" alt="" />
-                  </vf-img>
-                  Battery
-                </vf-list-item>
-                <vf-list-item value="calculator" selected>
-                  <vf-img slot="icon" width="16" height="16">
-                    <img src="/icons/calculator.png" alt="" />
-                  </vf-img>
-                  Calculator
-                </vf-list-item>
-                <vf-list-item value="chooser">
-                  <vf-img slot="icon" width="16" height="16">
-                    <img src="/icons/chooser.png" alt="" />
-                  </vf-img>
-                  Chooser
-                </vf-list-item>
-                <vf-list-item value="control-panels">
-                  <vf-img slot="icon" width="16" height="16">
-                    <img src="/icons/control-panels.png" alt="" />
-                  </vf-img>
-                  Control Panels
-                </vf-list-item>
-                <vf-list-item value="key-caps">
-                  <vf-img slot="icon" width="16" height="16">
-                    <img src="/icons/key-caps.png" alt="" />
-                  </vf-img>
-                  Key Caps
-                </vf-list-item>
-                <vf-list-item value="note-pad">
-                  <vf-img slot="icon" width="16" height="16">
-                    <img src="/icons/note-pad.png" alt="" />
-                  </vf-img>
-                  Note Pad
-                </vf-list-item>
-                <vf-list-item value="puzzle">
-                  <vf-img slot="icon" width="16" height="16">
-                    <img src="/icons/puzzle.png" alt="" />
-                  </vf-img>
-                  Puzzle
-                </vf-list-item>
-                <vf-list-item value="scrapbook">
-                  <vf-img slot="icon" width="16" height="16">
-                    <img src="/icons/scrapbook.png" alt="" />
-                  </vf-img>
-                  Scrapbook
-                </vf-list-item>
-              </vf-list>
-            </vf-fieldset>
-            <vf-fieldset fill-width legend="Scroll Area">
-              <!-- The well's height is the demo's choice, not the
-                   component's, so a height-declared stack states it in
-                   system px and fill-height hands it down — a filled child
-                   may shrink below its content, which is what makes the
-                   overflow this demo is for. -->
-              <vf-stack fill-width height="130">
-                <vf-scroll-area fill-width fill-height>
-                  <!-- pad keeps the trailing 10px the old per-paragraph
-                       margin-bottom put below the last one, so the scrolled
-                       document is the same height it always was. -->
-                  <vf-stack fill-width gap="10" pad="0 0 10">
-                    <vf-paragraph>
-                      There is a special kind of quiet in a freshly formatted
-                      hard disk: 58,616K of nothing at all, waiting for a
-                      System Folder.
-                    </vf-paragraph>
-                    <vf-paragraph>
-                      Drag the thumb, press the arrows, or click in the
-                      dithered track — the scrollbar is the whole show here. In
-                      1991 this was the state of the art, and honestly it still
-                      holds up.
-                    </vf-paragraph>
-                    <vf-paragraph>
-                      Remember to rebuild your desktop file once in a while,
-                      keep a spare startup floppy in the drawer, and never,
-                      ever unplug a SCSI chain while the machine is on.
-                    </vf-paragraph>
-                    <vf-paragraph>
-                      If you can read this line without scrolling, your window
-                      has been zoomed generously. Well done.
-                    </vf-paragraph>
-                  </vf-stack>
-                </vf-scroll-area>
-              </vf-stack>
-            </vf-fieldset>
-            <vf-fieldset fill-width legend="Disabled">
-              <vf-stack fill-width gap="10">
-                <vf-checkbox disabled checked>Checked but dimmed</vf-checkbox>
-                <vf-text-field
-                  disabled
-                  value="Can’t touch this"
-                ></vf-text-field>
-                <vf-select disabled value="Geneva">
-                  <vf-option>Geneva</vf-option>
-                  <vf-option>Chicago</vf-option>
-                  <vf-option>Monaco</vf-option>
-                </vf-select>
-              </vf-stack>
-            </vf-fieldset>
-          </vf-stack>
-        </vf-stack>
-      </vf-window>
-
-      <!-- ================ "DragThing 2.9 Installer" window ============== -->
-      <vf-window id="win-installer" heading="DragThing 2.9 Installer" movable zoomable hidden width="560" height="370">
-        <vf-stack fill-width gap="10">
-          <!-- The well's height is the demo's choice, not the component's: a
-               height-declared stack states it in system px and fill-height
-               hands it down. -->
-          <vf-stack fill-width height="190">
-            <vf-scroll-area fill-width fill-height class="installer-well">
-              <vf-stack fill-width gap="10">
-                <vf-paragraph>Welcome to the installer for DragThing 2.9!</vf-paragraph>
-                <vf-paragraph>
-                  DragThing is the original dock: it tidies the icons on your
-                  desktop into tabbed, floating palettes.
-                </vf-paragraph>
-                <ul>
-                  <li>Requires System 7.0 or later.</li>
-                  <li>Native on both 68K and Power Macintosh.</li>
-                  <li>Registration is US$25 — see the enclosed Read Me.</li>
-                </ul>
-                <vf-paragraph>
-                  Click Install to place DragThing, its documentation, and some
-                  sample docks on your hard disk.
-                </vf-paragraph>
-              </vf-stack>
-            </vf-scroll-area>
-          </vf-stack>
-          <!-- The spec's fine print (SPEC §7.2): the body face — System 7's
-               fine print is Geneva 9 at its own strike size. -->
-          <vf-stack fill-width gap="2" pad="0 2">
-            <vf-label fill-width face="body"
-              >Disk space available: 58,616K</vf-label
-            >
-            <vf-label fill-width face="body"
-              >Approximate disk space needed: 4,584K</vf-label
-            >
-          </vf-stack>
-          <vf-stack fill-width direction="row" gap="20" place="end">
-            <vf-fieldset fill-width legend="Install Location">
-              <vf-stack fill-width gap="8">
-                <vf-paragraph>
-                  Items will be installed in the folder “DragThing 2.9” on the
-                  disk
-                </vf-paragraph>
-                <vf-select name="disk" value="Macintosh HD">
-                  <vf-option>Macintosh HD</vf-option>
-                  <vf-option>External HD</vf-option>
-                  <vf-option disabled>Locked Floppy</vf-option>
-                  <vf-option>Select Folder…</vf-option>
-                </vf-select>
-              </vf-stack>
-            </vf-fieldset>
-            <vf-button-group vertical class="installer-actions">
-              <vf-button id="btn-quit">Quit</vf-button>
-              <vf-button id="btn-install" variant="default">Install</vf-button>
-            </vf-button-group>
-          </vf-stack>
-        </vf-stack>
-      </vf-window>
-
-      <!-- ============= "New HTML Document" modal dialog (BBEdit) ========= -->
-      <!-- Movable modal lookalike; main.ts sets closable=false (no close
-           box), so OK and Cancel are how it dismisses. -->
-      <vf-window id="win-newdoc" heading="New HTML Document" movable hidden width="480" height="368">
-        <vf-stack fill-width gap="12">
-          <vf-stack direction="row" gap="10">
-            <vf-checkbox checked>Insert DOCTYPE</vf-checkbox>
-            <!-- No `fill-width`: the popup hugs its widest option. -->
-            <vf-select value="HTML 3.2" label="DOCTYPE">
-              <vf-option>HTML 2.0</vf-option>
-              <vf-option>HTML 3.2</vf-option>
-              <vf-option>HTML 4.0</vf-option>
-              <vf-option>HTML 4.0 Transitional</vf-option>
-            </vf-select>
-          </vf-stack>
-
-          <vf-separator fill-width class="newdoc-rule"></vf-separator>
-
-          <!-- HTML / Head / Body sit in a loosely-spaced row. -->
-          <vf-stack direction="row" gap="28">
-            <vf-checkbox checked>HTML</vf-checkbox>
-            <vf-checkbox checked>Head</vf-checkbox>
-            <vf-checkbox checked>Body</vf-checkbox>
-          </vf-stack>
-          <vf-stack direction="row" gap="10">
-            <vf-checkbox checked>Give BBEdit Credit</vf-checkbox>
-          </vf-stack>
-
-          <vf-separator fill-width class="newdoc-rule"></vf-separator>
-
-          <!-- An aligned caption column beside filling fields. Each row is
-               filled to the panel, and the field takes what the caption
-               leaves. -->
-          <vf-stack fill-width gap="8">
-            <vf-stack fill-width direction="row" gap="8">
-              <vf-label width="48" for="newdoc-title">Title:</vf-label>
-              <vf-text-field
-                fill-width
-                id="newdoc-title"
-                value="Untitled"
-              ></vf-text-field>
-              <!-- pad is the 12px this box stands off beyond the row's own
-                   8px gap. -->
-              <vf-stack pad="0 0 0 12">
-                <vf-checkbox>Is Index</vf-checkbox>
-              </vf-stack>
-            </vf-stack>
-            <vf-stack fill-width direction="row" gap="8">
-              <vf-label width="48" for="newdoc-base">Base:</vf-label>
-              <vf-text-field fill-width id="newdoc-base"></vf-text-field>
-            </vf-stack>
-            <vf-stack fill-width direction="row" gap="8">
-              <vf-label width="48" for="newdoc-meta">Meta:</vf-label>
-              <vf-text-field fill-width id="newdoc-meta"></vf-text-field>
-            </vf-stack>
-            <vf-stack fill-width direction="row" gap="8">
-              <vf-label width="48" for="newdoc-link">Link:</vf-label>
-              <vf-text-field fill-width id="newdoc-link"></vf-text-field>
-            </vf-stack>
-          </vf-stack>
-
-          <vf-separator fill-width class="newdoc-rule"></vf-separator>
-
-          <vf-stack direction="row" gap="10">
-            <!-- Naturally wider than the 48px caption column above, so it
-                 keeps its own width rather than being clipped by one. -->
-            <vf-label for="newdoc-template">Template:</vf-label>
-            <vf-select id="newdoc-template" value="Default">
-              <vf-option>Default</vf-option>
-              <vf-option>(None)</vf-option>
-            </vf-select>
-            <!-- pad is the 24px this box stands off beyond the row's own
-                 10px gap. -->
-            <vf-stack pad="0 0 0 24">
-              <vf-checkbox checked>Create New Window</vf-checkbox>
-            </vf-stack>
-          </vf-stack>
-
-          <!-- pad is the 4px this row used to carry as a margin-top, on top of
-               the column's own 12px gap. -->
-          <vf-stack fill-width place="end" pad="4 0 0">
-            <vf-button-group>
-              <vf-button id="btn-newdoc-cancel">Cancel</vf-button>
-              <vf-button id="btn-newdoc-ok" variant="default">OK</vf-button>
-            </vf-button-group>
-          </vf-stack>
-        </vf-stack>
-      </vf-window>
-
-      <!-- ================= "Find File" modeless dialog box ============== -->
-      <!-- The modeless-dialog-box archetype recipe (docs/LAYOUT.md "Window
-           archetypes"): close box + movable, no zoom box, grow box or scroll
-           rails — a dialog that floats among the document windows and can be
-           put away any time. Find is the HIG's own canonical example. -->
-      <vf-window id="win-find" heading="Find File" movable hidden width="440" height="156">
-        <vf-stack fill-width gap="12">
-          <!-- "Find items [on local disks ▼] whose" — the popup hugs its
-               widest option, so no `fill-width` on it. -->
-          <vf-stack direction="row" gap="10">
-            <vf-label for="find-scope">Find items</vf-label>
-            <vf-select id="find-scope" value="on local disks">
-              <vf-option>on all disks</vf-option>
-              <vf-option>on local disks</vf-option>
-              <vf-option>on the desktop</vf-option>
-            </vf-select>
-            <vf-label>whose</vf-label>
-          </vf-stack>
-
-          <!-- The criteria well: layout here, the dotted hairline frame in
-               desktop.css. -->
-          <vf-stack
-            fill-width
-            direction="row"
-            gap="10"
-            pad="10"
-            class="find-criteria"
+        <vf-checkbox id="about-greet" origin="center left" left="16" top="158"
+          >Show at startup</vf-checkbox
+        >
+        <vf-button-group origin="bottom right" left="438" top="172">
+          <vf-button
+            href="https://www.npmjs.com/package/vintage-frames"
+            target="_blank"
+            rel="noopener"
+            >Vintage Frames</vf-button
           >
-            <vf-select value="name" label="Attribute">
-              <vf-option>name</vf-option>
-              <vf-option>size</vf-option>
-              <vf-option>kind</vf-option>
-              <vf-option>date modified</vf-option>
-              <vf-option>label</vf-option>
-            </vf-select>
-            <vf-select value="contains" label="Comparison">
-              <vf-option>contains</vf-option>
-              <vf-option>starts with</vf-option>
-              <vf-option>ends with</vf-option>
-              <vf-option>is</vf-option>
-              <vf-option>is not</vf-option>
-            </vf-select>
-            <vf-text-field fill-width value="hello" label="Value"></vf-text-field>
-          </vf-stack>
-
-          <!-- More Choices on the left, the default Find button on the right.
-               The slack between them has to belong to something, so it belongs
-               to an empty stack — the two buttons keep their own widths. -->
-          <vf-stack fill-width direction="row">
-            <vf-button>More Choices</vf-button>
-            <vf-stack fill-width></vf-stack>
-            <!-- Find puts the dialog away, as System 7's Find did when the
-                 search ran. -->
-            <vf-button id="btn-find" variant="default">Find</vf-button>
-          </vf-stack>
-        </vf-stack>
-      </vf-window>
-
-      <!-- =============== Photoshop "New" document dialog =============== -->
-      <!-- Another movable-modal lookalike (closable=false in main.ts):
-           OK/Cancel dismiss. -->
-      <vf-window id="win-newimage" heading="New" movable hidden width="470" height="338">
-        <vf-stack fill-width direction="row" gap="16" place="start">
-          <vf-stack fill-width gap="12">
-            <vf-stack fill-width direction="row" gap="8">
-              <vf-label for="newimage-name">Name:</vf-label>
-              <vf-text-field
-                fill-width
-                id="newimage-name"
-                value="Untitled-1"
-              ></vf-text-field>
-            </vf-stack>
-
-            <vf-fieldset fill-width legend="Image Size: 532K">
-              <!-- Every row shares the same caption width, so all four fields
-                   land on one x. -->
-              <vf-stack fill-width gap="8">
-                <vf-stack direction="row" gap="8">
-                  <vf-label width="92" for="newimage-width">Width:</vf-label>
-                  <vf-text-field
-                    id="newimage-width"
-                    class="newimage-num"
-                    value="7"
-                  ></vf-text-field>
-                  <vf-select value="inches" label="Width units">
-                    <vf-option>pixels</vf-option>
-                    <vf-option>inches</vf-option>
-                    <vf-option>cm</vf-option>
-                    <vf-option>points</vf-option>
-                    <vf-option>picas</vf-option>
-                  </vf-select>
-                </vf-stack>
-                <vf-stack direction="row" gap="8">
-                  <vf-label width="92" for="newimage-height">Height:</vf-label>
-                  <vf-text-field
-                    id="newimage-height"
-                    class="newimage-num"
-                    value="5"
-                  ></vf-text-field>
-                  <vf-select value="inches" label="Height units">
-                    <vf-option>pixels</vf-option>
-                    <vf-option>inches</vf-option>
-                    <vf-option>cm</vf-option>
-                    <vf-option>points</vf-option>
-                    <vf-option>picas</vf-option>
-                  </vf-select>
-                </vf-stack>
-                <vf-stack direction="row" gap="8">
-                  <vf-label width="92" for="newimage-res">Resolution:</vf-label>
-                  <vf-text-field
-                    id="newimage-res"
-                    class="newimage-num"
-                    value="72"
-                  ></vf-text-field>
-                  <vf-select value="pixels/inch" label="Resolution units">
-                    <vf-option>pixels/inch</vf-option>
-                    <vf-option>pixels/cm</vf-option>
-                  </vf-select>
-                </vf-stack>
-                <vf-stack direction="row" gap="8">
-                  <vf-label width="92" for="newimage-mode">Mode:</vf-label>
-                  <vf-select id="newimage-mode" value="RGB Color">
-                    <vf-option>Bitmap</vf-option>
-                    <vf-option>Grayscale</vf-option>
-                    <vf-option>RGB Color</vf-option>
-                    <vf-option>CMYK Color</vf-option>
-                    <vf-option>Lab Color</vf-option>
-                  </vf-select>
-                </vf-stack>
-              </vf-stack>
-            </vf-fieldset>
-
-            <vf-fieldset fill-width legend="Contents">
-              <vf-radio-group value="white" name="contents">
-                <vf-radio value="white">White</vf-radio>
-                <vf-radio value="background">Background Color</vf-radio>
-                <vf-radio value="transparent">Transparent</vf-radio>
-              </vf-radio-group>
-            </vf-fieldset>
-          </vf-stack>
-
-          <vf-button-group vertical class="newimage-actions">
-            <vf-button id="btn-newimage-ok" variant="default">OK</vf-button>
-            <vf-button id="btn-newimage-cancel">Cancel</vf-button>
-          </vf-button-group>
-        </vf-stack>
-      </vf-window>
-
-      <!-- ================ "Character Set" specimen window =============== -->
-      <!-- One face at a time, from the whole imported strike collection: a
-           Font and a Size popup resolve to a woff2 under
-           public/fonts/imported/ (each strike is its own family — CSS can't
-           pick a bitmap strike by size), loaded on demand and rendered at its
-           native rect with smoothing off. The specimen lists exactly what the
-           strike's cmap carries, so every character is the face's own ink —
-           never a system-font fallback. main.ts populates the pickers from
-           src/charset-manifest.ts (generated by fonts/charset-manifest.py);
-           the woff2s are tracked and served straight out of public/, and the
-           panel explains itself if a strike is missing. The specimen rows are
-           vf-paragraph elements: the pick writes the font tokens and the
-           strike's native pitch (--vf-paragraph-line-height, from the
-           manifest — measured where established, the rect otherwise), so
-           the rows sit on the line rhythm a real Mac gave that face. -->
-      <vf-window id="win-charset" heading="Character Set" movable zoomable hidden width="700" height="400">
-        <vf-stack fill-width gap="12">
-          <vf-stack fill-width direction="row" gap="24">
-            <vf-stack direction="row" gap="8">
-              <vf-label for="charset-font">Font:</vf-label>
-              <vf-select id="charset-font"></vf-select>
-            </vf-stack>
-            <vf-stack direction="row" gap="8">
-              <vf-label for="charset-size">Size:</vf-label>
-              <vf-select id="charset-size"></vf-select>
-            </vf-stack>
-          </vf-stack>
-          <vf-fieldset fill-width legend="Specimen" id="charset-panel">
-            <vf-stack fill-width gap="6">
-              <!-- The well's height is the demo's choice, not the
-                   component's: a height-declared stack states it in system
-                   px and fill-height hands it down. -->
-              <vf-stack fill-width height="230">
-                <vf-scroll-area
-                  fill-width
-                  fill-height
-                  axis="vertical"
-                  label="Specimen"
-                >
-                  <div class="charset" id="charset-specimen"></div>
-                </vf-scroll-area>
-              </vf-stack>
-              <!-- The count is fine print (face="body" dim), parked at the
-                   panel's end. The body face's advances are whole system px,
-                   so the end-aligned box still lands on the grid. -->
-              <vf-stack fill-width place="end">
-                <vf-label face="body" dim id="charset-count"></vf-label>
-              </vf-stack>
-            </vf-stack>
-          </vf-fieldset>
-          <vf-paragraph fill-width>
-            Faces are named by their size-menu point size; the Espy, eWorld,
-            System, SwanSong, Mobile and Taliesin strikes go by pixel line
-            height instead, their point size undetermined (fonts/README.md).
-          </vf-paragraph>
-        </vf-stack>
-      </vf-window>
-
-      <!-- ================ "DragThing Read Me" (TeachText) =============== -->
-      <!-- The document-window archetype at full anatomy: the Read Me the
-           installer copy points at, as TeachText would open it — a document
-           wider AND taller than its window (white-space: pre keeps the
-           author's line breaks). scrollbars="both" renders the body inside
-           the window's own edge-mounted scroll area (the TeachText
-           composition, internalized — SPEC §5 vf-window), so the rails sit
-           in the frame itself and the grow box lands in the scrollbar
-           corner. Drag the grow box: each rail fills in only while its own
-           axis overflows. (The slotted vf-scroll-area form this window used
-           to hand-roll still works — the installer's read-me well keeps it,
-           inset.) -->
-      <vf-window
-        id="win-readme"
-        heading="DragThing Read Me"
-        movable
-        resizable
-        scrollbars="both"
-        hidden
-        width="420"
-        height="320"
-      >
-<pre class="readme-doc">
-DRAGTHING 2.9 — READ ME                                          17 July 1996
-
-Thank you for trying DragThing, the original dock for the Macintosh.
-
-WHAT’S NEW IN 2.9
-• Docks can snap to any edge of the screen, and remember where they were.
-• Option-dragging an item onto an occupied tile now swaps the two items.
-• The Trash can live in a dock. Drag it out of the corner at last.
-• Sounds! Docks click, snap and whoosh. Preferences can silence them.
-
-REQUIREMENTS
-DragThing requires System 7.0 or later and about 900K of disk space.
-It is native on both 68K and Power Macintosh.
-
-INSTALLING
-Run the enclosed installer, or drag the DragThing folder onto your hard
-disk yourself. Neither touches your System Folder.
-
-REGISTERING
-DragThing is shareware: US$25. Registered users get a code that removes
-the startup reminder, plus free updates through the whole 2.x series.
-
-KNOWN PROBLEMS
-• After Dark’s “Boris” module steals mouse clicks from floating docks.
-• RAM Doubler 1.5.2 with virtual memory ON can slow tile dragging badly.
-
-Resize this window with the grow box: a scroll bar fills in only while
-its axis actually overflows — grow the window until a rail empties out,
-shrink it and watch the arrows come back.
-</pre>
-      </vf-window>
-
-      <!-- ================ Launcher icons for every window ================ -->
-      <!-- One vf-icon per demonstration window and dialog, on a 3×4 grid at a
-           110×60 system-px pitch: columns at 24/134/244 and rows at
-           40/100/160/220, clustered around the top-left so the whole set stays
-           on-canvas at any viewport size or density (~330×270, inside even a 1×
-           1440×900 viewport's ~480×300 canvas). An icon's one-line name
-           straddles its 64px cell, so the column pitch is what keeps
-           neighbours' names clear of each other. The placement is `left`/`top`
-           on each icon, in system px — never CSS: a drag writes back through
-           those same two properties, so an authored icon and a moved one are
-           the same declaration. The windows themselves start hidden. Double-click — anywhere on the icon,
-           its name included — or ⌘O / ⌘↓ fires `vf-open`, and
-           main.ts opens whatever data-opens names; Return starts a rename
-           instead, as the Finder's did, since every icon on this desktop is
-           `editable`. Placeholder art on all of them for now, slotted at both
-           resource sizes so View → by Small Icon swaps these too. -->
-      <!-- The field of icons is one listbox, and that is not decoration: an
-           `option` is only meaningful inside a container that owns it, so an
-           unowned selectable icon degrades to `role="img"` and its selection
-           state reaches assistive tech nowhere. Declaring the owner here is what
-           makes the desktop's selection announceable — one selection domain
-           across every icon, which is already how the icons behave (a press
-           anywhere else deselects). vf-desktop itself cannot BE the listbox: it
-           also holds windows and a menu bar, and a non-option child of a listbox
-           is invalid the same way the orphaned option was. Note the divergence
-           from APG's listbox, which ropes its options into a single roving tab
-           stop: these stay one tab stop each, the way a Finder icon is reached
-           on its own. -->
-      <div
-        class="desktop-icons"
-        role="listbox"
-        aria-multiselectable="true"
-        aria-label="Desktop"
-      >
-        <vf-icon
-          id="icon-installer"
-          label="Installer"
-          width="64"
-          left="24"
-          top="40"
-          selectable
-          movable
-          editable
-          data-opens="win-installer"
-        >
-          <vf-img slot="large"><img src="/icons/app-icon.png" alt="" /></vf-img>
-          <vf-img slot="small"><img src="/icons/app-icon-small.png" alt="" /></vf-img>
-        </vf-icon>
-        <vf-icon
-          id="icon-readme"
-          label="Read Me"
-          width="64"
-          left="24"
-          top="100"
-          selectable
-          movable
-          editable
-          data-opens="win-readme"
-        >
-          <vf-img slot="large"><img src="/icons/app-icon.png" alt="" /></vf-img>
-          <vf-img slot="small"><img src="/icons/app-icon-small.png" alt="" /></vf-img>
-        </vf-icon>
-        <vf-icon
-          id="icon-controls"
-          label="Controls"
-          width="64"
-          left="24"
-          top="160"
-          selectable
-          movable
-          editable
-          data-opens="win-controls"
-        >
-          <vf-img slot="large"><img src="/icons/app-icon.png" alt="" /></vf-img>
-          <vf-img slot="small"><img src="/icons/app-icon-small.png" alt="" /></vf-img>
-        </vf-icon>
-        <vf-icon
-          id="icon-format"
-          label="Format"
-          width="64"
-          left="24"
-          top="220"
-          selectable
-          movable
-          editable
-          data-opens="win-format"
-        >
-          <vf-img slot="large"><img src="/icons/app-icon.png" alt="" /></vf-img>
-          <vf-img slot="small"><img src="/icons/app-icon-small.png" alt="" /></vf-img>
-        </vf-icon>
-        <vf-icon
-          id="icon-newdoc"
-          label="New Document"
-          width="64"
-          left="134"
-          top="40"
-          selectable
-          movable
-          editable
-          data-opens="win-newdoc"
-        >
-          <vf-img slot="large"><img src="/icons/app-icon.png" alt="" /></vf-img>
-          <vf-img slot="small"><img src="/icons/app-icon-small.png" alt="" /></vf-img>
-        </vf-icon>
-        <vf-icon
-          id="icon-newimage"
-          label="New Image"
-          width="64"
-          left="134"
-          top="100"
-          selectable
-          movable
-          editable
-          data-opens="win-newimage"
-        >
-          <vf-img slot="large"><img src="/icons/app-icon.png" alt="" /></vf-img>
-          <vf-img slot="small"><img src="/icons/app-icon-small.png" alt="" /></vf-img>
-        </vf-icon>
-        <vf-icon
-          id="icon-find"
-          label="Find File"
-          width="64"
-          left="134"
-          top="160"
-          selectable
-          movable
-          editable
-          data-opens="win-find"
-        >
-          <vf-img slot="large"><img src="/icons/app-icon.png" alt="" /></vf-img>
-          <vf-img slot="small"><img src="/icons/app-icon-small.png" alt="" /></vf-img>
-        </vf-icon>
-        <vf-icon
-          id="icon-charset"
-          label="Character Set"
-          width="64"
-          left="134"
-          top="220"
-          selectable
-          movable
-          editable
-          data-opens="win-charset"
-        >
-          <vf-img slot="large"><img src="/icons/app-icon.png" alt="" /></vf-img>
-          <vf-img slot="small"><img src="/icons/app-icon-small.png" alt="" /></vf-img>
-        </vf-icon>
-        <vf-icon
-          id="icon-tools"
-          label="Desk Accessories"
-          width="64"
-          left="244"
-          top="40"
-          selectable
-          movable
-          editable
-          data-opens="win-tools"
-        >
-          <vf-img slot="large"><img src="/icons/app-icon.png" alt="" /></vf-img>
-          <vf-img slot="small"><img src="/icons/app-icon-small.png" alt="" /></vf-img>
-        </vf-icon>
-        <vf-icon
-          id="icon-about"
-          label="About"
-          width="64"
-          left="244"
-          top="100"
-          selectable
-          movable
-          editable
-          data-opens="dlg-about"
-        >
-          <vf-img slot="large"><img src="/icons/app-icon.png" alt="" /></vf-img>
-          <vf-img slot="small"><img src="/icons/app-icon-small.png" alt="" /></vf-img>
-        </vf-icon>
-        <vf-icon
-          id="icon-pagesetup"
-          label="Page Setup"
-          width="64"
-          left="244"
-          top="160"
-          selectable
-          movable
-          editable
-          data-opens="dlg-pagesetup"
-        >
-          <vf-img slot="large"><img src="/icons/app-icon.png" alt="" /></vf-img>
-          <vf-img slot="small"><img src="/icons/app-icon-small.png" alt="" /></vf-img>
-        </vf-icon>
-        <vf-icon
-          id="icon-erase"
-          label="Erase Disk"
-          width="64"
-          left="244"
-          top="220"
-          selectable
-          movable
-          editable
-          data-opens="alert-erase"
-        >
-          <vf-img slot="large"><img src="/icons/app-icon.png" alt="" /></vf-img>
-          <vf-img slot="small"><img src="/icons/app-icon-small.png" alt="" /></vf-img>
-        </vf-icon>
-
-        <!-- ==================== Finder icons on the desktop ================ -->
-        <!-- What the desktop is FOR, in Example screen (1-bit).png: the volume
-             and the Trash, sitting on the dither. Each is a vf-icon — the art
-             slotted as vf-img at both resource sizes (32×32 ICN#, 16×16 ics#),
-             the name as a property because it is editable. They take the column
-             right of the launcher cluster (left 354), the same grid, reading as
-             the Finder's auto-arrange-along-an-edge — and NOT the right/bottom
-             anchor a real Trash would use, since the desktop is the viewport and
-             a far-edge anchor lands somewhere different at every density.
-             `movable` and not `draggable`, which is a global HTML attribute and
-             an HTMLElement accessor. Click to select — the art inverts, because a 1-bit icon is ink and
-             opaque white on a transparent surround, i.e. an image and its mask,
-             so inverting flips the two and leaves the surround alone. Click the
-             name of a selected icon and the rename box opens a moment later,
-             once a double-click could no longer be coming — double-click it
-             and the icon opens, exactly as double-clicking its art does. The
-             plate is opaque white in
-             its own right, which is the only reason a name reads on the dither.
-             View → "by Small Icon" swaps every one to its 16×16 member. -->
-        <vf-icon
-          id="icon-hd"
-          label="Macintosh HD"
-          width="64"
-          left="354"
-          top="40"
-          selectable
-          movable
-          editable
-        >
-          <vf-img slot="large"><img src="/icons/app-icon.png" alt="" /></vf-img>
-          <vf-img slot="small"><img src="/icons/app-icon-small.png" alt="" /></vf-img>
-        </vf-icon>
-        <vf-icon
-          id="icon-trash"
-          label="Trash"
-          width="64"
-          left="354"
-          top="100"
-          selectable
-          movable
-          editable
-        >
-          <vf-img slot="large"><img src="/icons/app-icon.png" alt="" /></vf-img>
-          <vf-img slot="small"><img src="/icons/app-icon-small.png" alt="" /></vf-img>
-        </vf-icon>
-      </div>
-
-      <!-- ============== "Desk Accessories" utility palette ============== -->
-      <!-- The utility-window archetype: vf-window variant="utility" movable —
-           the slim windoid bar (dot-grid dither, 7×7 close box) traced from
-           Windows/utility-window.png, floating on vf-desktop's upper tier.
-           Click any document window underneath: the palette stays on top and
-           keeps its bar, because utility windows stand outside the
-           single-active rule (HIG Figure 5-6's tool palette, recast with the
-           DA icons the kit ships). The 3×3 cell lattice is a vf-grid, marked
-           `frameless` because the window's own frame is its outer border; each
-           icon is 16×16 vf-img pixel art. -->
-      <vf-window
-        id="win-tools"
-        variant="utility"
-        heading="Desk Accessories"
-        movable
-        flush
-        hidden
-        width="82"
-        height="94"
-      >
-        <vf-grid
-          columns="3"
-          rows="3"
-          cell-width="26"
-          cell-height="26"
-          frameless
-          role="group"
-          aria-label="Desk accessories"
-        >
-          <button class="tool" aria-pressed="true" aria-label="Alarm Clock">
-            <vf-img width="16" height="16">
-              <img src="/icons/alarm-clock.png" alt="" />
-            </vf-img>
-          </button>
-          <button class="tool" aria-pressed="false" aria-label="Battery">
-            <vf-img width="16" height="16">
-              <img src="/icons/battery.png" alt="" />
-            </vf-img>
-          </button>
-          <button class="tool" aria-pressed="false" aria-label="Calculator">
-            <vf-img width="16" height="16">
-              <img src="/icons/calculator.png" alt="" />
-            </vf-img>
-          </button>
-          <button class="tool" aria-pressed="false" aria-label="Chooser">
-            <vf-img width="16" height="16">
-              <img src="/icons/chooser.png" alt="" />
-            </vf-img>
-          </button>
-          <button
-            class="tool"
-            aria-pressed="false"
-            aria-label="Control Panels"
-          >
-            <vf-img width="16" height="16">
-              <img src="/icons/control-panels.png" alt="" />
-            </vf-img>
-          </button>
-          <button class="tool" aria-pressed="false" aria-label="Key Caps">
-            <vf-img width="16" height="16">
-              <img src="/icons/key-caps.png" alt="" />
-            </vf-img>
-          </button>
-          <button class="tool" aria-pressed="false" aria-label="Note Pad">
-            <vf-img width="16" height="16">
-              <img src="/icons/note-pad.png" alt="" />
-            </vf-img>
-          </button>
-          <button class="tool" aria-pressed="false" aria-label="Puzzle">
-            <vf-img width="16" height="16">
-              <img src="/icons/puzzle.png" alt="" />
-            </vf-img>
-          </button>
-          <button class="tool" aria-pressed="false" aria-label="Scrapbook">
-            <vf-img width="16" height="16">
-              <img src="/icons/scrapbook.png" alt="" />
-            </vf-img>
-          </button>
-        </vf-grid>
-      </vf-window>
-
-      <!-- ===================== About dialog (modal) ===================== -->
-      <!-- The About box is where a program signs its name, so it gets the
-           kit's own: the logo as pixel art in a vf-img, at the size it was
-           drawn — 19×16 source px to 19×16 system px — beside the product name
-           in Chicago, which is what vf-label is for. Both are 16 system px
-           tall, so the row lines up with nothing to center. The mark is black
-           ink on transparency, so the dialog's white panel shows through the
-           window it draws. -->
-      <vf-dialog id="dlg-about" heading="About This Macintosh" width="400" height="192">
-        <vf-stack width="360" gap="10">
-          <vf-stack fill-width direction="row" gap="10">
-            <vf-img width="19" height="16">
-              <img src="/icons/vintage-frames.png" alt="" />
-            </vf-img>
-            <vf-label>Vintage Frames</vf-label>
-          </vf-stack>
-          <vf-paragraph>A System 7 UI kit built with Lit 3.</vf-paragraph>
-          <vf-paragraph>
-            System Software 7.5.5 · Total Memory: 8,192K · Largest Unused
-            Block: 7,168K
-          </vf-paragraph>
-        </vf-stack>
-        <vf-button id="btn-about-ok" slot="buttons" variant="default"
-          >OK</vf-button
-        >
-      </vf-dialog>
-
-      <!-- =============== "Page Setup" modal dialog box (plain) ========== -->
-      <!-- The modal-dialog-box archetype: vf-dialog frame="plain" — the
-           dBoxProc double frame (1px outer rule, 2px gap, 2px inner band, no
-           shadow, no title bar, immovable), with the heading drawn in
-           content the way those dialogs titled themselves. File →
-           Page Setup… opens it; Page Setup is the classic example of a
-           dialog you must answer before working on. -->
-      <vf-dialog id="dlg-pagesetup" frame="plain" heading="Page Setup" width="320" height="266">
-        <!-- A declared width keeps the panel — and everything stretched to it
-             — on the device-pixel grid by construction (docs/SIZING.md rule 3). -->
-        <vf-stack width="260" gap="12">
-          <vf-fieldset fill-width legend="Paper">
-            <vf-radio-group value="us-letter" name="paper" label="Paper">
-              <vf-radio value="us-letter">US Letter</vf-radio>
-              <vf-radio value="us-legal">US Legal</vf-radio>
-              <vf-radio value="a4">A4 Letter</vf-radio>
-            </vf-radio-group>
-          </vf-fieldset>
-          <vf-stack direction="row" gap="8" class="pagesetup-row">
-            <vf-label for="pagesetup-scale">Reduce or Enlarge:</vf-label>
-            <vf-number-field
-              id="pagesetup-scale"
-              value="100"
-              min="25"
-              max="400"
-            ></vf-number-field>
-            <vf-label>%</vf-label>
-          </vf-stack>
-        </vf-stack>
-        <vf-button id="btn-pagesetup-cancel" slot="buttons">Cancel</vf-button>
-        <vf-button id="btn-pagesetup-ok" slot="buttons" variant="default"
-          >OK</vf-button
-        >
-      </vf-dialog>
-
-      <!-- ============== "Preferences" modal dialog box (plain) ========== -->
-      <!-- The OTHER stylesheet-free layout (docs/LAYOUT.md "top and
-           left"): every item states its own rectangle in whole system px
-           through the top/left properties, the DITL convention — coordinates
-           measured from the dialog's content area. No `heading`: the title is
-           itself a placed item, as a dBoxProc dialog's was, so `label` names
-           the dialog for AT instead. Edit → Preferences… opens it. -->
-      <vf-dialog id="dlg-prefs" frame="plain" label="Preferences" width="280" height="168">
-        <vf-label top="0" left="0">Preferences:</vf-label>
-        <vf-label top="27" left="12" for="prefs-font">Font</vf-label>
-        <vf-select top="24" left="48" id="prefs-font" value="New York">
-          <vf-option>Chicago</vf-option>
-          <vf-option>Courier</vf-option>
-          <vf-option>Geneva</vf-option>
-          <vf-option>Helvetica</vf-option>
-          <vf-option>Monaco</vf-option>
-          <vf-option>New York</vf-option>
-          <vf-option>Palatino</vf-option>
-          <vf-option>Times</vf-option>
-        </vf-select>
-        <vf-label top="61" left="12" for="prefs-size">Size</vf-label>
-        <vf-select top="58" left="48" id="prefs-size" value="12">
-          <vf-option>9</vf-option>
-          <vf-option>10</vf-option>
-          <vf-option>12</vf-option>
-          <vf-option>14</vf-option>
-          <vf-option>18</vf-option>
-          <vf-option>24</vf-option>
-        </vf-select>
-        <!-- Placed buttons live in the body, not the `buttons` slot — the
-             flow footer would stack under zero-height content and land the
-             row somewhere no coordinate stated. The group still equalizes
-             widths and aligns the default button's face. -->
-        <vf-button-group top="94" left="70">
-          <vf-button id="btn-prefs-cancel">Cancel</vf-button>
-          <vf-button id="btn-prefs-ok" variant="default">OK</vf-button>
+          <vf-button id="btn-about-ok" variant="default">OK</vf-button>
         </vf-button-group>
       </vf-dialog>
 
-      <!-- ============== Erase Disk alert (composed, modal) ============== -->
-      <!-- An alert box is not a component: it is the modal-dialog shell
-           plus this page's own 32×32 icon art (public/icons/alert.png),
-           slotted through vf-img like any
-           picture. An alert speaks in chrome type, so the copy takes the
-           display face rather than vf-paragraph's body default. -->
-      <vf-dialog id="alert-erase" frame="plain" label="Caution" width="400" height="140">
-        <vf-img width="32" height="32" top="8" left="8"><img src="/icons/alert.png" alt="" /></vf-img>
-        <vf-paragraph face="display" top="6" left="60" width="240"
-          >Completely erase the disk named “Macintosh HD”?</vf-paragraph
-        >
-        <vf-button-group top="70" left="190">
-          <vf-button id="btn-erase-cancel">Cancel</vf-button>
-          <vf-button id="btn-erase-confirm" variant="default">Erase</vf-button>
+      <!-- Storage unavailable (IndexedDB failed: a private window). -->
+      <vf-dialog id="dlg-storage" frame="plain" label="Storage Unavailable" width="380" height="140">
+        <vf-img width="32" height="32" left="16" top="16">
+          <img src="/icons/alert.png" alt="" />
+        </vf-img>
+        <vf-paragraph face="display" width="290" left="64" top="16">
+          Files can’t be saved in this browser session. A private window, perhaps.
+        </vf-paragraph>
+        <vf-button-group origin="bottom right" left="354" top="114">
+          <vf-button id="btn-storage-ok" variant="default">OK</vf-button>
+        </vf-button-group>
+      </vf-dialog>
+
+      <!-- An operation that failed (shell/menu-bar.ts showError). The message
+           is written at show. -->
+      <vf-dialog id="dlg-error" frame="plain" label="Error" width="380" height="150">
+        <vf-img width="32" height="32" left="16" top="16">
+          <img src="/icons/alert.png" alt="" />
+        </vf-img>
+        <vf-paragraph face="display" id="error-msg" width="290" left="64" top="16"></vf-paragraph>
+        <vf-button-group origin="bottom right" left="354" top="124">
+          <vf-button id="btn-error-ok" variant="default">OK</vf-button>
+        </vf-button-group>
+      </vf-dialog>
+
+      <!-- Empty Trash alert (apps/finder). The message is written at show. -->
+      <vf-dialog id="dlg-empty-trash" frame="plain" label="Empty Trash" width="400" height="150">
+        <vf-img width="32" height="32" left="16" top="16">
+          <img src="/icons/alert.png" alt="" />
+        </vf-img>
+        <vf-paragraph face="display" id="empty-trash-msg" width="310" left="64" top="16"></vf-paragraph>
+        <vf-button-group origin="bottom right" left="374" top="124">
+          <vf-button id="btn-empty-trash-cancel">Cancel</vf-button>
+          <vf-button id="btn-empty-trash-ok" variant="default">OK</vf-button>
+        </vf-button-group>
+      </vf-dialog>
+
+      <!-- Restore from Backup question (apps/finder). The message is written at
+           show, and Replace is disabled on an empty desktop. -->
+      <vf-dialog id="dlg-restore-backup" frame="plain" label="Restore" width="420" height="180">
+        <vf-img width="32" height="32" left="16" top="16">
+          <img src="/icons/alert.png" alt="" />
+        </vf-img>
+        <vf-paragraph face="display" id="restore-backup-msg" width="330" left="64" top="16"></vf-paragraph>
+        <vf-button-group origin="bottom right" left="394" top="154">
+          <vf-button id="btn-restore-cancel">Cancel</vf-button>
+          <vf-button id="btn-restore-replace">Replace</vf-button>
+          <vf-button id="btn-restore-add" variant="default">Add</vf-button>
+        </vf-button-group>
+      </vf-dialog>
+
+      <!-- Restore alert (apps/finder) for a file that is not a backup, or a
+           backup with items in it that could not be read. -->
+      <vf-dialog id="dlg-restore-failed" frame="plain" label="Restore" width="400" height="160">
+        <vf-img width="32" height="32" left="16" top="16">
+          <img src="/icons/alert.png" alt="" />
+        </vf-img>
+        <vf-paragraph face="display" id="restore-failed-msg" width="310" left="64" top="16"></vf-paragraph>
+        <vf-button-group origin="bottom right" left="374" top="134">
+          <vf-button id="btn-restore-failed-ok" variant="default">OK</vf-button>
         </vf-button-group>
       </vf-dialog>
     </vf-desktop>
