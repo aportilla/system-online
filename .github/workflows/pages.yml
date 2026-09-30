@@ -45,7 +45,7 @@ jobs:
         with:
           enablement: true
 
-      # base_path is the URL prefix of the deployed site: '/system7web' for the
+      # base_path is the URL prefix of the deployed site: '/system-online' for the
       # project site, '/' behind a custom domain. Passing it means the build
       # never has to hard-code which one this repo is.
       - name: Build the desktop

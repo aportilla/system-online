@@ -1,4 +1,4 @@
-// Library storage: a promise wrapper over IndexedDB. Database `system7web`,
+// Library storage: a promise wrapper over IndexedDB. Database `system-online`,
 // object stores keyed by `id`:
 //
 // - `folders`: `{id, name, parent, createdAt, modifiedAt}`.
@@ -18,7 +18,7 @@
 
 import type { LibraryStorage } from '../state/files.ts'
 
-const DB_NAME = 'system7web'
+const DB_NAME = 'system-online'
 const FOLDERS = 'folders'
 const TEXTS = 'texts'
 const FONTS = 'fonts'
@@ -53,14 +53,14 @@ function openAt(version: number | undefined, onVersionChange: () => void): Promi
     }
     req.onerror = () => {
       const err = req.error || new Error('IndexedDB open failed')
-      console.warn('system7web: IndexedDB open failed —', err)
+      console.warn('SystemOnline: IndexedDB open failed —', err)
       reject(err)
     }
     // Another connection holds the old version. The request completes once it
     // closes.
     req.onblocked = () => {
       console.warn(
-        'system7web: waiting for another tab to let go of the old database schema — close or reload it'
+        'SystemOnline: waiting for another tab to let go of the old database schema — close or reload it'
       )
     }
   })

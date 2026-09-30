@@ -13,7 +13,7 @@ import { childrenOf, containerOf, isVolume } from './files.ts'
 import type { FilesState } from './files.ts'
 
 export const MANIFEST_NAME = 'desktop.json'
-export const BACKUP_FORMAT = 'system7web-desktop'
+export const BACKUP_FORMAT = 'system-online-desktop'
 export const BACKUP_VERSION = 1
 
 interface Row {
@@ -62,9 +62,9 @@ export const slugOf = (name: string): string => {
 
 const pad = (n: number) => String(n).padStart(2, '0')
 
-/** "system7web-backup-2026-09-27.zip", the day in local time. */
+/** "system-online-backup-2026-09-27.zip", the day in local time. */
 export const backupFilename = (date = new Date()): string =>
-  `system7web-backup-${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}.zip`
+  `system-online-backup-${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}.zip`
 
 /** The first free path segment for a name in a container: its slug plus
  *  `ext`, then -2, -3 … */
@@ -167,14 +167,14 @@ export function readManifest(text: string): BackupManifest {
     throw new Error('its desktop.json is not readable')
   }
   if (!parsed || typeof parsed !== 'object' || parsed.format !== BACKUP_FORMAT) {
-    throw new Error('it is not a system7web backup')
+    throw new Error('it is not a SystemOnline backup')
   }
   const v = parsed.v
   if (typeof v !== 'number' || !Number.isInteger(v) || v < 1) {
     throw new Error('its desktop.json has no version')
   }
   if (v > BACKUP_VERSION) {
-    throw new Error(`it was made by a newer version of system7web (backup version ${v})`)
+    throw new Error(`it was made by a newer version of SystemOnline (backup version ${v})`)
   }
   const rows = (key: string): Record<string, unknown>[] => {
     const list = parsed[key]

@@ -1,4 +1,4 @@
-# system7web
+# SystemOnline
 
 A System 7 desktop simulation built on the `vintage-frames` npm package. This
 repo is the application; the components live in the sibling
@@ -7,7 +7,7 @@ here as a published dependency.
 
 ## Commands
 
-- `npm run dev` — Vite dev server (note the base path: `/system7web/`)
+- `npm run dev` — Vite dev server (note the base path: `/system-online/`)
 - `npm run build` / `npm run preview`
 - The gates: `npm test`, `npm run typecheck`, `npm run build`. The Pages
   workflow runs the first two before it builds.

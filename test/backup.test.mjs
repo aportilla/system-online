@@ -36,7 +36,7 @@ test('manifest: a plan reads back as written, and anything else says what is wro
   const { manifest } = planBackup(files.get())
   assert.deepEqual(readManifest(JSON.stringify(manifest)), manifest)
   assert.throws(() => readManifest('{'), /not readable/)
-  assert.throws(() => readManifest('{"format":"other"}'), /not a system7web backup/)
+  assert.throws(() => readManifest('{"format":"other"}'), /not a SystemOnline backup/)
   assert.throws(() => readManifest(JSON.stringify({ ...manifest, v: 99 })), /newer version/)
   assert.throws(() => readManifest(JSON.stringify({ ...manifest, fonts: null })), /incomplete/)
   assert.throws(
@@ -48,5 +48,5 @@ test('manifest: a plan reads back as written, and anything else says what is wro
 test('names: slugs and the dated file name', () => {
   assert.equal(slugOf('About the Fonts'), 'about-the-fonts')
   assert.equal(slugOf('***'), 'untitled')
-  assert.equal(backupFilename(new Date(2026, 0, 5)), 'system7web-backup-2026-01-05.zip')
+  assert.equal(backupFilename(new Date(2026, 0, 5)), 'system-online-backup-2026-01-05.zip')
 })

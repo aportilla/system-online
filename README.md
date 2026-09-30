@@ -1,4 +1,4 @@
-# system7web
+# SystemOnline
 
 A Mac OS System 7 desktop in the browser: a menu bar, a Finder with folders
 and a Trash, windows that open out of their icons, and four applications, all
@@ -11,7 +11,7 @@ imported strike collection the Font Viewer opens.
 
 ```sh
 npm install
-npm run dev        # http://localhost:5173/system7web/
+npm run dev        # http://localhost:5173/system-online/
 ```
 
 | Script | What it does |

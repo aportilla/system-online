@@ -46,7 +46,7 @@ them on open.
    Every handler returns while a dialog is open, since key equivalents fire
    app-wide.
 4. **The Apple menu** is on the bar in every application: _About
-   system7web…_, a rule, then the items applications install in it through
+   SystemOnline…_, a rule, then the items applications install in it through
    `deps.appleMenu` (Desktop Patterns), the way a control panel sat in the
    Apple Menu Items folder.
 5. **The clock** shows the time, updated on the minute; a press shows the
@@ -74,7 +74,7 @@ them on open.
    box's Show at startup and whether the default files have been stored. A
    reload reopens the windows that were open, deepest first, the active one
    last. `?fresh=1` neither reads nor writes it, and uses no library.
-10. **The About box** (Apple menu → About system7web…) is a `frame="plain"
+10. **The About box** (Apple menu → About SystemOnline…) is a `frame="plain"
     light-dismiss` dialog with the version and HEAD's commit date, a link
     button to Vintage Frames on npm, and **Show at startup**, which greets a
     load that reopens no window.
@@ -82,7 +82,7 @@ them on open.
 ## The library
 
 `src/state/files.ts` over IndexedDB (`src/storage/db.ts`, database
-`system7web`): folders, text files and fonts.
+`system-online`): folders, text files and fonts.
 
 11. **Macintosh HD and the Trash** are containers with no record, always
     listed. Neither can be renamed, moved, copied or removed. Nothing can be

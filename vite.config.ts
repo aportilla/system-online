@@ -48,7 +48,7 @@ function fontBytes(): Record<string, number> {
 // behind a custom domain); the default is the project site's. `||`, not `??`:
 // an unresolved step output arrives as an empty string.
 export default defineConfig({
-  base: normalizeBase(process.env.S7_BASE || '/system7web/'),
+  base: normalizeBase(process.env.S7_BASE || '/system-online/'),
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
     __APP_DATE__: JSON.stringify(buildDate()),

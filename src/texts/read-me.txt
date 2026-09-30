@@ -1,4 +1,4 @@
-SYSTEM7WEB is a small classic Macintosh desktop in the browser: a menu bar, a Finder, windows you drag by their title bars, and a handful of applications, all drawn on the 1-bit grid at true 72dpi size.
+SystemOnline is a small classic Macintosh desktop in the browser: a menu bar, a Finder, windows you drag by their title bars, and a handful of applications, all drawn on the 1-bit grid at true 72dpi size.
 
 Everything you see is drawn by Vintage Frames, a kit of System 7 web components published on npm. This desktop is an application built on it, held to the same public interface as anyone else's.
 

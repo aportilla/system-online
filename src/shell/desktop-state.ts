@@ -29,7 +29,7 @@ import { shell } from '../state/shell.ts'
 import { isPin } from './layout.ts'
 import type { Pin, Point } from './layout.ts'
 
-const KEY = 'system7web:desktop'
+const KEY = 'system-online:desktop'
 const VERSION = 1
 const WRITE_DEBOUNCE_MS = 400
 

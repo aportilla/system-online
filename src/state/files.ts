@@ -394,7 +394,7 @@ export function createFiles(deps: FilesDeps | null = null) {
         store.patch({ available: true, folders: [HD_ROW, TRASH_ROW, ...folders], texts, fonts })
       } catch (err) {
         // Otherwise a failed listing shows only as an empty desktop.
-        console.warn('system7web: the library could not be read —', err)
+        console.warn('SystemOnline: the library could not be read —', err)
         store.patch(NOTHING())
       }
     },
