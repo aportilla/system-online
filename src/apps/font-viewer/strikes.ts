@@ -8,8 +8,7 @@ import { strikeName } from './specimen.ts'
 /** Registered strikes by family name; a pending load dedupes re-picks. */
 const faces = new Map<string, Promise<boolean>>()
 
-/** The strike's URL, through the site's base: a Pages project site serves
- *  this page under /<repo>/, and fonts/ is under that too. */
+/** The strike's URL, through the site's base. */
 export const strikeUrl = (font: CharsetFont): string =>
   `${import.meta.env.BASE_URL}fonts/imported/${font.file}`
 

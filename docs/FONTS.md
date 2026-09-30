@@ -17,7 +17,7 @@ The collection lived in the `vintage-frames` repo until 2026-08-11 and moved
 here with the window that browsed it (now the Font Viewer), so that the component kit
 distributes no Apple artwork at all. That is a real distribution decision about
 Apple's artwork, taken deliberately: these strikes are tracked in this public
-repo and served from this repo's Pages site under their original names.
+repo and served from system-online.portill.io under their original names.
 
 ```
 public/fonts/imported/   ← the collection: <Family>-<size>.woff2, served verbatim

@@ -4,6 +4,8 @@ A Mac OS System 7 desktop in the browser: a menu bar, a Finder with folders
 and a Trash, windows that open out of their icons, and four applications, all
 on the 1-bit grid at true 72dpi size.
 
+Use it at <https://system-online.portill.io/>.
+
 Everything you see is drawn by [**vintage-frames**](https://www.npmjs.com/package/vintage-frames),
 the System 7 component kit, installed from npm like any other dependency. This
 repo is the *application*: the shell, the applications, their content, and the
@@ -11,14 +13,14 @@ imported strike collection the Font Viewer opens.
 
 ```sh
 npm install
-npm run dev        # http://localhost:5173/system-online/
+npm run dev        # http://localhost:5173/
 ```
 
 | Script | What it does |
 | --- | --- |
 | `npm run dev` | Vite dev server |
 | `npm run build` | static site to `dist/` |
-| `npm run preview` | serve the built copy under the deploy's base path |
+| `npm run preview` | serve the built copy |
 | `npm test` | unit tests for the pure logic (`node --test`) |
 | `npm run typecheck` | `tsc` over the app and the Vite config |
 | `npm run charset-manifest` | regenerate `src/charset-manifest.ts` from the strike collection |

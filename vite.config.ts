@@ -3,12 +3,6 @@ import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
 
-/** Normalize a base path to Vite's `/prefix/` shape; `/` for a site at a root. */
-function normalizeBase(raw: string): string {
-  const trimmed = raw.replace(/^\/+|\/+$/g, '')
-  return trimmed === '' ? '/' : `/${trimmed}/`
-}
-
 // Build constants (src/env.d.ts): package.json's version, HEAD's commit date
 // for the About box ("Sep 27, 2026", formatted here so no runtime locale moves
 // it; today without git), and each imported strike's woff2 size in bytes, a
@@ -43,12 +37,8 @@ function fontBytes(): Record<string, number> {
   return out
 }
 
-// A GitHub Pages project site is served under /<repo>/, and every URL the build
-// emits carries that prefix. The workflow passes the real one in S7_BASE (`/`
-// behind a custom domain); the default is the project site's. `||`, not `??`:
-// an unresolved step output arrives as an empty string.
+// Served at the root of system-online.portill.io, so Vite's default base holds.
 export default defineConfig({
-  base: normalizeBase(process.env.S7_BASE || '/system-online/'),
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
     __APP_DATE__: JSON.stringify(buildDate()),

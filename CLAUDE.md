@@ -7,10 +7,12 @@ here as a published dependency.
 
 ## Commands
 
-- `npm run dev` — Vite dev server (note the base path: `/system-online/`)
+- `npm run dev` — Vite dev server
 - `npm run build` / `npm run preview`
-- The gates: `npm test`, `npm run typecheck`, `npm run build`. The Pages
-  workflow runs the first two before it builds.
+- The gates: `npm test`, `npm run typecheck`, `npm run build`. CI runs all
+  three on every push and pull request. Every push to `main` deploys to
+  system-online.portill.io (Cloudflare builds it from the repo, reading the
+  Node version from `.nvmrc`); the deploy does not wait on CI.
 - `npm run charset-manifest` — regenerate `src/charset-manifest.ts` after
   rebuilding the strike collection (needs the `/tmp/fontenv` venv; see
   docs/FONTS.md)
