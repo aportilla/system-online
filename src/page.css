@@ -30,6 +30,11 @@ html {
      last resize event happened to measure beside a scrollbar. Clipping
      overflow keeps the measurement the viewport itself, always. */
   overflow: hidden;
+  /* No pinch or double-tap zoom: the raster is already fitted to the screen,
+     and a zoomed page would only crop it. Every element's touches pass
+     through the root, so this holds page-wide, and panning stays allowed so
+     a finger still scrolls a folder or text window. */
+  touch-action: pan-x pan-y;
 }
 
 body {

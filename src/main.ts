@@ -43,6 +43,11 @@ fitDesktop()
 window.addEventListener('resize', fitDesktop)
 const offScale = onScaleChange(fitDesktop)
 const removeCursor = applyCursor()
+// page.css turns off zoom with touch-action. As a backup, this cancels
+// gesturestart, the pinch event only WebKit sends, in case Safari lets a pinch
+// through anyway.
+const onGestureStart = (e: Event) => e.preventDefault()
+document.addEventListener('gesturestart', onGestureStart)
 
 // The library takes its browser dependencies here so it stays Node-testable. A
 // font's size is its strikes' bytes; a family the app no longer ships has none.
@@ -109,6 +114,7 @@ if (import.meta.hot) {
     desktopPattern.dispose()
     stopPersist()
     window.removeEventListener('resize', fitDesktop)
+    document.removeEventListener('gesturestart', onGestureStart)
     offScale()
     removeCursor()
   })
