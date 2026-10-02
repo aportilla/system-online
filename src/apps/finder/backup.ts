@@ -1,8 +1,10 @@
 // Special → Back Up All Files… and Restore from Backup…, and a backup dropped
 // on the page: the IO and the questions around state/backup.ts, which owns the
 // format. A restore asks whether to Add the backup's files beside the
-// desktop's or Replace the desktop with them.
+// desktop's or Replace the desktop with them, in the Finder's dialogs
+// (dialogs.html).
 
+import type { VfButton } from 'vintage-frames'
 import { TRASH, isVolume, itemCount, itemOf } from 'vintage-frames/shell'
 import type { AppContext, CatalogState, FinderApi } from 'vintage-frames/shell'
 import { CHARSET_FAMILIES } from '../../charset-manifest.ts'
@@ -12,6 +14,7 @@ import { builtinText, textOf } from '../../texts/index.ts'
 import { unzip, zipStore } from '../../lib/zip.ts'
 import type { ZipEntry } from '../../lib/zip.ts'
 import { downloadBlob } from '../../lib/download.ts'
+import { ask } from '../windows.ts'
 
 const encode = (s: string) => new TextEncoder().encode(s)
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`
@@ -91,13 +94,15 @@ function contentsPhrase(read: ReadBackup) {
  *  and the drop. */
 export function initBackup(finder: FinderApi, ctx: AppContext): void {
   const { catalog } = finder
+  const question = ctx.dialog('restore')
+  const replace = question.querySelector('vf-button[value="replace"]') as VfButton
+  const alert = ctx.dialog('alert')
+  const say = (message: string) => void ask(ctx, alert, message)
   /** Everything stored, the Trash's included: every item but the volumes. */
   const libraryCount = () => catalog.get().items.filter((i) => !isVolume(i.id)).length
   const storageReady = () => {
     if (catalog.get().available) return true
-    void ctx.alert('Files can’t be saved in this browser session. A private window, perhaps.', {
-      label: 'Storage Unavailable',
-    })
+    void ctx.ask(ctx.dialog('storage-unavailable'))
     return false
   }
 
@@ -123,26 +128,17 @@ export function initBackup(finder: FinderApi, ctx: AppContext): void {
     try {
       read = await readBackup(file)
     } catch (err) {
-      void ctx.alert(`“${file.name}” isn’t a backup this desktop can read: ${(err as Error).message}.`, {
-        label: 'Restore',
-      })
+      say(`“${file.name}” isn’t a backup this desktop can read: ${(err as Error).message}.`)
       return
     }
     if (!read.folders.length && !read.texts.length && !read.fonts.length) {
-      void ctx.alert(`“${file.name}” holds no files.`, { label: 'Restore' })
+      say(`“${file.name}” holds no files.`)
       return
     }
     const here = libraryCount()
-    const answer = await ctx.alert(restoreQuestion(file.name, read, here), {
-      label: 'Restore',
-      width: 420,
-      // Replace is offered only over something to replace.
-      buttons: [
-        { label: 'Cancel', value: 'cancel' },
-        ...(here ? [{ label: 'Replace', value: 'replace' }] : []),
-        { label: 'Add', value: 'add', default: true },
-      ],
-    })
+    // Replace is offered only over something to replace.
+    replace.hidden = !here
+    const answer = await ask(ctx, question, restoreQuestion(file.name, read, here))
     if (answer !== 'add' && answer !== 'replace') return
     const { items, skipped } = itemsOf(read, {
       shipsText: (key) => builtinText(key) != null,
@@ -152,15 +148,11 @@ export function initBackup(finder: FinderApi, ctx: AppContext): void {
     try {
       await catalog.import({ items }, { mode: answer === 'replace' ? 'replace' : 'merge' })
     } catch (err) {
-      void ctx.alert(`Restore failed: ${(err as Error).message}.`)
+      say(`Restore failed: ${(err as Error).message}.`)
       return
     }
     const unread = skipped + read.missing
-    if (unread) {
-      void ctx.alert(`The backup was restored, but ${plural(unread, 'item', 'items')} in it couldn’t be read.`, {
-        label: 'Restore',
-      })
-    }
+    if (unread) say(`The backup was restored, but ${plural(unread, 'item', 'items')} in it couldn’t be read.`)
   }
 
   finder.addCommand({
@@ -172,7 +164,7 @@ export function initBackup(finder: FinderApi, ctx: AppContext): void {
       try {
         downloadBackup(catalog.get(), { app: __APP_VERSION__ })
       } catch (err) {
-        void ctx.alert(`Back Up All Files failed: ${(err as Error).message}.`)
+        say(`Back Up All Files failed: ${(err as Error).message}.`)
       }
     },
     // Something to write.

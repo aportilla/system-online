@@ -47,7 +47,7 @@ boots a clean desktop that saves nothing.
 index.html               the skeleton: desktop, menu bar, icon field, About box
 src/main.ts              the composition root: the shell and its applications
 src/about.ts             the About box and the boot greeting
-src/apps/<id>/           one directory per application: menus, windows, behavior
+src/apps/<id>/           one directory per application: menus, dialogs, windows, behavior
 src/state/               the library's kinds, its defaults, the backup format
 src/texts/               the built-in read-me files
 src/desktop.css          LAYOUT only

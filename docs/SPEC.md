@@ -20,10 +20,11 @@ localStorage (`system-online:desktop`).
 1. **Applications.** Each is one directory under `src/apps/` (`finder`,
    `text-viewer`, `desktop-patterns`, `font-viewer`) exporting a function that
    returns the shell's `defineApp` definition: an id, a name, its menus
-   (`menus.html`), the catalog kinds it opens, and `init(ctx)`. Its windows
-   are made from `windows.html` (`windows.ts`), and a zoom box's column is
-   pure geometry (`layout.ts`). `src/apps/windows.ts` holds what the windows
-   share. No application calls another.
+   (`menus.html`), its alerts (`dialogs.html`), the catalog kinds it opens,
+   and `init(ctx)`. Its windows are made from `windows.html` (`windows.ts`),
+   and a zoom box's column is pure geometry (`layout.ts`).
+   `src/apps/windows.ts` holds what the windows and dialogs share. No
+   application calls another.
 2. **The menu bar** holds the Apple menu, then the front application's menus,
    then the clock. The front application is the active window's, or the Finder
    while none is active.
@@ -36,6 +37,8 @@ localStorage (`system-online:desktop`).
    ```
 
    The browser keeps ⌘W, ⌘Q and ⌘N, so Close and Quit take ⌃W and ⌃Q.
+   While an application's alert is up, the bar shows that application's
+   menus, whichever is front.
 3. **The Apple menu** is the page's: _About SystemOnline…_, a rule, then the
    items applications install in it (Desktop Patterns), the way a control
    panel sat in the Apple Menu Items folder.
@@ -82,10 +85,11 @@ kinds of SystemOnline's own (`src/state/kinds.ts`).
 
 11. The kit's stock Finder: icons, folder windows, renaming, filing by drag,
     Copy and Paste, Clean Up, Empty Trash…. SystemOnline gives it its art
-    (the folder, the Trash and its mark, and a text file's icon for a generic
-    document; the app icon stands in for Macintosh HD and the suitcases), its
-    volumes and its seed, and adds to Special: _Restore Default Files_, then
-    _Back Up All Files…_ and _Restore from Backup…_.
+    (the folder, the Trash and its mark, a text file's icon for a generic
+    document, and the caution art its alerts carry; the app icon stands in for
+    Macintosh HD and the suitcases), its volumes and its seed, and adds to
+    Special: _Restore Default Files_, then _Back Up All Files…_ and _Restore
+    from Backup…_, whose alerts it holds (`dialogs.html`).
 
 ## The Text Viewer
 

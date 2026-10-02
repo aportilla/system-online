@@ -8,9 +8,10 @@ import type { VfViewportBox } from 'vintage-frames'
 import { defineApp } from 'vintage-frames/shell'
 import type { AppDefinition, Item } from 'vintage-frames/shell'
 import menus from './menus.html?raw'
+import dialogs from './dialogs.html?raw'
 import { CHARSET_FAMILIES } from '../../charset-manifest.ts'
 import { FONT, fontFamily } from '../../state/kinds.ts'
-import { selectContents, selectedTextIn, zoomBetween } from '../windows.ts'
+import { ask, selectContents, selectedTextIn, zoomBetween } from '../windows.ts'
 import { fontWindow, render, specimenOf } from './windows.ts'
 import type { Specimen } from './windows.ts'
 import { expandedFontBox } from './layout.ts'
@@ -41,6 +42,7 @@ export function fontViewer(): AppDefinition<FontViewerActions> {
     id: FONT_VIEWER,
     name: 'Font Viewer',
     menus,
+    dialogs,
     kinds: {
       [FONT]: {
         art: SUITCASE_ART,
@@ -51,6 +53,7 @@ export function fontViewer(): AppDefinition<FontViewerActions> {
     init(ctx) {
       const { desktop, windows } = ctx
       const sizeMenu = ctx.menu('size')
+      const alert = ctx.dialog('alert')
       /** Each open window's family and strike. */
       const specimens = new WeakMap<VfWindow, Specimen>()
       /** The active window's, when it is a font window. */
@@ -84,7 +87,7 @@ export function fontViewer(): AppDefinition<FontViewerActions> {
         const family = familyOf(fontFamily(item))
         const font = family ? nearestStrike(family, OPENING_SIZE) : null
         if (!family || !font) {
-          void ctx.alert(`“${item.name}” can’t be opened: its strikes are no longer part of SystemOnline.`)
+          void ask(ctx, alert, `“${item.name}” can’t be opened: its strikes are no longer part of SystemOnline.`)
           return
         }
         windows.open({

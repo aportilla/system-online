@@ -37,11 +37,14 @@ Finder and the saved session are the kit's; this repo holds the applications
 and the shell's configuration. Keep it that way:
 
 - **Application behavior lives in its application's directory**: its
-  definition, menus and kinds (`index.ts`, `menus.html`), what goes in its
-  windows (`windows.html`, `windows.ts`), and a zoom box's column (`layout.ts`,
-  pure). The Finder is the stock one, configured in `src/apps/finder/` with
-  its art, volumes, seed and the Special commands it adds through `extend`.
-  `src/apps/windows.ts` holds what the applications' windows share.
+  definition, menus and kinds (`index.ts`, `menus.html`), its alerts
+  (`dialogs.html`, held by the shell under it and asked with `ctx.ask`), what
+  goes in its windows (`windows.html`, `windows.ts`), and a zoom box's column
+  (`layout.ts`, pure). The Finder is the stock one, configured in
+  `src/apps/finder/` with its art, volumes, seed, and the Special commands
+  and dialogs it adds through `extend`. `src/apps/windows.ts` holds what the
+  applications' windows and dialogs share. The shell composes no UI: every
+  alert is an application's, and the About box is the page's.
 - **Desktop mechanics belong in the kit.** If an application needs the shell
   to do something it doesn't, that's a change to the kit's shell, not a
   window manager or Finder rebuilt here.

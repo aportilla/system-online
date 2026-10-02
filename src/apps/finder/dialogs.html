@@ -1,0 +1,57 @@
+<!-- The Finder's dialogs: SystemOnline's own, held by the stock Finder and
+     asked from extend (index.ts, backup.ts). The body is width − 10 by
+     height − 10 for frame="plain". The art and the message sit 16 in from the
+     body's top-left, and the button group's origin corner 16 in from its
+     bottom-right. Each is authored at its least height; a longer message
+     grows it (ask, ../windows.ts). -->
+
+<!-- Restore when there is nowhere to put it. -->
+<vf-dialog
+  data-dialog="storage-unavailable"
+  frame="plain"
+  label="Storage Unavailable"
+  width="400"
+  height="118"
+>
+  <form method="dialog" novalidate>
+    <vf-img width="32" height="32" left="16" top="16">
+      <img src="/icons/alert.png" alt="" />
+    </vf-img>
+    <vf-paragraph face="display" width="310" left="64" top="16"
+      >Files can’t be saved in this browser session. A private window,
+      perhaps.</vf-paragraph
+    >
+    <vf-button-group origin="bottom right" left="374" top="92">
+      <vf-button type="submit" value="ok" variant="default">OK</vf-button>
+    </vf-button-group>
+  </form>
+</vf-dialog>
+
+<!-- The Restore question. Replace is shown only over something to
+     replace. -->
+<vf-dialog data-dialog="restore" frame="plain" label="Restore" width="440" height="118">
+  <form method="dialog" novalidate>
+    <vf-img width="32" height="32" left="16" top="16">
+      <img src="/icons/alert.png" alt="" />
+    </vf-img>
+    <vf-paragraph face="display" width="350" left="64" top="16" data-message></vf-paragraph>
+    <vf-button-group origin="bottom right" left="414" top="92">
+      <vf-button type="submit" value="cancel">Cancel</vf-button>
+      <vf-button type="submit" value="replace">Replace</vf-button>
+      <vf-button type="submit" value="add" variant="default">Add</vf-button>
+    </vf-button-group>
+  </form>
+</vf-dialog>
+
+<!-- Everything else: a failure, or what a restore found. -->
+<vf-dialog data-dialog="alert" frame="plain" label="Alert" width="400" height="118">
+  <form method="dialog" novalidate>
+    <vf-img width="32" height="32" left="16" top="16">
+      <img src="/icons/alert.png" alt="" />
+    </vf-img>
+    <vf-paragraph face="display" width="310" left="64" top="16" data-message></vf-paragraph>
+    <vf-button-group origin="bottom right" left="374" top="92">
+      <vf-button type="submit" value="ok" variant="default">OK</vf-button>
+    </vf-button-group>
+  </form>
+</vf-dialog>

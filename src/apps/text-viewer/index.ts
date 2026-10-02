@@ -9,10 +9,11 @@ import type { VfViewportBox } from 'vintage-frames'
 import { defineApp } from 'vintage-frames/shell'
 import type { AppDefinition, Item } from 'vintage-frames/shell'
 import menus from './menus.html?raw'
+import dialogs from './dialogs.html?raw'
 import textArt from './art/text-file.png'
 import { TEXT } from '../../state/kinds.ts'
 import { textOf } from '../../texts/index.ts'
-import { selectContents, selectedTextIn, zoomBetween } from '../windows.ts'
+import { ask, selectContents, selectedTextIn, zoomBetween } from '../windows.ts'
 import { bodyOf, textWindow } from './windows.ts'
 import { expandedTextBox } from './layout.ts'
 
@@ -32,6 +33,7 @@ export function textViewer(): AppDefinition<TextViewerActions> {
     id: TEXT_VIEWER,
     name: 'Text Viewer',
     menus,
+    dialogs,
     kinds: {
       [TEXT]: {
         art: textArt,
@@ -41,11 +43,12 @@ export function textViewer(): AppDefinition<TextViewerActions> {
     },
     init(ctx) {
       const { desktop, windows } = ctx
+      const alert = ctx.dialog('alert')
 
       openText = (item, from) => {
         const text = textOf(item)
         if (text == null) {
-          void ctx.alert(`“${item.name}” can’t be opened: its text is no longer part of SystemOnline.`)
+          void ask(ctx, alert, `“${item.name}” can’t be opened: its text is no longer part of SystemOnline.`)
           return
         }
         windows.open({

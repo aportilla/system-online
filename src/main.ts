@@ -42,7 +42,6 @@ const shell = createShell(desktop, {
   ],
   fit: 'viewport',
   state,
-  caution: `${import.meta.env.BASE_URL}icons/alert.png`,
 })
 const about = initAbout(desktop, state)
 

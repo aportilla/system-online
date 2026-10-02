@@ -1,0 +1,14 @@
+<!-- Font Viewer dialogs. The shell holds them under the Font Viewer; index.ts
+     asks them. Laid out as the Finder's alert is (../finder/dialogs.html), at
+     its least height; a longer message grows it. -->
+<vf-dialog data-dialog="alert" frame="plain" label="Alert" width="400" height="118">
+  <form method="dialog" novalidate>
+    <vf-img width="32" height="32" left="16" top="16">
+      <img src="/icons/alert.png" alt="" />
+    </vf-img>
+    <vf-paragraph face="display" width="310" left="64" top="16" data-message></vf-paragraph>
+    <vf-button-group origin="bottom right" left="374" top="92">
+      <vf-button type="submit" value="ok" variant="default">OK</vf-button>
+    </vf-button-group>
+  </form>
+</vf-dialog>
