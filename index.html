@@ -26,17 +26,14 @@
     <!-- Startup curtain, removed by src/boot/curtain.ts. -->
     <div id="curtain"></div>
 
-    <!-- `bezel`: the CRT's black surround. main.ts sets the raster size with
-         fitWithin(). Windows must be direct children of vf-desktop: its
-         stacking manager only sees direct vf-window children. Each application
-         appends its own (src/apps/<id>/windows.html). -->
+    <!-- `bezel`: the CRT's black surround. The shell (vintage-frames/shell,
+         main.ts) fits the raster to the viewport, and each application appends
+         its own windows (src/apps/<id>/windows.html). -->
     <vf-desktop id="desktop" bezel="10">
-      <!-- Menu bar. shell/menu-bar.ts inserts the front application's menus
-           (src/apps/<id>/menus.html) after the Apple menu and removes the
-           previous application's. A detached menu has no shortcuts. `shortcuts`
-           turns each item's shortcut attribute into a key equivalent (Ctrl for
-           ⌘ off-Mac). -->
-      <vf-menu-bar shortcuts>
+      <!-- Menu bar. The shell puts the front application's menus
+           (src/apps/<id>/menus.html) after the Apple menu, and the clock in
+           the bar's end slot. -->
+      <vf-menu-bar>
         <!-- The Apple menu, present in every application. The six-color apple
              is 16×16 pixel art, decorative; `label` names the menu. After the
              rule come the items applications install (Desktop Patterns). -->
@@ -47,24 +44,19 @@
           <vf-menu-item value="about">About SystemOnline…</vf-menu-item>
           <vf-separator></vf-separator>
         </vf-menu>
-        <!-- The front application's menus are inserted here. -->
-        <!-- Menu bar clock. desktop.css puts it at the bar's right end;
-             shell/clock.ts writes the time. -->
-        <vf-label id="clock"></vf-label>
       </vf-menu-bar>
 
       <!-- Desktop icon field. Filled, not placed, so icon positions stay
            relative to the desktop raster and the rubber band has a surface to
-           press. apps/finder/icons.ts renders the desktop's icons into it. -->
-      <vf-icon-field id="desktop-icons" label="Desktop" fill-width fill-height></vf-icon-field>
+           press. The Finder renders the desktop's icons into it. -->
+      <vf-icon-field label="Desktop" fill-width fill-height></vf-icon-field>
 
-      <!-- Dialogs. The body is width − 10 by height − 10 for frame="plain".
-           Content sits 16 in from the body's top-left, and a button group's
-           origin corner 16 in from the matching body corner. -->
-
-      <!-- About box, also the boot greeting (main.ts). shell/menu-bar.ts fills
-           the version and date. Show at startup saves on change, not on OK, so
-           a light-dismiss click keeps it. -->
+      <!-- About box, also the boot greeting (src/about.ts, which fills the
+           version and date). Show at startup saves on change, not on OK, so a
+           light-dismiss click keeps it. The body is width − 10 by height − 10
+           for frame="plain". Content sits 16 in from the body's top-left, and
+           a button group's origin corner 16 in from the matching body
+           corner. -->
       <vf-dialog
         id="dlg-about"
         frame="plain"
@@ -108,69 +100,6 @@
             >Vintage Frames</vf-button
           >
           <vf-button id="btn-about-ok" variant="default">OK</vf-button>
-        </vf-button-group>
-      </vf-dialog>
-
-      <!-- Storage unavailable (IndexedDB failed: a private window). -->
-      <vf-dialog id="dlg-storage" frame="plain" label="Storage Unavailable" width="380" height="140">
-        <vf-img width="32" height="32" left="16" top="16">
-          <img src="/icons/alert.png" alt="" />
-        </vf-img>
-        <vf-paragraph face="display" width="290" left="64" top="16">
-          Files can’t be saved in this browser session. A private window, perhaps.
-        </vf-paragraph>
-        <vf-button-group origin="bottom right" left="354" top="114">
-          <vf-button id="btn-storage-ok" variant="default">OK</vf-button>
-        </vf-button-group>
-      </vf-dialog>
-
-      <!-- An operation that failed (shell/menu-bar.ts showError). The message
-           is written at show. -->
-      <vf-dialog id="dlg-error" frame="plain" label="Error" width="380" height="150">
-        <vf-img width="32" height="32" left="16" top="16">
-          <img src="/icons/alert.png" alt="" />
-        </vf-img>
-        <vf-paragraph face="display" id="error-msg" width="290" left="64" top="16"></vf-paragraph>
-        <vf-button-group origin="bottom right" left="354" top="124">
-          <vf-button id="btn-error-ok" variant="default">OK</vf-button>
-        </vf-button-group>
-      </vf-dialog>
-
-      <!-- Empty Trash alert (apps/finder). The message is written at show. -->
-      <vf-dialog id="dlg-empty-trash" frame="plain" label="Empty Trash" width="400" height="150">
-        <vf-img width="32" height="32" left="16" top="16">
-          <img src="/icons/alert.png" alt="" />
-        </vf-img>
-        <vf-paragraph face="display" id="empty-trash-msg" width="310" left="64" top="16"></vf-paragraph>
-        <vf-button-group origin="bottom right" left="374" top="124">
-          <vf-button id="btn-empty-trash-cancel">Cancel</vf-button>
-          <vf-button id="btn-empty-trash-ok" variant="default">OK</vf-button>
-        </vf-button-group>
-      </vf-dialog>
-
-      <!-- Restore from Backup question (apps/finder). The message is written at
-           show, and Replace is disabled on an empty desktop. -->
-      <vf-dialog id="dlg-restore-backup" frame="plain" label="Restore" width="420" height="180">
-        <vf-img width="32" height="32" left="16" top="16">
-          <img src="/icons/alert.png" alt="" />
-        </vf-img>
-        <vf-paragraph face="display" id="restore-backup-msg" width="330" left="64" top="16"></vf-paragraph>
-        <vf-button-group origin="bottom right" left="394" top="154">
-          <vf-button id="btn-restore-cancel">Cancel</vf-button>
-          <vf-button id="btn-restore-replace">Replace</vf-button>
-          <vf-button id="btn-restore-add" variant="default">Add</vf-button>
-        </vf-button-group>
-      </vf-dialog>
-
-      <!-- Restore alert (apps/finder) for a file that is not a backup, or a
-           backup with items in it that could not be read. -->
-      <vf-dialog id="dlg-restore-failed" frame="plain" label="Restore" width="400" height="160">
-        <vf-img width="32" height="32" left="16" top="16">
-          <img src="/icons/alert.png" alt="" />
-        </vf-img>
-        <vf-paragraph face="display" id="restore-failed-msg" width="310" left="64" top="16"></vf-paragraph>
-        <vf-button-group origin="bottom right" left="374" top="134">
-          <vf-button id="btn-restore-failed-ok" variant="default">OK</vf-button>
         </vf-button-group>
       </vf-dialog>
     </vf-desktop>

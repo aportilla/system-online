@@ -1,104 +1,92 @@
-// Text Viewer: the read-me application. Wires its menus to the text windows
-// (windows.ts). The Finder opens text files through actions.open.
+// Text Viewer: the read-me application. It opens the library's text files (the
+// `text` kind), one window each (windows.ts), and wires its menus. The window
+// manager places a window, opens it out of its icon and closes it back into
+// it, and retitles or closes it as its file is renamed or removed. The zoom box
+// toggles a reading column (layout.ts).
 
-import type { VfViewportBox, VfWindow } from 'vintage-frames'
+import { VfWindow } from 'vintage-frames'
+import type { VfViewportBox } from 'vintage-frames'
+import { defineApp } from 'vintage-frames/shell'
+import type { AppDefinition, Item } from 'vintage-frames/shell'
 import menus from './menus.html?raw'
-import { TEXT_VIEWER } from '../../state/shell.ts'
-import { itemOf, listeners, menuOf, menuValue } from '../../shell/menu-bar.ts'
-import type { WindowRecord } from '../../shell/desktop-state.ts'
-import type { App } from '../index.ts'
-import { initTextWindows } from './windows.ts'
+import textArt from './art/text-file.png'
+import { TEXT } from '../../state/kinds.ts'
+import { textOf } from '../../texts/index.ts'
+import { selectContents, selectedTextIn, zoomBetween } from '../windows.ts'
+import { bodyOf, textWindow } from './windows.ts'
+import { expandedTextBox } from './layout.ts'
+
+const TEXT_VIEWER = 'text-viewer'
 
 export interface TextViewerActions {
-  /** Opens a text file's window or brings it forward. `from` is the box a new
-   *  window grows out of. */
-  open(id: string, opts?: { from?: VfViewportBox | null }): Promise<VfWindow | null>
-  /** Window geometry by key, for the desktop state snapshot (main.ts). */
-  pins(): Record<string, WindowRecord>
+  /** Open a text file's window, or bring it forward. The boot reopens the
+   *  last session's windows through it. */
+  open(target: { item?: string | null; from?: VfViewportBox | null }): void
 }
 
-export const textViewer: App<TextViewerActions> = {
-  id: TEXT_VIEWER,
-  name: 'Text Viewer',
-  menus,
-  init({ menus, deps }) {
-    const { desktop, windows, modalOpen } = deps
-    const WHERE = 'apps/text-viewer'
-    // A window closes into its icon through the Finder, read at each close.
-    const texts = initTextWindows(desktop, windows, {
-      savedPin: deps.windowPin,
-      iconBox: (key) => deps.apps.finder?.iconBox(key) ?? null,
-      holdGhost: (key, until) => deps.apps.finder?.holdGhost(key, until),
-      showError: deps.showError,
-    })
-    const menuFile = menuOf(menus, 'file', WHERE)
-    const menuEdit = menuOf(menus, 'edit', WHERE)
-    const menuView = menuOf(menus, 'view', WHERE)
-    const l = listeners()
+export function textViewer(): AppDefinition<TextViewerActions> {
+  /** Opens a text file's window out of `from`; init sets it. */
+  let openText = (_item: Item, _from: VfViewportBox | null): void => {}
 
-    l.on(menuFile, 'vf-menu-select', (e) => {
-      if (modalOpen()) return
-      switch (menuValue(e)) {
-        case 'close': {
-          const id = texts.activeText()
-          if (id != null) texts.close(id)
-          break
-        }
-        case 'quit':
-          texts.closeAll()
-          break
-      }
-    })
-
-    l.on(menuEdit, 'vf-menu-select', (e) => {
-      if (modalOpen()) return
-      switch (menuValue(e)) {
-        case 'copy': {
-          // The enabled item takes ⌘C, so the browser's own copy does not run.
-          const text = texts.selectedText()
-          if (text) navigator.clipboard?.writeText?.(text).catch(() => {})
-          break
-        }
-        case 'select-all': {
-          const id = texts.activeText()
-          if (id != null) texts.selectAll(id)
-          break
-        }
-      }
-    })
-
-    l.on(menuView, 'vf-menu-select', (e) => {
-      if (modalOpen()) return
-      if (menuValue(e) === 'arrange') windows.arrange()
-    })
-
-    // Copy is disabled unless a text window holds a non-empty selection. A
-    // disabled item leaves ⌘C to the browser.
-    const itemCopy = itemOf(menuEdit, 'copy', WHERE)
-    const syncCopy = () => {
-      itemCopy.disabled = texts.selectedText() === ''
-    }
-    l.on(document, 'selectionchange', syncCopy)
-    l.on(desktop, 'vf-activate', syncCopy)
-    syncCopy()
-
-    // Arrange Windows is disabled while every window is at its placement.
-    const itemArrange = itemOf(menuView, 'arrange', WHERE)
-    const syncArrange = () => {
-      itemArrange.disabled = windows.arranged()
-    }
-    l.add(windows.onLayout(syncArrange))
-    syncArrange()
-
-    return {
-      actions: {
-        open: (id, opts) => texts.open(id, opts),
-        pins: () => texts.pins(),
+  return defineApp<TextViewerActions>({
+    id: TEXT_VIEWER,
+    name: 'Text Viewer',
+    menus,
+    kinds: {
+      [TEXT]: {
+        art: textArt,
+        open: (item, from) => openText(item, from),
+        size: (item) => new TextEncoder().encode(textOf(item) ?? '').byteLength,
       },
-      dispose() {
-        l.dispose()
-        texts.dispose()
-      },
-    }
-  },
+    },
+    init(ctx) {
+      const { desktop, windows } = ctx
+
+      openText = (item, from) => {
+        const text = textOf(item)
+        if (text == null) {
+          void ctx.alert(`“${item.name}” can’t be opened: its text is no longer part of SystemOnline.`)
+          return
+        }
+        windows.open({
+          app: TEXT_VIEWER,
+          item: item.id,
+          from,
+          create: () => textWindow(item.name, text),
+          keep: expandedTextBox,
+        })
+      }
+      zoomBetween(ctx, TEXT_VIEWER, expandedTextBox)
+
+      /** The active window, when it is a text window. */
+      const active = (): VfWindow | null => {
+        const w = desktop.activeWindow
+        return w instanceof VfWindow && windows.appOf(w) === TEXT_VIEWER ? w : null
+      }
+
+      ctx.onMenu((value) => {
+        const win = active()
+        if (value === 'close' && win) windows.requestClose(win)
+        else if (value === 'quit') for (const w of windows.windowsOf(TEXT_VIEWER)) windows.requestClose(w)
+        // The enabled item takes ⌘C, so the browser's own copy does not run.
+        else if (value === 'copy') navigator.clipboard?.writeText?.(selectedTextIn(windows, TEXT_VIEWER)).catch(() => {})
+        else if (value === 'select-all' && win) selectContents(bodyOf(win))
+        else if (value === 'arrange') windows.arrange()
+      })
+      // Copy is disabled unless a text window holds a selection, so ⌘C falls
+      // through to the browser.
+      ctx.gate(ctx.item('copy'), () => selectedTextIn(windows, TEXT_VIEWER) !== '')
+      ctx.gate(ctx.item('arrange'), () => !windows.arranged())
+      ctx.onDispose(() => {
+        for (const w of windows.windowsOf(TEXT_VIEWER)) w.remove()
+      })
+
+      return {
+        open({ item, from = null }) {
+          const it = ctx.catalog?.item(item)
+          if (it?.kind === TEXT) openText(it, from)
+        },
+      }
+    },
+  })
 }

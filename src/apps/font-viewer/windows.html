@@ -1,28 +1,25 @@
-<!-- Font Viewer window. windows.ts parses this fragment and clones the template
-     for each open suitcase. -->
+<!-- Font Viewer window, made for each open suitcase (windows.ts). -->
 <!-- The body: the sample line once per strike, a rule, then the chosen
      strike's character rows. windows.ts writes each paragraph's strike as
      font tokens; .font-specimen in desktop.css turns smoothing off and
      .font-charset breaks the rows anywhere. The inset is the stack's pad
      because a window body has none. The status strip names the strike. -->
-<template id="tpl-font-window">
-  <vf-window
-    heading="untitled"
-    movable
-    outline-drag
-    resizable
-    zoomable
-    scrollbars="vertical"
-    width="520"
-    height="340"
-  >
-    <vf-stack fill-width pad="8 10 12" gap="12" class="font-specimen">
-      <vf-stack fill-width gap="6" class="font-samples"></vf-stack>
-      <vf-separator fill-width></vf-separator>
-      <vf-stack fill-width class="font-charset"></vf-stack>
-    </vf-stack>
-    <vf-stack slot="status" direction="row" pad="0 8">
-      <vf-label face="body" class="font-status"></vf-label>
-    </vf-stack>
-  </vf-window>
-</template>
+<vf-window
+  heading="untitled"
+  movable
+  outline-drag
+  resizable
+  zoomable
+  scrollbars="vertical"
+  width="520"
+  height="340"
+>
+  <vf-stack fill-width pad="8 10 12" gap="12" class="font-specimen">
+    <vf-stack fill-width gap="6" class="font-samples"></vf-stack>
+    <vf-separator fill-width></vf-separator>
+    <vf-stack fill-width class="font-charset"></vf-stack>
+  </vf-stack>
+  <vf-stack slot="status" direction="row" pad="0 8">
+    <vf-label face="body" class="font-status"></vf-label>
+  </vf-stack>
+</vf-window>

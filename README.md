@@ -7,9 +7,11 @@ on the 1-bit grid at true 72dpi size.
 Use it at <https://system-online.portill.io/>.
 
 Everything you see is drawn by [**vintage-frames**](https://www.npmjs.com/package/vintage-frames),
-the System 7 component kit, installed from npm like any other dependency. This
-repo is the *application*: the shell, the applications, their content, and the
-imported strike collection the Font Viewer opens.
+the System 7 component kit, installed from npm like any other dependency, and
+the desktop runs on its shell, `vintage-frames/shell`: the window manager, the
+menu bar, the catalog of files and the stock Finder. This repo is the
+*application*: the applications, the shell's configuration, their content,
+and the imported strike collection the Font Viewer opens.
 
 ```sh
 npm install
@@ -29,24 +31,24 @@ npm run dev        # http://localhost:5173/
 
 | | |
 | --- | --- |
-| **Finder** | the desktop's icons, folder windows, rename, filing by drag, the Trash, Copy and Paste, Clean Up, Back Up All Files… and Restore from Backup…, Restore Default Files |
+| **Finder** | the kit's stock Finder (icons, folder windows, rename, filing by drag, the Trash, Copy and Paste, Clean Up), plus Back Up All Files… and Restore from Backup…, Restore Default Files |
 | **Text Viewer** | read-me files, read-only |
 | **Desktop Patterns** | Apple menu → Desktop Patterns: the kit's 38 patterns for the desktop |
 | **Font Viewer** | a font suitcase's sample line in every strike, and every character of one |
 
-Whichever window is in front, its application owns the menu bar. The files live
-in the browser's IndexedDB, and the desktop's layout in localStorage; a reload
-reopens what was open. `?fresh=1` boots a clean desktop that saves nothing.
+Whichever window is in front, its application owns the menu bar. The files and
+their icons' places live in the browser's IndexedDB, and the windows and the
+desktop pattern in localStorage; a reload reopens what was open. `?fresh=1`
+boots a clean desktop that saves nothing.
 
 ## Layout
 
 ```
-index.html               the skeleton: desktop, menu bar, icon field, shared dialogs
-src/main.ts              the composition root
-src/shell/               what every application shares: the window manager, the
-                         menu bar, geometry, the clock, the desktop state
+index.html               the skeleton: desktop, menu bar, icon field, About box
+src/main.ts              the composition root: the shell and its applications
+src/about.ts             the About box and the boot greeting
 src/apps/<id>/           one directory per application: menus, windows, behavior
-src/state/               the library, the backup format, the clipboard
+src/state/               the library's kinds, its defaults, the backup format
 src/texts/               the built-in read-me files
 src/desktop.css          LAYOUT only
 src/page.css             page-level CSS the components can't reach from a shadow root

@@ -30,20 +30,27 @@ gets one on its contract. A module under test imports no DOM, no kit and no
 ## Applications and the shell
 
 The desktop is four applications — the Finder, the Text Viewer, Desktop
-Patterns and the Font Viewer, one directory each under `src/apps/` — over one
-shell. The model is sprite-machine's; keep it:
+Patterns and the Font Viewer, one directory each under `src/apps/` — over the
+kit's shell, `vintage-frames/shell` (experimental; its guide is the kit's
+`docs/SHELL.md`). The window manager, the menu bar, the catalog, the stock
+Finder and the saved session are the kit's; this repo holds the applications
+and the shell's configuration. Keep it that way:
 
-- **Application behavior lives in its application's directory**: its menus
-  (`menus.html`, `index.ts`) and its windows — markup (`windows.html`),
-  lifecycle and what the close and zoom boxes mean (`windows.ts`), placement
-  (`layout.ts`, pure). `src/shell/` holds only what every application shares:
-  the window manager, the menu bar, the desktop geometry and state.
-- **Primitives in the shell, choices in the application.** Shell code that
-  names an application or a kind of window is in the wrong place.
-- **The arrows point one way**: `src/apps/` imports `src/shell/`, never the
-  reverse. An application reaches the shell through `deps` and the window
-  manager's declarations and signals.
-- **Cross-application calls** go through `deps.apps`, read at pick time.
+- **Application behavior lives in its application's directory**: its
+  definition, menus and kinds (`index.ts`, `menus.html`), what goes in its
+  windows (`windows.html`, `windows.ts`), and a zoom box's column (`layout.ts`,
+  pure). The Finder is the stock one, configured in `src/apps/finder/` with
+  its art, volumes, seed and the Special commands it adds through `extend`.
+  `src/apps/windows.ts` holds what the applications' windows share.
+- **Desktop mechanics belong in the kit.** If an application needs the shell
+  to do something it doesn't, that's a change to the kit's shell, not a
+  window manager or Finder rebuilt here.
+- **The library's kinds are SystemOnline's**: a text file and a font suitcase
+  (`src/state/kinds.ts`), small data on catalog items. The pure modules in
+  `src/state/` import only types from the kit, since its shell entry needs a
+  DOM; `kinds.ts` restates the catalog's few ids for them.
+- **Cross-application calls**, if one is ever needed, go through `ctx.apps`,
+  read at the call.
 - Comments are short and direct: label a section or state a non-obvious
   constraint. A larger change starts as a plan in `docs/<topic>-plan.md`
   (docs/app-model-plan.md is the model).
@@ -55,8 +62,8 @@ shell. The model is sprite-machine's; keep it:
   components. `src/page.css` is the page-level half — the black behind the
   desktop, the scroll suppression `fitWithin` needs — and that is the host
   page's job because the kit ships no stylesheet at all.
-- **Never reach into the kit's internals.** Import from `vintage-frames` only,
-  never a deep path into its `dist/`. If something the desktop needs isn't
+- **Never reach into the kit's internals.** Import from `vintage-frames` and
+  `vintage-frames/shell` only, never a deep path into its `dist/`. If something the desktop needs isn't
   exported, that's a change to make in the kit repo, not to route around here.
 - **Two kinds of type, kept apart.** `VF Display`/`VF Body` come from the
   package and are the kit's *own re-drawn strikes* — credit Susan Kare and
@@ -76,12 +83,14 @@ or generated-by trailers.
 
 ## Where things are
 
-- `index.html` — the skeleton (desktop, menu bar, icon field, shared
-  dialogs); `src/main.ts` — the composition root
-- `src/shell/` — the shell; `src/apps/<id>/` — the applications;
-  `src/state/` — the library (IndexedDB), the backup format, the clipboard
+- `index.html` — the skeleton (desktop, menu bar, icon field, About box);
+  `src/main.ts` — the composition root, which starts the shell;
+  `src/about.ts` — the About box
+- `src/apps/<id>/` — the applications; `src/state/` — the library's kinds,
+  its defaults and the backup format
 - `docs/SPEC.md` — what's on the desktop, clause by clause
-- `docs/app-model-plan.md` — the plan the application model was built from
+- `docs/app-model-plan.md` — the plan the application model was first built
+  from, here; the shell has since moved into the kit
 - `docs/FONTS.md` — the imported strike collection, its two converters, and
   the point-size naming scheme
 - `fonts/*.py` — the collection pipeline: `dfont-to-bdf.py` → `import-bdf.py`
