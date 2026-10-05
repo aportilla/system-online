@@ -24,8 +24,9 @@ Unit tests only, and only for pure logic (`test/*.test.mjs`, run by
 stripping). No browser tests, and nothing that asserts markup, copy,
 constants or what the kit renders: the look and the wiring are checked by
 eye. The default for a change is no new test; a new pure function with rules
-gets one on its contract. A module under test imports no DOM, no kit and no
-`?raw`, and its relative imports carry their `.ts` extension.
+gets one on its contract. A module under test imports no DOM, nothing of the
+kit but `vintage-frames/shell/pure`, and no `?raw`, and its relative imports
+carry their `.ts` extension.
 
 ## Applications and the shell
 
@@ -50,8 +51,9 @@ and the shell's configuration. Keep it that way:
   window manager or Finder rebuilt here.
 - **The library's kinds are SystemOnline's**: a text file and a font suitcase
   (`src/state/kinds.ts`), small data on catalog items. The pure modules in
-  `src/state/` import only types from the kit, since its shell entry needs a
-  DOM; `kinds.ts` restates the catalog's few ids for them.
+  `src/state/` take the catalog's ids and selectors from
+  `vintage-frames/shell/pure`, the shell's DOM-free entry, so they run under
+  Node.
 - **Cross-application calls**, if one is ever needed, go through `ctx.apps`,
   read at the call.
 - Comments are short and direct: label a section or state a non-obvious
@@ -65,8 +67,9 @@ and the shell's configuration. Keep it that way:
   components. `src/page.css` is the page-level half — the black behind the
   desktop, the scroll suppression `fitWithin` needs — and that is the host
   page's job because the kit ships no stylesheet at all.
-- **Never reach into the kit's internals.** Import from `vintage-frames` and
-  `vintage-frames/shell` only, never a deep path into its `dist/`. If something the desktop needs isn't
+- **Never reach into the kit's internals.** Import from `vintage-frames`,
+  `vintage-frames/shell` and `vintage-frames/shell/pure` only, never a deep
+  path into its `dist/`. If something the desktop needs isn't
   exported, that's a change to make in the kit repo, not to route around here.
 - **Two kinds of type, kept apart.** `VF Display`/`VF Body` come from the
   package and are the kit's *own re-drawn strikes* — credit Susan Kare and

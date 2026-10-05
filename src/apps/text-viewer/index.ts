@@ -1,8 +1,8 @@
 // Text Viewer: the read-me application. It opens the library's text files (the
 // `text` kind), one window each (windows.ts), and wires its menus. The window
 // manager places a window, opens it out of its icon and closes it back into
-// it, and retitles or closes it as its file is renamed or removed. The zoom box
-// toggles a reading column (layout.ts).
+// it, retitles or closes it as its file is renamed or removed, and runs its
+// zoom box, which toggles a reading column (layout.ts).
 
 import { VfWindow } from 'vintage-frames'
 import type { VfViewportBox } from 'vintage-frames'
@@ -10,10 +10,11 @@ import { defineApp } from 'vintage-frames/shell'
 import type { AppDefinition, Item } from 'vintage-frames/shell'
 import menus from './menus.html?raw'
 import dialogs from './dialogs.html?raw'
+import windowMarkup from './windows.html?raw'
 import textArt from './art/text-file.png'
 import { TEXT } from '../../state/kinds.ts'
 import { textOf } from '../../texts/index.ts'
-import { ask, selectContents, selectedTextIn, zoomBetween } from '../windows.ts'
+import { ask, selectContents, selectedTextIn } from '../windows.ts'
 import { bodyOf, textWindow } from './windows.ts'
 import { expandedTextBox } from './layout.ts'
 
@@ -34,6 +35,7 @@ export function textViewer(): AppDefinition<TextViewerActions> {
     name: 'Text Viewer',
     menus,
     dialogs,
+    windows: windowMarkup,
     kinds: {
       [TEXT]: {
         art: textArt,
@@ -55,11 +57,10 @@ export function textViewer(): AppDefinition<TextViewerActions> {
           app: TEXT_VIEWER,
           item: item.id,
           from,
-          create: () => textWindow(item.name, text),
-          keep: expandedTextBox,
+          create: () => textWindow(ctx.window('text'), item.name, text),
+          zoom: expandedTextBox,
         })
       }
-      zoomBetween(ctx, TEXT_VIEWER, expandedTextBox)
 
       /** The active window, when it is a text window. */
       const active = (): VfWindow | null => {
@@ -69,8 +70,8 @@ export function textViewer(): AppDefinition<TextViewerActions> {
 
       ctx.onMenu((value) => {
         const win = active()
-        if (value === 'close' && win) windows.requestClose(win)
-        else if (value === 'quit') for (const w of windows.windowsOf(TEXT_VIEWER)) windows.requestClose(w)
+        if (value === 'close' && win) void windows.requestClose(win)
+        else if (value === 'quit') void windows.closeAll(TEXT_VIEWER)
         // The enabled item takes ⌘C, so the browser's own copy does not run.
         else if (value === 'copy') navigator.clipboard?.writeText?.(selectedTextIn(windows, TEXT_VIEWER)).catch(() => {})
         else if (value === 'select-all' && win) selectContents(bodyOf(win))
@@ -80,9 +81,6 @@ export function textViewer(): AppDefinition<TextViewerActions> {
       // through to the browser.
       ctx.gate(ctx.item('copy'), () => selectedTextIn(windows, TEXT_VIEWER) !== '')
       ctx.gate(ctx.item('arrange'), () => !windows.arranged())
-      ctx.onDispose(() => {
-        for (const w of windows.windowsOf(TEXT_VIEWER)) w.remove()
-      })
 
       return {
         open({ item, from = null }) {

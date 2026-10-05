@@ -22,7 +22,7 @@
     "charset-manifest": "/tmp/fontenv/bin/python3 fonts/charset-manifest.py"
   },
   "dependencies": {
-    "vintage-frames": "^0.15.0"
+    "vintage-frames": "^0.16.0"
   },
   "devDependencies": {
     "@types/node": "^24.19.0",

@@ -3,29 +3,8 @@
      height − 10 for frame="plain". The art and the message sit 16 in from the
      body's top-left, and the button group's origin corner 16 in from its
      bottom-right. Each is authored at its least height; a longer message
-     grows it (ask, ../windows.ts). -->
-
-<!-- Restore when there is nowhere to put it. -->
-<vf-dialog
-  data-dialog="storage-unavailable"
-  frame="plain"
-  label="Storage Unavailable"
-  width="400"
-  height="118"
->
-  <form method="dialog" novalidate>
-    <vf-img width="32" height="32" left="16" top="16">
-      <img src="/icons/alert.png" alt="" />
-    </vf-img>
-    <vf-paragraph face="display" width="310" left="64" top="16"
-      >Files can’t be saved in this browser session. A private window,
-      perhaps.</vf-paragraph
-    >
-    <vf-button-group origin="bottom right" left="374" top="92">
-      <vf-button type="submit" value="ok" variant="default">OK</vf-button>
-    </vf-button-group>
-  </form>
-</vf-dialog>
+     grows it (ask, ../windows.ts). Storage Unavailable is the stock
+     Finder's (finder.storageReady()). -->
 
 <!-- The Restore question. Replace is shown only over something to
      replace. -->

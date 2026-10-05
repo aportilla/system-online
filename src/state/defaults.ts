@@ -3,8 +3,9 @@
 // They are the catalog's seed, stored once per storage; Special → Restore
 // Default Files stores the ones missing since.
 
-import type { Catalog, CatalogState } from 'vintage-frames/shell'
-import { DISK, FOLDER, FONT, TEXT, fontFamily, textData } from './kinds.ts'
+import { DISK, FOLDER } from 'vintage-frames/shell/pure'
+import type { Catalog, CatalogState } from 'vintage-frames/shell/pure'
+import { FONT, TEXT, fontFamily, textData } from './kinds.ts'
 
 /** The folder the font suitcases live in, directly in Macintosh HD. */
 export const FONTS_FOLDER = 'Fonts'

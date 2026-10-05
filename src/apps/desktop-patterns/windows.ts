@@ -3,17 +3,15 @@
 // Set Desktop Pattern commits it.
 //
 // Every piece is a kit element. A cell is a vf-container pattern, a radio in
-// the grid's radiogroup with a roving tab stop. Only the chosen cell takes
-// focus, so the focus the window manager moves into an opened window lands on
-// it. The chosen cell's ring is 1px black over its edge and 1px white inside,
-// eight 1px vf-containers over the cell's own pattern, so the pattern keeps
-// its phase.
+// the grid's radiogroup with a roving tab stop: the chosen cell is the one in
+// the tab order, so the focus the window manager moves into an opened window
+// lands on it. The chosen cell's ring is 1px black over its edge and 1px white
+// inside, eight 1px vf-containers over the cell's own pattern, so the pattern
+// keeps its phase.
 
 import type { VfButton, VfContainer, VfGrid, VfWindow } from 'vintage-frames'
 import { PATTERN_NAMES } from 'vintage-frames'
 import type { Box } from 'vintage-frames/shell'
-import markup from './windows.html?raw'
-import { windowFrom } from '../windows.ts'
 
 /** A chooser cell's edge in system px. */
 const CELL = 16
@@ -29,10 +27,9 @@ const RING: (Box & { pattern: 'black' | 'white' })[] = [
   { left: CELL - 2, top: 2, width: 1, height: CELL - 4, pattern: 'white' },
 ]
 
-/** The panel, its choice seeded from `current`; Set Desktop Pattern calls
- *  `set` with the choice. */
-export function patternsWindow(current: string, set: (pattern: string) => void): VfWindow {
-  const win = windowFrom(markup)
+/** `win`, a fresh panel, its choice seeded from `current`; Set Desktop
+ *  Pattern calls `set` with the choice. */
+export function patternsWindow(win: VfWindow, current: string, set: (pattern: string) => void): VfWindow {
   /** The pattern shown in the well and ringed in the grid. */
   let pending = current
 
@@ -66,8 +63,7 @@ export function patternsWindow(current: string, set: (pattern: string) => void):
     for (const cell of cells) {
       const on = cell.dataset.pattern === pending
       cell.setAttribute('aria-checked', String(on))
-      if (on) cell.tabIndex = 0
-      else cell.removeAttribute('tabindex')
+      cell.tabIndex = on ? 0 : -1
       if (on) cell.append(...ring)
     }
     // A pattern that isn't a named one rings nothing, so the first cell keeps

@@ -1,7 +1,7 @@
 // Font Viewer: opens the library's font suitcases (the `font` kind), one window
 // each, set in the suitcase's own strikes (windows.ts), and fills the Size menu
-// with the active window's. It opens on the strike nearest 12; the zoom box
-// toggles a wide column (layout.ts).
+// with the active window's. It opens on the strike nearest 12; the zoom box,
+// which the window manager runs, toggles a wide column (layout.ts).
 
 import { VfWindow } from 'vintage-frames'
 import type { VfViewportBox } from 'vintage-frames'
@@ -9,9 +9,10 @@ import { defineApp } from 'vintage-frames/shell'
 import type { AppDefinition, Item } from 'vintage-frames/shell'
 import menus from './menus.html?raw'
 import dialogs from './dialogs.html?raw'
+import windowMarkup from './windows.html?raw'
 import { CHARSET_FAMILIES } from '../../charset-manifest.ts'
 import { FONT, fontFamily } from '../../state/kinds.ts'
-import { ask, selectContents, selectedTextIn, zoomBetween } from '../windows.ts'
+import { ask, selectContents, selectedTextIn } from '../windows.ts'
 import { fontWindow, render, specimenOf } from './windows.ts'
 import type { Specimen } from './windows.ts'
 import { expandedFontBox } from './layout.ts'
@@ -43,6 +44,7 @@ export function fontViewer(): AppDefinition<FontViewerActions> {
     name: 'Font Viewer',
     menus,
     dialogs,
+    windows: windowMarkup,
     kinds: {
       [FONT]: {
         art: SUITCASE_ART,
@@ -95,16 +97,15 @@ export function fontViewer(): AppDefinition<FontViewerActions> {
           item: item.id,
           from,
           create: () => {
-            const s: Specimen = { win: fontWindow(item.name), family, font, pass: 0 }
+            const s: Specimen = { win: fontWindow(ctx.window('font'), item.name), family, font, pass: 0 }
             specimens.set(s.win, s)
             void render(s)
             return s.win
           },
-          keep: expandedFontBox,
+          zoom: expandedFontBox,
         })
         syncSize()
       }
-      zoomBetween(ctx, FONT_VIEWER, expandedFontBox)
 
       ctx.onMenu((value, item) => {
         const s = active()
@@ -114,8 +115,8 @@ export function fontViewer(): AppDefinition<FontViewerActions> {
           s.font = font
           void render(s)
           syncSize()
-        } else if (value === 'close' && s) windows.requestClose(s.win)
-        else if (value === 'quit') for (const w of windows.windowsOf(FONT_VIEWER)) windows.requestClose(w)
+        } else if (value === 'close' && s) void windows.requestClose(s.win)
+        else if (value === 'quit') void windows.closeAll(FONT_VIEWER)
         // The enabled item takes ⌘C, so the browser's own copy does not run.
         else if (value === 'copy') navigator.clipboard?.writeText?.(selectedTextIn(windows, FONT_VIEWER)).catch(() => {})
         else if (value === 'select-all' && s) selectContents(specimenOf(s.win))
@@ -124,9 +125,6 @@ export function fontViewer(): AppDefinition<FontViewerActions> {
       // Copy is disabled unless a font window holds a selection.
       ctx.gate(ctx.item('copy'), () => selectedTextIn(windows, FONT_VIEWER) !== '')
       ctx.gate(ctx.item('arrange'), () => !windows.arranged())
-      ctx.onDispose(() => {
-        for (const w of windows.windowsOf(FONT_VIEWER)) w.remove()
-      })
 
       return {
         open({ item, from = null }) {

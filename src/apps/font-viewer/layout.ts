@@ -1,6 +1,6 @@
 // Font Viewer geometry (pure): the zoomed box for a font window.
 
-import type { Box } from 'vintage-frames/shell'
+import type { Box } from 'vintage-frames/shell/pure'
 
 const FONT_EXPAND_PAD = 20
 const FONT_EXPAND_MAX_WIDTH = 720

@@ -1,11 +1,13 @@
-<!-- Font Viewer window, made for each open suitcase (windows.ts). -->
+<!-- Font Viewer window, copied for each open suitcase (windows.ts). -->
 <!-- The body: the sample line once per strike, a rule, then the chosen
      strike's character rows. windows.ts writes each paragraph's strike as
      font tokens; .font-specimen in desktop.css turns smoothing off and
      .font-charset breaks the rows anywhere. The inset is the stack's pad
      because a window body has none. The status strip names the strike. -->
 <vf-window
+  data-window="font"
   heading="untitled"
+  closable
   movable
   outline-drag
   resizable

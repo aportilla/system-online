@@ -1,50 +1,9 @@
-// What the applications' windows and dialogs share: a window made from an
-// application's windows.html, a document window's zoom box, the selection the
-// viewers' Copy and Select All act on, and an alert asked with its message.
+// What the applications' windows and dialogs share: the selection the viewers'
+// Copy and Select All act on, and an alert asked with its message.
 
-import { VfWindow, effectiveScale } from 'vintage-frames'
+import { effectiveScale } from 'vintage-frames'
 import type { VfDialog, VfParagraph } from 'vintage-frames'
-import { nearBox } from 'vintage-frames/shell'
-import type { AppContext, Box, Pin, WindowManager } from 'vintage-frames/shell'
-
-/** A window from `markup`, a windows.html holding one vf-window, upgraded so
- *  its properties can be set before it is appended. */
-export function windowFrom(markup: string): VfWindow {
-  const host = document.createElement('div')
-  host.innerHTML = markup
-  customElements.upgrade(host)
-  const win = host.querySelector('vf-window')
-  if (!(win instanceof VfWindow)) throw new Error('windows.html holds no vf-window')
-  win.remove()
-  return win
-}
-
-/**
- * The zoom box of `app`'s windows: it toggles between the application's
- * `column` and the box the window had before, or its placement without one.
- * The windows open with `keep: column`, so a zoomed one stays zoomed across a
- * browser resize.
- */
-export function zoomBetween(ctx: AppContext, app: string, column: (area: Box) => Box): void {
-  const { windows } = ctx
-  /** Each zoomed window's pin from before the zoom. */
-  const before = new WeakMap<VfWindow, Pin>()
-  ctx.on(ctx.desktop, 'vf-zoom', (e) => {
-    const win = e.target
-    if (!(win instanceof VfWindow) || windows.appOf(win) !== app) return
-    const cur = { left: win.left ?? 0, top: win.top ?? 0, width: win.width ?? 0, height: win.height ?? 0 }
-    const zoomed = column(windows.area)
-    if (nearBox(cur, zoomed)) {
-      const pin = before.get(win)
-      before.delete(win)
-      const back = pin ? windows.fromPin(win, pin) : windows.placed(win)
-      if (back) windows.write(win, back)
-    } else {
-      before.set(win, windows.pinOf(win))
-      windows.write(win, zoomed)
-    }
-  })
-}
+import type { AppContext, WindowManager } from 'vintage-frames/shell'
 
 /** The selected text when the selection is anchored in one of `app`'s
  *  windows, otherwise ''. */
@@ -76,19 +35,22 @@ const authored = new WeakMap<VfDialog, number>()
  *
  * A longer message grows the box, as the kit's own Finder alerts do: 16 under
  * the message, the button row, then 16 and the plain frame's 10 below it. It
- * is measured once shown, since a closed dialog lays out nothing; the new size
+ * is measured on vf-show, since a closed dialog lays out nothing; the new size
  * lands before the first paint.
  */
 export function ask(ctx: AppContext, dialog: VfDialog, message: string): Promise<string | null> {
   const text = dialog.querySelector('[data-message]') as VfParagraph
-  const buttons = dialog.querySelector('vf-button-group')!
-  if (!authored.has(dialog)) authored.set(dialog, dialog.height ?? 0)
+  if (!authored.has(dialog)) {
+    authored.set(dialog, dialog.height ?? 0)
+    const buttons = dialog.querySelector('vf-button-group')!
+    ctx.on(dialog, 'vf-show', () => {
+      const scale = effectiveScale(text)
+      const tall = Math.ceil(text.getBoundingClientRect().height / scale)
+      const row = Math.ceil(buttons.getBoundingClientRect().height / scale)
+      dialog.height = Math.max(authored.get(dialog)!, (text.top ?? 0) + tall + 16 + row + 26)
+      buttons.top = dialog.height - 26
+    })
+  }
   text.textContent = message
-  const answer = ctx.ask(dialog)
-  const scale = effectiveScale(text)
-  const tall = Math.ceil(text.getBoundingClientRect().height / scale)
-  const row = Math.ceil(buttons.getBoundingClientRect().height / scale)
-  dialog.height = Math.max(authored.get(dialog)!, (text.top ?? 0) + tall + 16 + row + 26)
-  buttons.top = dialog.height - 26
-  return answer
+  return ctx.ask(dialog)
 }

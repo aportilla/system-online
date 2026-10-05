@@ -20,11 +20,11 @@ localStorage (`system-online:desktop`).
 1. **Applications.** Each is one directory under `src/apps/` (`finder`,
    `text-viewer`, `desktop-patterns`, `font-viewer`) exporting a function that
    returns the shell's `defineApp` definition: an id, a name, its menus
-   (`menus.html`), its alerts (`dialogs.html`), the catalog kinds it opens,
-   and `init(ctx)`. Its windows are made from `windows.html` (`windows.ts`),
-   and a zoom box's column is pure geometry (`layout.ts`).
-   `src/apps/windows.ts` holds what the windows and dialogs share. No
-   application calls another.
+   (`menus.html`), its alerts (`dialogs.html`), its windows (`windows.html`,
+   filled by `windows.ts`), the catalog kinds it opens, and `init(ctx)`. A
+   zoom box's column is pure geometry (`layout.ts`); the window manager runs
+   the box. `src/apps/windows.ts` holds what the windows and dialogs share.
+   No application calls another.
 2. **The menu bar** holds the Apple menu, then the front application's menus,
    then the clock. The front application is the active window's, or the Finder
    while none is active.
@@ -43,7 +43,8 @@ localStorage (`system-online:desktop`).
    items applications install in it (Desktop Patterns), the way a control
    panel sat in the Apple Menu Items folder.
 4. **Windows.** A window that shows a file opens out of its icon and closes
-   back into it; a window opened from a menu comes and goes at once. Every
+   back into it; a window opened from a menu comes and goes at once. An
+   Option-click on a close box closes every window of its application. Every
    movable window drags as an outline (`outline-drag`). New windows cascade;
    a resize re-pins every window and desktop icon, and View → Arrange Windows
    (⌘J), in every application, puts the windows back.
@@ -132,8 +133,7 @@ kinds of SystemOnline's own (`src/state/kinds.ts`).
 The page may use small amounts of **layout** CSS but NO aesthetic CSS — looks
 come from the components. Every caption is a `vf-label`, every run of copy a
 `vf-paragraph`, every box a `vf-container` or a stack, and `src/desktop.css`
-holds only the apple's nudge, the text body's wrapping and the Font Viewer's
-smoothing token.
+holds only the text body's wrapping and the Font Viewer's smoothing token.
 
 `src/page.css` is the other half: the page-level CSS a component cannot reach
 from its shadow root (the black behind the desktop, the scroll suppression that

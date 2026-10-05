@@ -13,8 +13,9 @@
 // The manifest names Macintosh HD "hd", as SystemOnline's first library did,
 // so backups from before the catalog still read.
 
-import type { CatalogState, Item } from 'vintage-frames/shell'
-import { DISK, FOLDER, FONT, TEXT, TRASH, fontFamily, textData } from './kinds.ts'
+import { DISK, FOLDER, childrenOf, isContainerKind } from 'vintage-frames/shell/pure'
+import type { CatalogState, Item } from 'vintage-frames/shell/pure'
+import { FONT, TEXT, fontFamily, textData } from './kinds.ts'
 
 export const MANIFEST_NAME = 'desktop.json'
 export const BACKUP_FORMAT = 'system-online-desktop'
@@ -64,15 +65,6 @@ export interface BackupContents {
   folders: BackupFolder[]
   texts: (BackupText & { text: string })[]
   fonts: BackupFont[]
-}
-
-const isContainer = (kind: string) => kind === FOLDER || kind === DISK || kind === TRASH
-
-/** The container `parent` resolves to while it is listed, else the desktop
- *  (null), as the catalog resolves it. */
-function containerOf(state: CatalogState, parent: string | null): string | null {
-  const item = parent == null ? undefined : state.items.find((i) => i.id === parent)
-  return item && isContainer(item.kind) ? item.id : null
 }
 
 /** An item's place, when it has one. */
@@ -129,10 +121,10 @@ export function planBackup(
   }
   const seen = new Set<string>()
   const walk = (container: string | null, prefix: string) => {
-    const kids = state.items.filter((i) => i.id !== container && containerOf(state, i.parent) === container)
+    const kids = childrenOf(state, container)
     const ref = container === DISK ? HD : container
     const used = new Set<string>()
-    for (const f of kids.filter((i) => isContainer(i.kind))) {
+    for (const f of kids.filter((i) => isContainerKind(i.kind))) {
       if (seen.has(f.id)) continue // a looping chain is walked once
       seen.add(f.id)
       const path = prefix + segment(used, f.name, '/')

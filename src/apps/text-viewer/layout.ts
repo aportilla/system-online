@@ -1,6 +1,6 @@
 // Text Viewer geometry (pure): the zoomed box for a read-me window.
 
-import type { Box } from 'vintage-frames/shell'
+import type { Box } from 'vintage-frames/shell/pure'
 
 const TEXT_EXPAND_PAD = 20
 const TEXT_EXPAND_MAX_WIDTH = 520

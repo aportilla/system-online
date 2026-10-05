@@ -7,6 +7,7 @@ import type { VfWindow } from 'vintage-frames'
 import { centeredBox, defineApp } from 'vintage-frames/shell'
 import type { AppDefinition } from 'vintage-frames/shell'
 import menus from './menus.html?raw'
+import windowMarkup from './windows.html?raw'
 import { patternsWindow } from './windows.ts'
 
 const DESKTOP_PATTERNS = 'desktop-patterns'
@@ -19,6 +20,7 @@ export function desktopPatterns(): AppDefinition {
     id: DESKTOP_PATTERNS,
     name: 'Desktop Patterns',
     menus,
+    windows: windowMarkup,
     init(ctx) {
       const { desktop, windows } = ctx
       /** The panel, while it is open. */
@@ -30,7 +32,7 @@ export function desktopPatterns(): AppDefinition {
           desktop.bringToFront(panel)
           return
         }
-        const win = patternsWindow(desktop.pattern ?? DEFAULT_PATTERN, (pattern) => {
+        const win = patternsWindow(ctx.window('patterns'), desktop.pattern ?? DEFAULT_PATTERN, (pattern) => {
           desktop.pattern = pattern
         })
         const size = { width: win.width ?? 0, height: win.height ?? 0 }
@@ -40,11 +42,11 @@ export function desktopPatterns(): AppDefinition {
       ctx.systemItem(DESKTOP_PATTERNS, 'Desktop Patterns', open)
 
       ctx.onMenu((value) => {
-        if ((value === 'close' || value === 'quit') && panel?.isConnected) windows.requestClose(panel)
+        if (value === 'close' && panel?.isConnected) void windows.requestClose(panel)
+        else if (value === 'quit') void windows.closeAll(DESKTOP_PATTERNS)
         else if (value === 'arrange') windows.arrange()
       })
       ctx.gate(ctx.item('arrange'), () => !windows.arranged())
-      ctx.onDispose(() => panel?.remove())
     },
   })
 }

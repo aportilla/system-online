@@ -306,6 +306,8 @@ green. All landed 2026-09-27.
 
 ## 5. Kit asks
 
+All four below shipped in vintage-frames 0.14.1.
+
 Nothing new is required. Two bridges come across from sprite-machine:
 
 1. **The selection across a chrome press.** `vf-icon` still clears its

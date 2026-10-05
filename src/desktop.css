@@ -8,21 +8,6 @@
  * px, so almost nothing is left to say here.
  */
 
-/* ------------------------------- Menu bar ------------------------------ */
-
-/*
- * The nudge is about the apple's ART, not the layout: System 7 sat the
- * apple's ink 8 system px into its plate with 4px of black below it counting
- * the bar's rule, i.e. ink −8/+9 where a text title is −10/+9. The sheet's
- * 16×16 cell carries the ink at x 2..12 / y 1..14, so against the label's
- * 10/8 padding the cell shifts −4/−2, and the 2px block-end margin re-centers
- * the cell so the ink's bottom lands on strip row 15.
- */
-#menu-apple vf-img {
-  margin-inline: calc(var(--vf-scale, 1) * -4px) calc(var(--vf-scale, 1) * -2px);
-  margin-block-end: calc(var(--vf-scale, 1) * 2px);
-}
-
 /* ----------------------------- Text Viewer ----------------------------- */
 
 /* A text window's body (apps/text-viewer/windows.html). Keeps the file's line

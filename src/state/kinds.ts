@@ -4,18 +4,12 @@
 // suitcase its family, whose strikes are the app's. Pure, so the defaults and
 // the backup format run under Node.
 
-import type { Item } from 'vintage-frames/shell'
+import type { Item } from 'vintage-frames/shell/pure'
 
 /** A text file's kind, which the Text Viewer opens. */
 export const TEXT = 'text'
 /** A font suitcase's kind, which the Font Viewer opens. */
 export const FONT = 'font'
-
-// The catalog's own ids and kinds, restated: vintage-frames/shell's entry
-// needs a DOM, so its DISK, TRASH and FOLDER can't be imported under Node.
-export const DISK = 'disk'
-export const TRASH = 'trash'
-export const FOLDER = 'folder'
 
 /** A text file's data: the key of a built-in, or its own words. */
 export interface TextData {

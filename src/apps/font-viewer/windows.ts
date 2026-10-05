@@ -1,4 +1,4 @@
-// Font Viewer windows: one per open suitcase, made from windows.html. The body
+// Font Viewer windows: one per open suitcase, a copy of windows.html's. The body
 // sets the sample line in every strike of the family, then every character of
 // the chosen strike, each in the strike itself: the paragraph carries the
 // strike's family, its rect as the size (one design px per system px) and its
@@ -7,9 +7,7 @@
 
 import { VfParagraph } from 'vintage-frames'
 import type { VfLabel, VfWindow } from 'vintage-frames'
-import markup from './windows.html?raw'
 import type { CharsetFamily, CharsetFont } from '../../charset-manifest.ts'
-import { windowFrom } from '../windows.ts'
 import { loadStrike, strikeUrl } from './strikes.ts'
 import { SAMPLE, charsetRows, strikeName } from './specimen.ts'
 
@@ -22,9 +20,8 @@ export interface Specimen {
   pass: number
 }
 
-/** A window titled `name`, not yet drawn. */
-export function fontWindow(name: string): VfWindow {
-  const win = windowFrom(markup)
+/** `win`, a fresh font window, titled `name` and not yet drawn. */
+export function fontWindow(win: VfWindow, name: string): VfWindow {
   win.heading = name
   return win
 }

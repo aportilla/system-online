@@ -100,11 +100,6 @@ export function initBackup(finder: FinderApi, ctx: AppContext): void {
   const say = (message: string) => void ask(ctx, alert, message)
   /** Everything stored, the Trash's included: every item but the volumes. */
   const libraryCount = () => catalog.get().items.filter((i) => !isVolume(i.id)).length
-  const storageReady = () => {
-    if (catalog.get().available) return true
-    void ctx.ask(ctx.dialog('storage-unavailable'))
-    return false
-  }
 
   function restoreQuestion(name: string, read: ReadBackup, here: number) {
     const when = read.exportedAt ? new Date(read.exportedAt) : null
@@ -123,7 +118,8 @@ export function initBackup(finder: FinderApi, ctx: AppContext): void {
 
   /** A dropped zip or a picked one. */
   async function restore(file: File) {
-    if (ctx.modalOpen() || !storageReady()) return
+    // Without storage, the stock Finder's Storage Unavailable alert.
+    if (ctx.modalOpen() || !finder.storageReady()) return
     let read: ReadBackup
     try {
       read = await readBackup(file)
