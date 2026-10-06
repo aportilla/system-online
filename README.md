@@ -1,7 +1,7 @@
 # SystemOnline
 
 A Mac OS System 7 desktop in the browser: a menu bar, a Finder with folders
-and a Trash, windows that open out of their icons, and four applications, all
+and a Trash, windows that open out of their icons, and five applications, all
 on the 1-bit grid at true 72dpi size.
 
 Use it at <https://system-online.portill.io/>.
@@ -35,6 +35,7 @@ npm run dev        # http://localhost:5173/
 | **Text Viewer** | read-me files, read-only |
 | **Desktop Patterns** | Apple menu → Desktop Patterns: the kit's 38 patterns for the desktop |
 | **Font Viewer** | a font suitcase's sample line in every strike, and every character of one |
+| **Meteors** | its icon on the desktop: an Asteroids-style game on a 320 × 240 screen (the gameplay is still to come) |
 
 Whichever window is in front, its application owns the menu bar. The files and
 their icons' places live in the browser's IndexedDB, and the windows and the

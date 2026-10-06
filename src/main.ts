@@ -1,5 +1,5 @@
 // Composition root: the shell (vintage-frames/shell) over the page's desktop,
-// with SystemOnline's four applications, the About box, and the startup
+// with SystemOnline's five applications, the About box, and the startup
 // curtain lifted once the desktop is composed.
 //
 // The shell fits the desktop to the viewport, keeps the catalog in IndexedDB
@@ -20,6 +20,7 @@ import { finder } from './apps/finder/index.ts'
 import { textViewer } from './apps/text-viewer/index.ts'
 import { desktopPatterns } from './apps/desktop-patterns/index.ts'
 import { fontViewer } from './apps/font-viewer/index.ts'
+import { meteors } from './apps/meteors/index.ts'
 
 const fresh = new URLSearchParams(location.search).get('fresh') === '1'
 const desktop = document.getElementById('desktop') as VfDesktop
@@ -39,6 +40,7 @@ const shell = createShell(desktop, {
     textViewer(),
     desktopPatterns(),
     fontViewer(),
+    meteors(),
   ],
   fit: 'viewport',
   state,

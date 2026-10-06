@@ -1,0 +1,18 @@
+<!-- Meteors dialogs. The shell holds them under Meteors; index.ts asks them.
+     Laid out as the Finder's alert is (../finder/dialogs.html); the message
+     takes two lines at most. -->
+<!-- Q or Escape in a game. Return ends it; Escape or Cancel goes back to it. -->
+<vf-dialog data-dialog="end-game" frame="plain" label="End Game" width="400" height="118">
+  <form method="dialog" novalidate>
+    <vf-img width="32" height="32" left="16" top="16">
+      <img src="/icons/alert.png" alt="" />
+    </vf-img>
+    <vf-paragraph face="display" width="310" left="64" top="16"
+      >End this game and go back to the main menu?</vf-paragraph
+    >
+    <vf-button-group origin="bottom right" left="374" top="92">
+      <vf-button type="submit" value="cancel">Cancel</vf-button>
+      <vf-button type="submit" value="end" variant="default">End Game</vf-button>
+    </vf-button-group>
+  </form>
+</vf-dialog>

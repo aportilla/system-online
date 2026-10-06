@@ -2,14 +2,17 @@
 // on the page: the IO and the questions around state/backup.ts, which owns the
 // format. A restore asks whether to Add the backup's files beside the
 // desktop's or Replace the desktop with them, in the Finder's dialogs
-// (dialogs.html).
+// (dialogs.html). Applications' icons are the system's, not files: a backup
+// leaves them out, and a Replace puts them back.
 
 import type { VfButton } from 'vintage-frames'
-import { TRASH, isVolume, itemCount, itemOf } from 'vintage-frames/shell'
+import { APP_KIND, TRASH, isVolume, itemCount, itemOf } from 'vintage-frames/shell'
 import type { AppContext, CatalogState, FinderApi } from 'vintage-frames/shell'
 import { CHARSET_FAMILIES } from '../../charset-manifest.ts'
 import { MANIFEST_NAME, backupFilename, itemsOf, planBackup, readManifest } from '../../state/backup.ts'
 import type { BackupContents } from '../../state/backup.ts'
+import { restoreDefaults } from '../../state/defaults.ts'
+import type { AppDefault } from '../../state/defaults.ts'
 import { builtinText, textOf } from '../../texts/index.ts'
 import { unzip, zipStore } from '../../lib/zip.ts'
 import type { ZipEntry } from '../../lib/zip.ts'
@@ -91,15 +94,16 @@ function contentsPhrase(read: ReadBackup) {
 }
 
 /** Back Up All Files… and Restore from Backup… in the Finder's Special menu,
- *  and the drop. */
-export function initBackup(finder: FinderApi, ctx: AppContext): void {
+ *  and the drop. `apps`: the applications' icons a Replace puts back. */
+export function initBackup(finder: FinderApi, ctx: AppContext, apps: AppDefault[]): void {
   const { catalog } = finder
   const question = ctx.dialog('restore')
   const replace = question.querySelector('vf-button[value="replace"]') as VfButton
   const alert = ctx.dialog('alert')
   const say = (message: string) => void ask(ctx, alert, message)
-  /** Everything stored, the Trash's included: every item but the volumes. */
-  const libraryCount = () => catalog.get().items.filter((i) => !isVolume(i.id)).length
+  /** Every file stored, the Trash's included: every item but the volumes and
+   *  the applications' icons. */
+  const libraryCount = () => catalog.get().items.filter((i) => !isVolume(i.id) && i.kind !== APP_KIND).length
 
   function restoreQuestion(name: string, read: ReadBackup, here: number) {
     const when = read.exportedAt ? new Date(read.exportedAt) : null
@@ -143,6 +147,7 @@ export function initBackup(finder: FinderApi, ctx: AppContext): void {
     })
     try {
       await catalog.import({ items }, { mode: answer === 'replace' ? 'replace' : 'merge' })
+      if (answer === 'replace') await restoreDefaults(catalog, { texts: [], apps, families: [] })
     } catch (err) {
       say(`Restore failed: ${(err as Error).message}.`)
       return

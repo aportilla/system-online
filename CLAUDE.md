@@ -30,8 +30,8 @@ carry their `.ts` extension.
 
 ## Applications and the shell
 
-The desktop is four applications — the Finder, the Text Viewer, Desktop
-Patterns and the Font Viewer, one directory each under `src/apps/` — over the
+The desktop is five applications — the Finder, the Text Viewer, Desktop
+Patterns, the Font Viewer and Meteors, one directory each under `src/apps/` — over the
 kit's shell, `vintage-frames/shell` (experimental; its guide is the kit's
 `docs/SHELL.md`). The window manager, the menu bar, the catalog, the stock
 Finder and the saved session are the kit's; this repo holds the applications
