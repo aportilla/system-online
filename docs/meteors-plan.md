@@ -36,9 +36,9 @@ are fixed, 2026-10-06:
   keeps the catalog in memory: the desktop a first visit sees, which a reload
   forgets.
 
-One is open. At 2× and 3× the canvas paints a device px right of its box,
-leaving a white seam inside the window's left edge, because its offset is
-rounded to whole CSS px. The canvas's own px are right.
+The third wasn't real. A white seam inside the window's left edge at 2× and
+3× showed only in headless Chromium's captures; real browsers don't show it
+(2026-10-07).
 
 The ask:
 _"i'd like to actually implement a simple version of the game… a basic
@@ -311,16 +311,15 @@ Each step ends with `npm test`, `npm run typecheck` and `npm run build` green.
 
 ## 6. Kit asks
 
-None needed. Two are worth raising:
+None needed. One is worth raising:
 
 - **Handing the focus back after a menu command.** The bar gives the focus to
   the menu's title, so keys stop reaching the active window until a click:
   Meteors' P, and any application's own keys. Handing it back to where it was
   before the press would fix that for every application.
-- **The canvas on the device grid** (Status). At 2× and 3× the screen's
-  canvas paints a device px right of its box, at its offset rounded to whole
-  CSS px, which the `vf-container` doesn't correct. It's still open whether
-  that's the kit's to hold or this window's layout to fix.
+
+A second, the canvas on the device grid, was withdrawn 2026-10-07 with the
+seam it was about (Status).
 
 ## 7. Decisions
 
