@@ -33,7 +33,7 @@ const DEFAULTS: Defaults = {
   families: CHARSET_FAMILIES.map((f) => f.label),
 }
 
-/** `storage`: where the catalog is kept, or null for nothing (?fresh=1). */
+/** `storage`: where the catalog is kept, or null for nothing. */
 export function finder({ storage }: { storage: CatalogStorage | null }): AppDefinition<FinderApi> {
   return stockFinder({
     storage,

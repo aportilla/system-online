@@ -4,7 +4,8 @@
 //
 // The shell fits the desktop to the viewport, keeps the catalog in IndexedDB
 // and the session in localStorage, and reopens the last session's windows.
-// ?fresh=1 boots a clean desktop that reads and writes neither.
+// ?fresh=1 boots the desktop a first visit sees: the catalog in memory, the
+// session neither read nor written, so a reload forgets both.
 
 // Imported first: boot/curtain.ts lifts the curtain on window load even if this
 // module throws.
@@ -12,7 +13,7 @@ import { liftCurtain } from './boot/curtain.ts'
 import 'vintage-frames'
 import { VfWindow, applyCursor } from 'vintage-frames'
 import type { VfDesktop } from 'vintage-frames'
-import { createShell, indexedDbStorage, localStorageState } from 'vintage-frames/shell'
+import { createShell, indexedDbStorage, localStorageState, memoryStorage } from 'vintage-frames/shell'
 import './page.css'
 import './desktop.css'
 import { GREET, initAbout } from './about.ts'
@@ -20,7 +21,7 @@ import { finder } from './apps/finder/index.ts'
 import { textViewer } from './apps/text-viewer/index.ts'
 import { desktopPatterns } from './apps/desktop-patterns/index.ts'
 import { fontViewer } from './apps/font-viewer/index.ts'
-import { meteors } from './apps/meteors/index.ts'
+import { BEST, meteors } from './apps/meteors/index.ts'
 
 const fresh = new URLSearchParams(location.search).get('fresh') === '1'
 const desktop = document.getElementById('desktop') as VfDesktop
@@ -33,10 +34,10 @@ const onGestureStart = (e: Event) => e.preventDefault()
 document.addEventListener('gesturestart', onGestureStart)
 
 // The session reads ?fresh=1 itself.
-const state = localStorageState('system-online:desktop', { extra: { [GREET]: true } })
+const state = localStorageState('system-online:desktop', { extra: { [GREET]: true, [BEST]: 0 } })
 const shell = createShell(desktop, {
   apps: [
-    finder({ storage: fresh ? null : indexedDbStorage('system-online') }),
+    finder({ storage: fresh ? memoryStorage() : indexedDbStorage('system-online') }),
     textViewer(),
     desktopPatterns(),
     fontViewer(),

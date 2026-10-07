@@ -1,10 +1,11 @@
 // The game's screen as a 1-bit surface over its canvas, one canvas px per
 // system px: black and white only, at whole px, so nothing drawn on it is
-// smoothed. Text is set in the kit's faces, glyph by glyph, from sprites
-// quantized to 1-bit when first drawn.
+// smoothed. A raster (raster.ts) goes on it whole. Text is set in the kit's
+// faces, glyph by glyph, from sprites quantized to 1-bit when first drawn.
 
 import { VF_BODY_FAMILY, VF_DISPLAY_FAMILY } from 'vintage-frames'
 import type { Box } from 'vintage-frames/shell'
+import type { Bits } from './raster.ts'
 
 export type Ink = 'black' | 'white'
 export type Face = 'display' | 'body'
@@ -63,6 +64,8 @@ function glyph(ch: string, face: Face, ink: Ink): Glyph {
 }
 
 export interface Screen {
+  /** Put `bits` on the screen from its top left: white for ink, black for paper. */
+  present(bits: Bits): void
   /** Fill `box`, else the whole screen, with `ink`. */
   fill(ink: Ink, box?: Box): void
   /** How wide `text` runs in `face`, magnified `zoom` times. */
@@ -77,7 +80,18 @@ export function screenOf(canvas: HTMLCanvasElement): Screen {
   const g = canvas.getContext('2d', { alpha: false })!
   // A magnified glyph stays square pixels.
   g.imageSmoothingEnabled = false
+  /** The image present() writes, opaque, made at its first call. */
+  let image: ImageData | null = null
   return {
+    present(bits) {
+      if (!image || image.width !== bits.width || image.height !== bits.height) {
+        image = g.createImageData(bits.width, bits.height)
+        image.data.fill(255)
+      }
+      const px = image.data
+      for (let i = 0; i < bits.data.length; i++) px[4 * i] = px[4 * i + 1] = px[4 * i + 2] = bits.data[i] ? 255 : 0
+      g.putImageData(image, 0, 0)
+    },
     fill(ink, box = { left: 0, top: 0, width: canvas.width, height: canvas.height }) {
       g.fillStyle = COLOR[ink]
       g.fillRect(box.left, box.top, box.width, box.height)

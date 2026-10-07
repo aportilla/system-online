@@ -51,9 +51,11 @@ localStorage (`system-online:desktop`).
    a resize re-pins every window and desktop icon, and View → Arrange Windows
    (⌘J), in every application, puts the windows back.
 5. **The session** keeps every window's box, which were open and which was
-   active, the desktop pattern, and the About box's Show at startup (`greet`).
+   active, the desktop pattern, the About box's Show at startup (`greet`), and
+   Meteors' best score (`meteors-best`).
    A reload reopens the windows that were open. `?fresh=1` neither reads nor
-   writes it, and keeps no catalog.
+   writes it, and keeps the catalog in memory: the desktop a first visit
+   sees, gone on a reload.
 6. **The About box** (Apple menu → About SystemOnline…, `src/about.ts`) is a
    `frame="plain" light-dismiss` dialog with the version and HEAD's commit
    date, a link button to Vintage Frames on npm, and **Show at startup**,
@@ -137,20 +139,40 @@ kind: an application's icon, which opens it.
 
 16. Meteors' icon on the desktop (`art/meteors.png`: a ship firing at a rock
     on a little black screen) opens one fixed, centered window, 322 × 260,
-    out of the icon and back into it, the icon drawn open while it runs. The
+    out of the icon and back into it, the icon drawn open while it runs. A
+    reload reopens it, on the title screen. The
     window's whole body is the game's screen: a 320 × 240 canvas at one canvas px per
     system px, in a `vf-container` of that size that holds it on the device
     grid, magnified `pixelated` so each system px is a whole square of device
-    px. Every frame is 1-bit, black and white only, and its text is the kit's
-    faces cut into 1-bit glyphs (`screen.ts`). The rules are pure
-    (`game.ts`).
+    px. Every frame is 1-bit, black and white only: the field is drawn into
+    a 1-bit raster of the app's own, whole-px lines that wrap at the edges
+    (`raster.ts`), and its text is the kit's faces cut into 1-bit glyphs
+    (`screen.ts`). The rules are pure (`game.ts`, `field.ts`).
 17. The title screen offers **New Game** and **Quit**, highlighted by the
     arrows or the pointer and chosen by Return, Space or a click; Quit quits.
-    A game runs on a fixed 60-a-second step and is, for now, a placeholder
-    showing the time it has run. **Q** or **Escape** stops it and asks _End
-    this game and go back to the main menu?_: Return ends it and goes back to
-    the title screen, Escape or Cancel resumes it. Keys held with ⌃, ⌘ or ⌥
-    are the menu bar's. File: _Close_, _Quit_. View: _Arrange Windows_.
+    Under them is the best score, once there is one.
+    **Q** or **Escape** in a game stops it and asks _End this game and go
+    back to the main menu?_: Return ends it and goes back to the title
+    screen, Escape or Cancel goes back to the game as it was. Keys held with
+    ⌃, ⌘ or ⌥ are the menu bar's. File: _Close_, _Quit_. View: _Arrange
+    Windows_.
+18. A game runs on a fixed 60-a-second step over a field that wraps at every
+    edge, its random draws from a generator seeded at New Game. ← and → turn
+    the ship, ↑ thrusts it, and it coasts, slowing; Space fires, one shot a
+    press, four in flight at most. Meteors come in waves from the edges, four
+    large at first and two more a wave up to eleven, each a jagged outline of
+    its own, and a cleared field brings the next wave two seconds on. A shot
+    splits a large meteor into two medium and a medium into two small, and
+    takes a small one out, for 20, 50 and 100 points. A meteor that hits the
+    ship goes the same way, and the ship breaks up. A game has three ships
+    and one more every 10,000 points, the score at the top left and the ships
+    in reserve under it. A lost ship comes back at the center two seconds on,
+    once nothing is near it. Losing the last one is GAME OVER, three seconds
+    over the drifting field, then the title screen, and the game's score
+    counts toward the best; a game ended early doesn't. The game runs only while
+    its screen has the keyboard focus: losing it to another window, the
+    desktop, a menu, the alert or another tab pauses the game, as **P** does,
+    and P or a click on the screen resumes it.
 
 ## The one CSS rule
 

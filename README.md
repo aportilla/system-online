@@ -35,12 +35,12 @@ npm run dev        # http://localhost:5173/
 | **Text Viewer** | read-me files, read-only |
 | **Desktop Patterns** | Apple menu → Desktop Patterns: the kit's 38 patterns for the desktop |
 | **Font Viewer** | a font suitcase's sample line in every strike, and every character of one |
-| **Meteors** | its icon on the desktop: an Asteroids-style game on a 320 × 240 screen (the gameplay is still to come) |
+| **Meteors** | its icon on the desktop: an Asteroids-style game on a 320 × 240 1-bit screen |
 
 Whichever window is in front, its application owns the menu bar. The files and
 their icons' places live in the browser's IndexedDB, and the windows and the
 desktop pattern in localStorage; a reload reopens what was open. `?fresh=1`
-boots a clean desktop that saves nothing.
+boots the desktop a first visit sees, and saves nothing.
 
 ## Layout
 
