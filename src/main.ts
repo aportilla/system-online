@@ -21,7 +21,7 @@ import { finder } from './apps/finder/index.ts'
 import { textViewer } from './apps/text-viewer/index.ts'
 import { desktopPatterns } from './apps/desktop-patterns/index.ts'
 import { fontViewer } from './apps/font-viewer/index.ts'
-import { BEST, meteors } from './apps/meteors/index.ts'
+import { meteors } from './apps/meteors/index.ts'
 
 const fresh = new URLSearchParams(location.search).get('fresh') === '1'
 const desktop = document.getElementById('desktop') as VfDesktop
@@ -34,7 +34,7 @@ const onGestureStart = (e: Event) => e.preventDefault()
 document.addEventListener('gesturestart', onGestureStart)
 
 // The session reads ?fresh=1 itself.
-const state = localStorageState('system-online:desktop', { extra: { [GREET]: true, [BEST]: 0 } })
+const state = localStorageState('system-online:desktop', { extra: { [GREET]: true } })
 const shell = createShell(desktop, {
   apps: [
     finder({ storage: fresh ? memoryStorage() : indexedDbStorage('system-online') }),

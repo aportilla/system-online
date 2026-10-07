@@ -179,8 +179,9 @@ kind: an application's icon, which opens it.
 The page may use small amounts of **layout** CSS but NO aesthetic CSS — looks
 come from the components. Every caption is a `vf-label`, every run of copy a
 `vf-paragraph`, every box a `vf-container` or a stack, and `src/desktop.css`
-holds only the text body's wrapping, the Font Viewer's smoothing token and the
-Meteors screen's pixelated magnification.
+holds only the text body's wrapping and the Font Viewer's smoothing token and
+row breaking. Meteors' screen carries its pixelated magnification itself, on
+its canvas, so the game leans on no stylesheet of the site's.
 
 `src/page.css` is the other half: the page-level CSS a component cannot reach
 from its shadow root (the black behind the desktop, the scroll suppression that

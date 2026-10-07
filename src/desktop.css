@@ -32,13 +32,3 @@
 .font-charset {
   word-break: break-all;
 }
-
-/* ------------------------------- Meteors ------------------------------- */
-
-/* The game's screen (apps/meteors/windows.html): a canvas of one canvas px per
-   system px, filling its vf-container. The container's box is whole device
-   px, so pixelated magnification is exact, as vf-img's is for raster art. */
-.meteors-screen canvas {
-  display: block;
-  image-rendering: pixelated;
-}

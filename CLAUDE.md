@@ -56,6 +56,16 @@ and the shell's configuration. Keep it that way:
   Node.
 - **Cross-application calls**, if one is ever needed, go through `ctx.apps`,
   read at the call.
+- **Meteors and Desktop Patterns lean on nothing here**, so either can ship
+  as an app file (docs/app-packages-plan.md). Each keeps to:
+  - imports from the kit's three entries and its own files, and no Lit of
+    its own;
+  - art it imports, never a page path;
+  - layout on its own elements, never in `desktop.css`;
+  - session keys that carry its id, read back defensively, and nothing
+    broken without a session;
+  - nothing from `ctx.services` or `ctx.apps`;
+  - kinds named after its id, and an id that never changes.
 - Comments are short and direct: label a section or state a non-obvious
   constraint. A larger change starts as a plan in `docs/<topic>-plan.md`
   (docs/app-model-plan.md is the model).

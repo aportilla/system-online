@@ -12,13 +12,14 @@ import menus from './menus.html?raw'
 import dialogs from './dialogs.html?raw'
 import windowMarkup from './windows.html?raw'
 import icon from './art/meteors.png'
+import alertArt from './art/alert.png'
 import { bestOf } from './game.ts'
 import { gameWindow } from './windows.ts'
 
 export const METEORS = 'meteors'
 
 /** The session key that keeps the best score. */
-export const BEST = 'meteors-best'
+const BEST = 'meteors-best'
 
 export interface MeteorsActions {
   /** Open the game's window out of `from`, or bring it forward. Its icon
@@ -37,6 +38,9 @@ export function meteors(): AppDefinition<MeteorsActions> {
     init(ctx) {
       const { desktop, windows, state } = ctx
       const endGame = ctx.dialog('end-game')
+      // The alert's art is Meteors' own, set here: a ?raw fragment can't name
+      // an imported file.
+      endGame.querySelector('img')!.src = alertArt
       /** The best score, as the session keeps it. */
       const best = () => bestOf(state?.get(BEST))
       /** The game's window, while it is open. */

@@ -1,5 +1,5 @@
 // Meteors window: the game's screen (screen.ts) in a vf-container of SCREEN's
-// size, which holds the canvas on whole device px (desktop.css). The title
+// size, which holds the canvas on whole device px (windows.html). The title
 // screen offers New Game and Quit, by the arrows and Return or by a click. A
 // game runs on the fixed-step clock (game.ts) from one animation frame to the
 // next, fed the controls held, and draw.ts draws each frame a step ran. The
