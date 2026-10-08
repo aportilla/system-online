@@ -11,7 +11,9 @@ the System 7 component kit, installed from npm like any other dependency, and
 the desktop runs on its shell, `vintage-frames/shell`: the window manager, the
 menu bar, the catalog of files and the stock Finder. This repo is the
 *application*: the applications, the shell's configuration, their content,
-and the imported strike collection the Font Viewer opens.
+and the imported strike collection the Font Viewer opens. An application
+built in a repo of its own arrives as an app file in `apps/`: Meteors, from
+[meteors-app](https://github.com/aportilla/meteors-app).
 
 ```sh
 npm install
@@ -35,7 +37,7 @@ npm run dev        # http://localhost:5173/
 | **Text Viewer** | read-me files, read-only |
 | **Desktop Patterns** | Apple menu → Desktop Patterns: the kit's 38 patterns for the desktop |
 | **Font Viewer** | a font suitcase's sample line in every strike, and every character of one |
-| **Meteors** | its icon on the desktop: an Asteroids-style game on a 320 × 240 1-bit screen |
+| **Meteors** | its icon on the desktop: an Asteroids-style game on a 320 × 240 1-bit screen, built in from its app file, `apps/Meteors.png` |
 
 Whichever window is in front, its application owns the menu bar. The files and
 their icons' places live in the browser's IndexedDB, and the windows and the
@@ -49,6 +51,7 @@ index.html               the skeleton: desktop, menu bar, icon field, About box
 src/main.ts              the composition root: the shell and its applications
 src/about.ts             the About box and the boot greeting
 src/apps/<id>/           one directory per application: menus, dialogs, windows, behavior
+apps/                    app files of applications built in their own repos (Meteors.png)
 src/state/               the library's kinds, its defaults, the backup format
 src/texts/               the built-in read-me files
 src/desktop.css          LAYOUT only

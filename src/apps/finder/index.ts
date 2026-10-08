@@ -16,7 +16,7 @@ import { CHARSET_FAMILIES } from '../../charset-manifest.ts'
 import { missingDefaults, restoreDefaults } from '../../state/defaults.ts'
 import type { Defaults } from '../../state/defaults.ts'
 import { TEXTS } from '../../texts/index.ts'
-import { METEORS } from '../meteors/index.ts'
+import { manifest as meteors } from '../../../apps/Meteors.png?app'
 import { ask } from '../windows.ts'
 import { initBackup } from './backup.ts'
 
@@ -26,10 +26,11 @@ const DISK_ART = `${import.meta.env.BASE_URL}icons/app-icon.png`
 const CAUTION_ART = `${import.meta.env.BASE_URL}icons/alert.png`
 
 /** What a desktop comes with: the built-in texts, Meteors' icon on the
- *  desktop, and a suitcase for every family the app ships. */
+ *  desktop, named by its app file's manifest, and a suitcase for every
+ *  family the app ships. */
 const DEFAULTS: Defaults = {
   texts: TEXTS,
-  apps: [{ app: METEORS, name: 'Meteors', home: 'desktop' }],
+  apps: [{ app: meteors.id, name: meteors.name, home: 'desktop' }],
   families: CHARSET_FAMILIES.map((f) => f.label),
 }
 

@@ -2,6 +2,7 @@ import { execFileSync } from 'node:child_process'
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
+import { appFiles } from 'vintage-frames/build'
 
 // Build constants (src/env.d.ts): package.json's version, HEAD's commit date
 // for the About box ("Sep 27, 2026", formatted here so no runtime locale moves
@@ -38,7 +39,11 @@ function fontBytes(): Record<string, number> {
 }
 
 // Served at the root of system-online.portill.io, so Vite's default base holds.
+// appFiles() builds the applications in apps/ in from their app files
+// (`import meteors from '../apps/Meteors.png?app'`), each checked against
+// this kit's version.
 export default defineConfig({
+  plugins: [appFiles()],
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
     __APP_DATE__: JSON.stringify(buildDate()),

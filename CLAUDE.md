@@ -31,8 +31,8 @@ carry their `.ts` extension.
 ## Applications and the shell
 
 The desktop is five applications — the Finder, the Text Viewer, Desktop
-Patterns, the Font Viewer and Meteors, one directory each under `src/apps/` — over the
-kit's shell, `vintage-frames/shell` (experimental; its guide is the kit's
+Patterns and the Font Viewer, one directory each under `src/apps/`, and
+Meteors, built in from its app file in `apps/` — over the kit's shell, `vintage-frames/shell` (experimental; its guide is the kit's
 `docs/SHELL.md`). The window manager, the menu bar, the catalog, the stock
 Finder and the saved session are the kit's; this repo holds the applications
 and the shell's configuration. Keep it that way:
@@ -56,8 +56,15 @@ and the shell's configuration. Keep it that way:
   Node.
 - **Cross-application calls**, if one is ever needed, go through `ctx.apps`,
   read at the call.
-- **Meteors and Desktop Patterns lean on nothing here**, so either can ship
-  as an app file (docs/app-packages-plan.md). Each keeps to:
+- **App files** in `apps/` are applications built in repos of their own:
+  `Meteors.png` is the meteors-app repo's `npm run build`. The kit's
+  `appFiles()` (`vite.config.ts`) builds each in from
+  `import x from '../apps/<Name>.png?app'`, and fails the build when a
+  file's kit range doesn't take this site's kit. A change to one is made in
+  its repo and its build copied over, never here; a kit bump here waits for
+  each app file built on the new kit (docs/app-packages-plan.md).
+- **Desktop Patterns leans on nothing here**, so it can ship as an app file
+  as Meteors does. An application in an app file keeps to:
   - imports from the kit's three entries and its own files, and no Lit of
     its own;
   - art it imports, never a page path;
@@ -78,8 +85,9 @@ and the shell's configuration. Keep it that way:
   desktop, the scroll suppression `fitWithin` needs — and that is the host
   page's job because the kit ships no stylesheet at all.
 - **Never reach into the kit's internals.** Import from `vintage-frames`,
-  `vintage-frames/shell` and `vintage-frames/shell/pure` only, never a deep
-  path into its `dist/`. If something the desktop needs isn't
+  `vintage-frames/shell` and `vintage-frames/shell/pure` only, and in
+  `vite.config.ts` `vintage-frames/build`, never a deep path into its
+  `dist/`. If something the desktop needs isn't
   exported, that's a change to make in the kit repo, not to route around here.
 - **Two kinds of type, kept apart.** `VF Display`/`VF Body` come from the
   package and are the kit's *own re-drawn strikes* — credit Susan Kare and
@@ -104,9 +112,13 @@ or generated-by trailers.
   `src/about.ts` — the About box
 - `src/apps/<id>/` — the applications; `src/state/` — the library's kinds,
   its defaults and the backup format
+- `apps/` — app files of applications built in their own repos:
+  `Meteors.png`, from meteors-app
 - `docs/SPEC.md` — what's on the desktop, clause by clause
 - `docs/app-model-plan.md` — the plan the application model was first built
   from, here; the shell has since moved into the kit
+- `docs/app-packages-plan.md` — app files: applications as boxed PNGs, built
+  in their own repos and built in here
 - `docs/FONTS.md` — the imported strike collection, its two converters, and
   the point-size naming scheme
 - `fonts/*.py` — the collection pipeline: `dfont-to-bdf.py` → `import-bdf.py`

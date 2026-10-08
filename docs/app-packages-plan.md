@@ -52,6 +52,44 @@ the dev server, and all hold:
   mode and the kit's own: `vf-icon`'s update warning comes as well when only
   Read Me is opened.
 
+Meteors' repo was scaffolded 2026-10-07, as `meteors-app`
+(github.com/aportilla/meteors-app): the source and tests, `app.ts` and the
+default export, the dev desktop and CI, the gates green. In headless
+Chromium its dev desktop's icon opens the game, Return starts one, and Q
+asks with the alert's art. Its build stops at the code, `dist/meteors.js`,
+until the kit writes app files.
+
+The packer then moved into the kit, 2026-10-07: _"should the KIT have the
+artwork generator method? Like we'd call a kit owned method with our custom
+artwork bit and metadata and the KIT itself generates the full image? … the
+kit could even host the app bundle method that takes our app code as well
+and hands back the fully encoded image?"_, then _"we can bake the frame
+resource into vintage-frames, that's our own thing... and this is more of a
+dev-dependency isn't it? not a shipped thing for regular vintage frames web
+component consumers"_. The kit writes app files from a build-only entry, its
+frame included, and reads them, so an application's repo carries no frame
+and no packer, and this site no reader of its own (decisions 12 and 13,
+taken). Nothing is proved here first: the kit builds it against meteors-app
+and this site. Steps 3 to 5 became one, step 3, and the steps after it moved
+up. The kit asks are written, in the kit's `feature-requests/`.
+
+Steps 3 and 4 landed 2026-10-07. vintage-frames 0.17.0 writes and reads app
+files: `vintage-frames/build` has `appFile()`, `appFiles()`, `packApp` and a
+placeholder frame, and `shell/pure` has `readAppFile`, `satisfies` and
+`VERSION`. The kit's `docs/APP-FILES.md` is the guide. meteors-app moved to
+`^0.17.0`, its `vite.config.ts` became one `appFile()` call, and `npm run
+build` writes `dist/Meteors.png`, 11.75 KB. The kit's `readAppFile` reads it
+back: the manifest is right, and the code imports only `vintage-frames` and
+`vintage-frames/shell`. The box shows the stamp, the name, the version and
+the author. Next is step 5, SystemOnline taking the file (§4).
+
+Step 5 is done on this branch, 2026-10-07, not yet merged. The kit is
+`^0.17.0`, `appFiles()` builds Meteors in from `apps/Meteors.png`, and
+Meteors' source, tests and plan are gone from here. The gates are green. In
+headless Chromium, eye checks 6 to 10 and 12 hold (§8). Left: eye check 4's
+Finder, Quick Look and mail; 5's test artwork; the merge; then 13 on the
+deployed site.
+
 The ask: _"i'm interested in the idea of breaking the 'apps' out to their own
 individual repos, maybe even having their own package bundles that can by
 loaded individually via an 'app store' like expierience... i imagine a
@@ -69,19 +107,20 @@ The short version: an application ships as one file, its app file: a PNG
 whose picture is the application's box and whose chunks carry its manifest,
 its icon and its code, the way a Mac application's resource fork carried its
 code beside its icons. The box is for people outside the desktop:
-SystemOnline's standard frame, after PICO-8's cartridges, with the platform
+the kit's standard frame, after PICO-8's cartridges, with the platform
 and the application's name, version and author drawn in the kit's type,
 around the author's artwork, or the icon stamped large when there is none.
 The desktop never reads the picture; it takes the icon from the manifest. SystemOnline keeps app files in `apps/` and builds them in, so
 a release is a file copied into this repo, with no npm and no publishing.
-Phase 1 cut Meteors' ties to the site. Phase 2 gets the kit's type as data,
-for the frame's text, proves the format and the box here on Meteors, moves them
-into the kit's pure entry, then moves Meteors to a repo of its own whose
-build writes `Meteors.png`. A small Vite plugin here reads an app file,
-checks the kit range its manifest requires, and hands Vite the code, which
-then imports this site's own copy of the kit. For ease of development, an
-application's repo runs it on a desktop of its own, and its build is the
-release. Phase 3 installs the same file at runtime: dropped on the desktop
+Phase 1 cut Meteors' ties to the site. Phase 2 has the kit write and read
+app files, from a build-only entry that regular consumers never import: the
+frame, the kit's type as data, the compositor, a Vite plugin that makes an
+application's build write its app file, and a second plugin that builds app
+files into a site. That one checks the kit range each manifest requires and
+hands Vite the code, which then imports the site's own copy of the kit.
+Meteors moves to a repo of its own whose build writes `Meteors.png`, and this
+site builds it in. For ease of development, an application's repo runs it on
+a desktop of its own, and its build is the release. Phase 3 installs the same file at runtime: dropped on the desktop
 it becomes the application's icon, and Empty Trash uninstalls it. That
 waits for the shell to leave experimental status. The kit's minors changed
 what an application is twice in the last week, and installed applications
@@ -277,33 +316,38 @@ or an optimizer in front of a site. PICO-8 keeps its cartridges in the
 pixels instead, which outlasts a metadata stripper (§6, decision 7). An app
 file travels as a file: in a repo, as a download, by email.
 
-**Where the format lives**: one pure module, with `readAppFile`,
-`writeAppFile` and `satisfies` (a version against a range), over a PNG module
-of its own. It runs in the build, under Node's tests, and in the browser for
-Phase 3. It's proved here first (`src/lib/app-file.ts` and `png.ts`), then
-goes to the kit's `vintage-frames/shell/pure` (§5), so the packager in an
-application's repo and the reader here are one implementation.
+**Where the format lives**: in the kit, in two halves by where they run
+(§5). Reading (`readAppFile`, `satisfies` for a version against a range, and
+the kit's `VERSION`) is pure and small, in `vintage-frames/shell/pure`: it
+runs in a site's build now and in the shell's loader in Phase 3. Writing
+(`writeAppFile`, the PNG encoder and the box) is in `vintage-frames/build`, a
+build-only entry no page imports. The packer in an application's repo and
+the reader here are one implementation, the kit's.
 
 ### 3.3 The box
 
-A PICO-8 cartridge, for SystemOnline: one frame every application shares,
-naming the platform and the application around the author's artwork.
+A PICO-8 cartridge, for the shell's applications: one frame every
+application shares, naming the platform and the application around the
+author's artwork.
 
-**The frame** is SystemOnline's, drawn once: `box/frame.png`, the picture,
-and `box/frame.json`, its slots. Its size is the frame's own. PICO-8's
+**The frame** is the kit's, drawn once and shipped in its build entry: a
+picture and its slots. Its size is the frame's own. PICO-8's
 cartridge is 160 × 205, and drawn at 3× a frame that size reads in a mail
 client's preview. Everything fixed is drawn into the picture: the platform,
 SystemOnline and where it lives, the border, the artwork's backdrop, and,
-once Phase 3 lands, how to install the file. The frame is yours to draw;
-step 4 starts from a plain placeholder. The packager fills the slots:
+once Phase 3 lands, how to install the file. Which platform it names is
+decision 21. The frame is yours to draw. Until then the kit ships a plain
+placeholder: a white card 480 × 615, drawn at 3×, with a 384 × 384 artwork
+area, the name in the display face and the version and author in the body
+face. The packer fills the slots:
 
-| Slot | What the packager puts there |
+| Slot | What the packer puts there |
 | --- | --- |
 | artwork | the author's artwork, or the stamp |
 | text | a line in one of the kit's faces, at the frame's scale and in its ink, with the manifest's fields in it: `{name} (v{version})`, `by {author}`, or fixed text such as "SystemOnline application" |
 
 **The artwork** is the author's, and optional: any PNG at the slot's size,
-or the slot's size divided by a whole number, which the packager magnifies
+or the slot's size divided by a whole number, which the packer magnifies
 by that number, so pixel art drawn small stays crisp. Any other size is
 refused, naming the slot's. What it shows is the author's call: the icon is
 on it only if they put it there. Without artwork, **the stamp** takes its
@@ -316,70 +360,73 @@ frame's palette is the frame's; artwork can be anything.
 **The text** is drawn from the kit's strikes, VF Display or VF Body as the
 slot says, a glyph at a time, the way QuickDraw drew a bitmap font. A line
 too long for its slot is shortened with an ellipsis. A character the strike
-lacks is refused, naming it. The strikes come from the kit, as data (§5),
-since the manifests aren't published (§1).
+lacks is refused, naming it. The strikes are the kit's, as data (§5), since
+the manifests aren't published (§1), so the type and the compositor ship
+together.
 
-**The compositor** is pure, beside the format: a PNG reader and writer for
+**The compositor** is the kit's, beside the writer: a PNG reader and writer for
 the forms art comes in (8-bit and indexed, non-interlaced; 16-bit and
 interlaced files are refused, naming what to save them as), pasting by
 alpha, whole-multiple magnification, and text from a strike it's handed. It
 needs no canvas and no dependency, as Meteors draws into a raster of its
-own. It's proved here, then goes to the kit (§5).
+own.
 
-**Where the frame lives**: here, in `box/`. An application's repo carries a
-copy, which the application template brings. A box is packaging: one built
-in an older frame still installs.
+**Where the frame lives**: in the kit, so an application's repo carries none,
+and a new frame reaches an application at its next build on a kit that has
+it. A box is packaging: one built in an older frame still installs.
 
 **Meteors' box** starts with the stamp. Its artwork is yours to draw, or a
 frame of the game's own screen, as a PICO-8 label is its game's.
 
 ### 3.4 Phase 2: Meteors as an app file
 
-**The kit's type first** (step 3): the faces' strikes as data (§5), so the
-packager can draw names.
+**The kit first** (step 3): its asks (§5), in one minor, built against
+meteors-app and this site through a linked kit before it's released.
 
-**Proved here** (step 4). Meteors' source stays where it is.
-`src/apps/meteors/app.ts` holds Meteors' id, name, version and author.
-`index.ts` takes its id and name from it, and the packager reads all four,
-so the manifest can't drift from the definition. `index.ts` also gains its
-default export. `vite.meteors.config.ts` builds Meteors as a library,
-composes its box from the frame, the manifest and any artwork, and writes
-`apps/Meteors.png`, and `npm run build:meteors` runs it. `main.ts` builds
-Meteors in from `apps/Meteors.png?app`. Until step 7, a change to the game
-means running `build:meteors` again, or the site keeps the old build.
+**The packing plugin**, `appFile()` from `vintage-frames/build`, in an
+application's repo's `vite.config.ts`:
 
-**The `?app` plugin**, in `vite.config.ts` beside the build constants:
+- It sets Vite's library mode: the entry, ES format, one module, the kit's
+  entries left out.
+- It fails the build on a bundle that breaks §3.5, naming what broke it: CSS
+  emitted, more than one chunk, or Lit bundled in.
+- It assembles the manifest, each field from one source: `id`, `name`,
+  `version` and `author` from the application's `app.ts`, `requires` from
+  the range of the repo's `vintage-frames` dev dependency, the kit the game
+  is built and checked against, and `icon` from the icon's file.
+- It composes the box in the kit's frame from the manifest and any artwork,
+  adds the manifest and the code, and writes `dist/<name>.png`.
+
+**The reading plugin**, `appFiles()` from `vintage-frames/build`, in this
+site's `vite.config.ts` beside the build constants:
 
 - An import of `*.png?app` reads the file and refuses one that isn't an app
   file.
-- It checks `requires` against the installed kit and fails the build, naming
-  the application and both versions, when they don't meet. It's npm's peer
-  check, moved into the file.
+- It checks `requires` against the kit's `VERSION` and fails the build,
+  naming the application and both versions, when they don't meet. It's npm's
+  peer check, moved into the file.
 - It hands Vite the code. Vite resolves the code's kit imports to this site's
   own copy, so the page still has one copy of the kit.
 - The import's default export is the factory, its definition given the
-  manifest's icon, and it also exports the manifest. `src/env.d.ts` types
-  both.
+  manifest's icon, and it also exports the manifest. The kit types both.
 - It watches the file, so a new `Meteors.png` reloads the dev server's page.
 
-**The repo**, `system-online-meteors` (step 6):
+**The repo**, `meteors-app` (step 4, landed 2026-10-07):
 
 ```
 package.json              vintage-frames as a dev dependency; build → dist/Meteors.png
-vite.config.ts            the library build, then the box and the kit's writer
+vite.config.ts            the kit's appFile()
 tsconfig.json             SystemOnline's
-box/                      a copy of SystemOnline's frame
-index.html, dev/main.ts   the dev desktop
-src/                      today's src/apps/meteors/, after step 4, any artwork in art/
+index.html, dev/main.ts   the dev desktop, its Finder art in dev/art/
+src/                      today's src/apps/meteors/, with app.ts and a default export; any artwork in art/
 test/                     today's three Meteors test files, imports re-pointed to ../src/
 docs/meteors-plan.md      moved from here
 .github/workflows/ci.yml  the three gates
 ```
 
-- **Each manifest field has one source**: `id`, `name`, `version` and
-  `author` from `src/app.ts`, `requires` from the range of the
-  `vintage-frames` dev dependency, the kit the game is built and checked
-  against, and `icon` from the art the code imports.
+- **Each manifest field has one source** (above). `src/app.ts` holds
+  Meteors' id, name, version and author, `index.ts` takes its id and name
+  from it, and `package.json` carries no version of its own.
 - **No publishing.** `npm run build` writes `dist/Meteors.png`, and the
   release is that file, copied into SystemOnline's `apps/`.
 - **Each kit minor** moves the dev dependency's range, gets a look at the game
@@ -389,20 +436,24 @@ docs/meteors-plan.md      moved from here
   `index.html` holds a `vf-desktop` with a menu bar, an Apple menu and the
   icon field, as SystemOnline's does. `dev/main.ts` imports `vintage-frames`
   first and starts the shell with the kit's Finder over `memoryStorage()`,
-  seeded with Meteors' icon, and Meteors from its source. The Finder's art is
-  borrowed from SystemOnline. Most work on the game happens here.
+  seeded with Meteors' icon, and Meteors from its source; `?save=1` keeps the
+  catalog and the session. The Finder's art is borrowed from SystemOnline.
+  Most work on the game happens here.
 - **On the real desktop before a release**, the repo's build can watch and
-  write straight into SystemOnline's `apps/`, and the plugin reloads the
-  page.
+  write straight into SystemOnline's `apps/` (`vite build --watch`, with
+  `appFile()`'s `copyTo`), and the reading plugin reloads the page.
 
-**SystemOnline's side** (step 7):
+**SystemOnline's side** (step 5):
 
-- `apps/Meteors.png` from the repo's build, in place of step 4's.
+- The kit bump, `appFiles()` in `vite.config.ts`, and the `?app` types in
+  `tsconfig.json`.
+- `apps/Meteors.png` from the repo's build, and `main.ts` building Meteors in
+  from `apps/Meteors.png?app`.
 - The Finder's defaults take Meteors' id from the manifest.
-- `src/apps/meteors/`, its three tests, `vite.meteors.config.ts` and
-  `build:meteors` go, and `docs/meteors-plan.md` moves with the game.
+- `src/apps/meteors/` and its three tests go, and `docs/meteors-plan.md`
+  moves with the game.
 - The docs: SPEC's opening (§6, decision 20), §1's list of directories, §16's
-  file names and a clause on `apps/` and `box/`; README's tree; CLAUDE.md's
+  file names and a clause on `apps/`; README's tree; CLAUDE.md's
   "Applications and the shell" and "Where things are".
 
 **Continuity.** Meteors keeps the id `meteors`, the window's item `meteors`
@@ -411,7 +462,8 @@ window's place and the best score all carry over.
 
 ### 3.5 What an application in an app file relies on
 
-The rules, in CLAUDE.md since step 2:
+The rules, in CLAUDE.md since step 2. The kit's packing plugin fails a build
+on the ones a bundle shows: its imports, Lit, CSS.
 
 - **Imports**: `vintage-frames`, `vintage-frames/shell`,
   `vintage-frames/shell/pure` and its own files. It composes the kit's
@@ -473,21 +525,38 @@ in the repo it touches.
    _Landed._
 2. **The rules** (§3.5) in CLAUDE.md's "Applications and the shell".
    _Landed._
-3. **The kit's type** (§5): the faces' strikes as data, and SystemOnline's
-   kit bump to take them.
-4. **The format and the box, proved here** (§3.2 to §3.4): `src/lib/png.ts`,
-   `app-file.ts` and `box.ts` with their tests, a placeholder frame in
-   `box/`, Meteors' `app.ts` and default export, `vite.meteors.config.ts`
-   writing `apps/Meteors.png`, the `?app` plugin, and `main.ts` building
-   Meteors in from its app file. The eye checks in §8.
-5. **The format and the box in the kit** (§5): step 4's modules in
-   `vintage-frames/shell/pure`, with `VERSION`. SystemOnline moves onto them,
-   and its own copies go.
-6. **The repo** (§3.4): scaffolded, with the source and tests moved, the dev
-   desktop, CI, a copy of the frame, and a build that writes
-   `dist/Meteors.png`.
-7. **SystemOnline takes the file** (§3.4).
-8. **The next kit minor** goes through the pilot: Meteors' range and build,
+3. **The kit writes and reads app files** (§5): the faces' strikes as data,
+   `VERSION`, and app files: the reader in `shell/pure`, and the writer, the
+   box, the frame (a placeholder first) and both plugins in
+   `vintage-frames/build`. One minor, built against meteors-app and this site
+   through a linked kit, then released. _Landed 2026-10-07, in vintage-frames
+   0.17.0._
+4. **The repo** (§3.4): scaffolded, with the source and tests moved, the dev
+   desktop and CI, and a build that writes `dist/Meteors.png` through
+   `appFile()`. _Landed 2026-10-07, as `meteors-app`, on `^0.17.0`._
+5. **SystemOnline takes the file** (§3.4). _Done on this branch 2026-10-07,
+   not yet merged; eye checks 4 and 5 and the merge are left:_
+   - **The kit**: `vintage-frames` to `^0.17.0`.
+   - **The plugin**: `appFiles()` in `vite.config.ts`, and
+     `vintage-frames/build/client` beside `vite/client` in `tsconfig.json`'s
+     `types`.
+   - **The file**: `apps/Meteors.png`, copied from meteors-app's `dist/`.
+   - **The wiring**: `main.ts` takes Meteors from `../apps/Meteors.png?app`
+     in place of `./apps/meteors/index.ts`. The Finder's defaults
+     (`src/apps/finder/index.ts`) take its id and name from that import's
+     `manifest` in place of `METEORS`.
+   - **What goes**: `src/apps/meteors/`, `test/meteors.test.mjs`,
+     `meteors-field.test.mjs` and `meteors-raster.test.mjs`, and
+     `docs/meteors-plan.md`, which meteors-app already carries.
+   - **The docs**: SPEC's opening (decision 20), §1's list of directories,
+     the Meteors clauses' file names and a clause on `apps/`; README's tree
+     and its Meteors row; CLAUDE.md's "Applications and the shell" (Meteors
+     comes from `apps/`, not `src/apps/`), "Where things are", and its
+     kit-imports invariant, which gains `vintage-frames/build` for the Vite
+     config.
+   - **The checks**: the three gates, then §8's eye checks 4 to 10 and 12
+     before the merge, and 13 after it.
+6. **The next kit minor** goes through the pilot: Meteors' range and build,
    then SystemOnline's bump. What it took goes in this plan's status, and
    decides whether a second application moves before the shell settles.
 
@@ -496,17 +565,20 @@ in the repo it touches.
 Each goes to the kit as `feature-requests/<name>.md`, as autoselect and the
 app kind did.
 
-For Phase 2:
+For Phase 2, all in step 3, written 2026-10-07 and shipped the same day in
+0.17.0:
 
-1. **The faces' strikes as data** (step 3): each character's advance,
-   placement and ink, for VF Display and VF Body, from a DOM-free entry, built
-   from the glyph manifests along with the faces. A build can then draw the
-   kit's type without a browser.
-2. **The app file format and the box** (step 5): `readAppFile`,
-   `writeAppFile`, `satisfies` and the compositor (§3.2, §3.3), from step 4's
-   modules and tests.
-3. **`VERSION`** (step 5), the kit's own, in `shell/pure`, for checking
-   `requires`.
+1. **The faces' strikes as data** (`strikes-as-data.md`): each character's
+   advance, placement and ink, for VF Display and VF Body, built from the
+   glyph manifests along with the faces, for the packer to draw the kit's
+   type without a browser. They come from the build entry.
+2. **App files** (`app-files.md`): the format (§3.2), the box and the kit's
+   frame (§3.3), and both plugins (§3.4). Reading (`readAppFile`,
+   `satisfies`) is in `shell/pure`; writing, the box, `packApp`, `appFile()`
+   and `appFiles()` are in `vintage-frames/build`, a build-only entry, with
+   `vite` an optional peer. Regular consumers never import it.
+3. **`VERSION`** (`version-export.md`), the kit's own, in `shell/pure`, for
+   checking `requires`.
 
 Worth raising now, though none blocks Phase 2:
 
@@ -550,17 +622,17 @@ For Phase 3:
 2. **Meteors first**, over Desktop Patterns, which leans on nothing already
    but tries less of the contract: no icon, no session key, no alert, no art.
    _Recommended._
-3. **Its own repo, Meteors alone**, over stopping at step 4, with Meteors'
-   source here built into its app file, or over waiting for the shell to
-   settle. One application's build per kit minor is a cost small enough to
-   measure, and the move reverses cleanly: the repo's `src/` drops back into
-   `src/apps/meteors/` unchanged. No second application moves until step 8
+3. **Its own repo, Meteors alone**, over keeping Meteors' source here, built
+   into its app file, or over waiting for the shell to settle. One
+   application's build per kit minor is a cost small enough to measure, and
+   the move reverses cleanly: the repo's `src/` drops back into
+   `src/apps/meteors/` unchanged. No second application moves until step 6
    or the shell's status says so. _Recommended._
 4. **App files, not npm**: an application ships as one PNG (§3.2). _Taken
    2026-10-07._
-5. **Built in from `apps/`**, through the `?app` plugin, with installing at
-   runtime left to Phase 3. _Taken 2026-10-07._
-6. **The box** (§3.3): the picture is a box in SystemOnline's standard frame,
+5. **Built in from `apps/`**, through the kit's `?app` plugin, with
+   installing at runtime left to Phase 3. _Taken 2026-10-07._
+6. **The box** (§3.3): the picture is a box in the kit's standard frame,
    after PICO-8's cartridges, naming the platform and the application's
    name, version and author around the author's artwork, or the icon's stamp
    without any. The icon the desktop draws rides in the manifest. _Taken
@@ -581,20 +653,24 @@ For Phase 3:
     icon is on it only if they put it there. _Taken 2026-10-07, over the
     recommendation of the icon small on every box._
 11. **Color on the box**, as Mac software's boxes had. _Recommended._
-12. **The frame in `box/`, copied into each application's repo**, over
-    fetching it at build time or a package of its own. _Recommended._
-13. **The format and the box in the kit's `shell/pure`**, after step 4 proves
-    them here, over a copy in each repo or a package of their own. The
-    packager and the reader want one implementation, and Phase 3's loader is
-    the kit's. _Recommended._
+12. **The frame in the kit**, shipped in its build entry, over a copy in
+    `box/` here and in each application's repo. _Taken 2026-10-07, over the
+    recommendation of the copies._
+13. **The whole packer in the kit**, over the format and the compositor alone
+    with each repo wiring them. Reading stays small in `shell/pure` for
+    Phase 3's loader; writing, the box and both plugins are in
+    `vintage-frames/build`, a dev-time entry no page imports. The kit builds
+    it against meteors-app and this site, over proving it here first and
+    moving it. _Taken 2026-10-07._
 14. **`requires` against the kit's `VERSION`**, over reading the installed
     kit's `package.json`, which bends the rule that the site imports the
-    kit's three entries only. Step 4 reads the `package.json` until step 5
-    brings `VERSION`. _Recommended._
-15. **Names**: the repo `system-online-meteors`, and the file `Meteors.png`,
-    named as its application is. `Meteors.app.png` would say what it is in a
-    list of attachments, but where extensions are hidden it reads as
-    `Meteors.app`, a Mac application bundle it isn't. _Recommended._
+    kit's three entries only. It ships with the plugin that checks it.
+    _Recommended._
+15. **Names**: the file `Meteors.png`, named as its application is.
+    `Meteors.app.png` would say what it is in a list of attachments, but
+    where extensions are hidden it reads as `Meteors.app`, a Mac application
+    bundle it isn't. _Recommended._ The repo is `meteors-app`, over
+    `system-online-meteors`. _Taken 2026-10-07._
 16. **`requires` of one kit minor**, from the dev dependency's range, and
     Meteors at 0.x: a minor when the range moves, a patch for the game alone.
     _Recommended._
@@ -606,11 +682,14 @@ For Phase 3:
 20. **SPEC's opening**: "built on nothing but the published `vintage-frames`
     package" becomes "built on the published `vintage-frames` package and
     SystemOnline's own app files". _Recommended._
+21. **What the frame names.** The platform is drawn into the kit's frame. It
+    can name SystemOnline, or the shell, since any desktop on the shell can
+    load an app file. _Open: the frame is yours to draw._
 
 ## 7. Tests
 
-By the policy: contracts, not wiring. Each module is step 4's, then the
-kit's from step 5.
+By the policy: contracts, not wiring. Each module is the kit's (step 3), and
+these are the tests `app-files.md` asks for.
 
 - Phase 1 added none. `meteors.test.mjs` already reads a best that was never
   set as none.
@@ -638,11 +717,12 @@ kit's from step 5.
   - with no artwork, the stamp: the icon at the frame's multiple, centered,
     pasted by its alpha;
   - everything outside the slots is the frame's, untouched.
-- The `?app` plugin, the library build and the packager's wiring are checked
-  by eye.
-- Step 7 moves `meteors.test.mjs`, `meteors-field.test.mjs` and
-  `meteors-raster.test.mjs` to the new repo, with their imports re-pointed
-  from `../src/apps/meteors/` to `../src/`, run by the same `node --test`.
+- The two plugins and the library build are checked by eye, from
+  meteors-app's build and this site's.
+- `meteors.test.mjs`, `meteors-field.test.mjs` and `meteors-raster.test.mjs`
+  are in meteors-app since step 4, with their imports re-pointed from
+  `../src/apps/meteors/` to `../src/`, run by the same `node --test`. Step 5
+  removes them here.
 - Phase 3's plan says its own.
 
 ## 8. Eye checks
@@ -653,37 +733,57 @@ After Phase 1, in `npm run dev` (done, in the status):
 2. Q in a game brings the alert, with its art.
 3. A best score survives a reload, and `?fresh=1` starts with none.
 
-After step 4:
+After step 5:
 
 4. `apps/Meteors.png` shows Meteors' box, its name, version and author
    legible and the stamp in its artwork area, in a browser, in the Mac's
-   Finder and Quick Look, and as an attachment in a mail client.
+   Finder and Quick Look, and as an attachment in a mail client. _Seen as an
+   image 2026-10-07, from meteors-app's build; the Finder, Quick Look and
+   mail are still to do._
 5. Test artwork at a whole fraction of the slot comes out crisp.
-6. The desktop shows Meteors' 32 × 32 icon, from the manifest.
+6. The desktop shows Meteors' 32 × 32 icon, from the manifest. _Holds: under
+   `npm run dev` its art is the manifest's `data:` URL, where the other
+   icons' are the site's paths._
 7. Under `npm run dev` and `npm run preview`, Meteors from its app file plays
    as before: the window out of its icon, the alert with its art, the best
-   kept across a reload.
+   kept across a reload. _Holds in both; the alert's art is inlined in the
+   code._
 8. A copy of the file whose `requires` leaves out the installed kit fails the
-   build, naming Meteors and both versions.
+   build, naming Meteors and both versions. _Holds, with a copy requiring
+   `^0.16.2` written by the kit's `writeAppFile`: "Meteors 0.1.0 requires
+   vintage-frames ^0.16.2, and this site has 0.17.0."_
 9. A new `Meteors.png` while `npm run dev` runs reloads the page with it.
+   _Holds._
 10. The console shows no "already registered on this page" warning: one copy
-    of the kit.
+    of the kit. _Holds, under dev and preview._
 
 After Phase 2:
 
 11. On the repo's dev desktop, the icon opens Meteors out of itself, the game
     plays, Q asks, Quit quits, and the window closes back into the icon.
+    _The first three driven in headless Chromium 2026-10-07._
 12. SystemOnline with the repo's `Meteors.png` plays as in 7, and a profile
     from before keeps the icon's place, the window's place and the best
-    score.
+    score. _Holds: a profile made on the commit before, with the icon and
+    the window moved and a best of 1230, reopens on this branch with both in
+    place and "Best 1230" on the title screen._
 13. After the merge, the deployed site has Meteors.
 
 ## 9. Follow-ups
 
 - **An application template**, from the pilot's repo, for the next
-  application, the frame included.
+  application. With the packer in the kit, it is the source, `app.ts`, a
+  one-call `vite.config.ts` and the dev desktop.
+- **The dev desktop from the kit**: `appFile()` could serve a bare desktop
+  under `npm run dev`, its Finder art with it as the frame is, so a repo
+  carries no `index.html`, `dev/main.ts` or `dev/art/`. It's now the largest
+  piece every application's repo copies.
 - **Meteors' artwork**: yours to draw, or a frame of the game's own screen.
-- **Desktop Patterns as an app file**, once step 8 or the shell's status
+  It goes in meteors-app as `art/box.png`, named in `appFile()`'s `artwork`.
+- **A watch script in meteors-app**: `vite build --watch`, with `copyTo` at
+  SystemOnline's `apps/`, for trying a change on the real desktop before a
+  release.
+- **Desktop Patterns as an app file**, once step 6 or the shell's status
   says so.
 - **Phase 3's plan.**
 - **The code without its icon.** The manifest carries the icon, so the build
@@ -709,36 +809,31 @@ Phase 1, landed:
   `windows.html` and `dialogs.html`, `src/desktop.css`, `docs/SPEC.md`,
   `CLAUDE.md`.
 
-Step 3:
+Step 3, in the kit:
 
-- **In the kit**: the strikes as data, built from the glyph manifests, their
-  export and tests.
-- **Here**: `package.json` and `package-lock.json` for the kit bump.
+- **Asks**: `feature-requests/strikes-as-data.md`, `app-files.md` and
+  `version-export.md`.
+- **Landed** in 0.17.0: the strike modules, generated by
+  `manifest-to-font.py`; the reader and `VERSION` in `src/shell/`, exported
+  from `shell/pure` and `shell`; the build entry, `src/build/`, with the PNG
+  writer, the placeholder frame, the compositor, `packApp` and both plugins;
+  their tests, `docs/APP-FILES.md`, SHELL.md and PUBLISHING.md.
 
-Step 4:
+Step 4, meteors-app, landed:
 
-- **New**: `src/lib/png.ts`, `src/lib/app-file.ts`, `src/lib/box.ts`,
-  `test/png.test.mjs`, `test/app-file.test.mjs`, `test/box.test.mjs`,
-  `box/frame.png`, `box/frame.json`, `src/apps/meteors/app.ts`,
-  `vite.meteors.config.ts`, `apps/Meteors.png`.
-- **Changed**: `vite.config.ts` (the `?app` plugin), `src/env.d.ts`,
-  `src/main.ts`, `src/apps/meteors/index.ts`, `package.json`
-  (`build:meteors`), `tsconfig.node.json` (the new config).
+- **Scaffolded**: the repo, from `src/apps/meteors/` and its three tests,
+  with `src/app.ts`, the default export, the dev desktop and CI.
+- **Then**: `vite.config.ts` onto `appFile()`, `package.json`'s kit range
+  at `^0.17.0`, and `allowImportingTsExtensions` in `tsconfig.node.json` for
+  the config's import of `src/app.ts`.
 
-Step 5:
+Step 5, here:
 
-- **In the kit**: the format, the compositor and `VERSION` in `src/shell/`,
-  exported from `shell/pure` and `shell`, with tests and SHELL.md.
-- **Here**: `package.json` and `package-lock.json` for the kit bump, and
-  `vite.config.ts` and `vite.meteors.config.ts` onto the kit's modules.
-  `src/lib/png.ts`, `app-file.ts` and `box.ts` and their tests are removed.
-
-Steps 6 and 7:
-
-- **New**: the `system-online-meteors` repo.
-- **Changed**: `apps/Meteors.png`, from the repo's build;
-  `src/apps/finder/index.ts`; `docs/SPEC.md`, `README.md`, `CLAUDE.md`.
+- **New**: `apps/Meteors.png`, from the repo's build.
+- **Changed**: `package.json` and `package-lock.json` for the kit bump;
+  `vite.config.ts` (`appFiles()`); `tsconfig.json` (the `?app` types);
+  `src/main.ts`; `src/apps/finder/index.ts`; `docs/SPEC.md`, `README.md`,
+  `CLAUDE.md`.
 - **Removed**: `src/apps/meteors/`, `test/meteors.test.mjs`,
-  `test/meteors-field.test.mjs`, `test/meteors-raster.test.mjs`,
-  `vite.meteors.config.ts` and `build:meteors`.
-- **Moved**: `docs/meteors-plan.md`, to the new repo.
+  `test/meteors-field.test.mjs`, `test/meteors-raster.test.mjs`.
+- **Moved**: `docs/meteors-plan.md`, to meteors-app.

@@ -1,10 +1,10 @@
 # The desktop — what's on it and why
 
-`index.html` + `src/`, served by `vite` from the repo root. A System 7 desktop
-with five applications (the Finder, the Text Viewer, Desktop Patterns, the
-Font Viewer and Meteors) over the shell `vintage-frames/shell`, built on nothing but the
-published `vintage-frames` package and held to the same contract as anyone
-else's app. The shell's own behavior (the window manager, the menu bar, the
+`index.html`, `src/` and `apps/`, served by `vite` from the repo root. A
+System 7 desktop with five applications (the Finder, the Text Viewer, Desktop
+Patterns, the Font Viewer and Meteors) over the shell `vintage-frames/shell`,
+built on the published `vintage-frames` package and SystemOnline's own app
+files, and held to the same contract as anyone else's app. The shell's own behavior (the window manager, the menu bar, the
 catalog, the stock Finder, the saved session) is the kit's and documented
 there, in its `docs/SHELL.md`; this spec covers what SystemOnline puts on it.
 
@@ -18,13 +18,19 @@ the catalog in IndexedDB (database `system-online`) and the session in
 localStorage (`system-online:desktop`).
 
 1. **Applications.** Each is one directory under `src/apps/` (`finder`,
-   `text-viewer`, `desktop-patterns`, `font-viewer`, `meteors`) exporting a function that
+   `text-viewer`, `desktop-patterns`, `font-viewer`) exporting a function that
    returns the shell's `defineApp` definition: an id, a name, its menus
    (`menus.html`), its alerts (`dialogs.html`), its windows (`windows.html`,
    filled by `windows.ts`), the catalog kinds it opens, and `init(ctx)`. A
    zoom box's column is pure geometry (`layout.ts`); the window manager runs
    the box. `src/apps/windows.ts` holds what the windows and dialogs share.
-   No application calls another.
+   No application calls another. **Meteors** comes from its app file,
+   `apps/Meteors.png`, built in its own repo (meteors-app): a PNG whose
+   picture is its box and whose chunks carry its manifest, icon and code. The
+   kit's `appFiles()` (`vite.config.ts`) builds it in, refusing a file whose
+   kit range this site's kit doesn't meet, and the page's one copy of the kit
+   serves its code. The Finder's defaults take its id and name from the
+   manifest.
 2. **The menu bar** holds the Apple menu, then the front application's menus,
    then the clock. The front application is the active window's, or the Finder
    while none is active.
@@ -136,6 +142,9 @@ kind: an application's icon, which opens it.
     Windows_. See [FONTS.md](FONTS.md) for the collection.
 
 ## Meteors
+
+Built in from `apps/Meteors.png`. Its source, and the files named here, are
+the meteors-app repo's `src/`.
 
 16. Meteors' icon on the desktop (`art/meteors.png`: a ship firing at a rock
     on a little black screen) opens one fixed, centered window, 322 × 260,
