@@ -1,6 +1,10 @@
 # Plan: application packages
 
-**Status:** drafted 2026-10-07. Decision 1 was taken 2026-10-07 as
+**Status:** steps 1 to 5 landed 2026-10-07, and Meteors ships as an app file
+from its own repo, meteors-app. Left: eye checks 4 and 5, decision 21, and
+step 6 at the kit's next minor. The story so far:
+
+Drafted 2026-10-07. Decision 1 was taken 2026-10-07 as
 recommended: Phase 1 now. Steps 1 and 2 landed 2026-10-07, and the gates are
 green. Two things go past §3.1 as drafted: `BEST` is no longer
 exported, since nothing outside Meteors reads it, and `windows.ts`'s header
@@ -83,12 +87,14 @@ back: the manifest is right, and the code imports only `vintage-frames` and
 `vintage-frames/shell`. The box shows the stamp, the name, the version and
 the author. Next is step 5, SystemOnline taking the file (§4).
 
-Step 5 is done on this branch, 2026-10-07, not yet merged. The kit is
-`^0.17.0`, `appFiles()` builds Meteors in from `apps/Meteors.png`, and
-Meteors' source, tests and plan are gone from here. The gates are green. In
-headless Chromium, eye checks 6 to 10 and 12 hold (§8). Left: eye check 4's
-Finder, Quick Look and mail; 5's test artwork; the merge; then 13 on the
-deployed site.
+Step 5 landed 2026-10-07, merged to `main` as a34884b and deployed. The kit
+is `^0.17.0`, `appFiles()` builds Meteors in from `apps/Meteors.png`, and
+Meteors' source, tests and plan are gone from here. The gates are green, and
+in headless Chromium eye checks 6 to 10, 12 and 13 hold (§8): on
+system-online.portill.io, Meteors comes from its app file. Phase 2 has two
+eye checks left, 4's Finder, Quick Look and mail and 5's test artwork, and
+one decision open, 21, what the frame names. Step 6 waits for the kit's next
+minor.
 
 The ask: _"i'm interested in the idea of breaking the 'apps' out to their own
 individual repos, maybe even having their own package bundles that can by
@@ -534,8 +540,8 @@ in the repo it touches.
 4. **The repo** (§3.4): scaffolded, with the source and tests moved, the dev
    desktop and CI, and a build that writes `dist/Meteors.png` through
    `appFile()`. _Landed 2026-10-07, as `meteors-app`, on `^0.17.0`._
-5. **SystemOnline takes the file** (§3.4). _Done on this branch 2026-10-07,
-   not yet merged; eye checks 4 and 5 and the merge are left:_
+5. **SystemOnline takes the file** (§3.4). _Landed 2026-10-07, merged and
+   deployed; eye checks 4 and 5 are left:_
    - **The kit**: `vintage-frames` to `^0.17.0`.
    - **The plugin**: `appFiles()` in `vite.config.ts`, and
      `vintage-frames/build/client` beside `vite/client` in `tsconfig.json`'s
@@ -559,6 +565,7 @@ in the repo it touches.
 6. **The next kit minor** goes through the pilot: Meteors' range and build,
    then SystemOnline's bump. What it took goes in this plan's status, and
    decides whether a second application moves before the shell settles.
+   _Next, when the kit's next minor ships._
 
 ## 5. Kit asks
 
@@ -765,9 +772,12 @@ After Phase 2:
 12. SystemOnline with the repo's `Meteors.png` plays as in 7, and a profile
     from before keeps the icon's place, the window's place and the best
     score. _Holds: a profile made on the commit before, with the icon and
-    the window moved and a best of 1230, reopens on this branch with both in
+    the window moved and a best of 1230, reopens on step 5's branch with both in
     place and "Best 1230" on the title screen._
-13. After the merge, the deployed site has Meteors.
+13. After the merge, the deployed site has Meteors. _Holds, 2026-10-07: the
+    deploy serves the bundle the local build made, and with `?fresh=1`
+    Meteors' icon opens the game, a game starts, and Q asks with the alert's
+    art; the console is clean._
 
 ## 9. Follow-ups
 
