@@ -26,7 +26,7 @@
     <!-- Startup curtain, removed by src/boot/curtain.ts. -->
     <div id="curtain"></div>
 
-    <!-- `bezel`: the CRT's black surround. The shell (vintage-frames/shell,
+    <!-- `bezel`: the CRT's black surround. The shell (system-online-sdk,
          main.ts) fits the raster to the viewport, and each application appends
          its own windows (src/apps/<id>/windows.html). -->
     <vf-desktop id="desktop" bezel="10">
@@ -36,7 +36,8 @@
       <vf-menu-bar>
         <!-- The Apple menu, present in every application. The six-color apple
              is 16×16 pixel art, decorative; `label` names the menu. After the
-             rule come the items applications install (Desktop Patterns). -->
+             rule the shell lists what the System Folder's Apple Menu Items
+             holds, a folder as a submenu (Control Panels). -->
         <vf-menu id="menu-apple" label="Apple">
           <vf-img slot="label" width="16" height="16">
             <img src="/icons/apple.png" alt="" />

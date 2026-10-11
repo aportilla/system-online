@@ -5,7 +5,7 @@
 // `define`.
 
 import type { VfCheckbox, VfDialog } from 'vintage-frames'
-import type { ShellState } from 'vintage-frames/shell'
+import type { ShellState } from 'system-online-sdk'
 
 /** The session key that holds Show at startup. */
 export const GREET = 'greet'

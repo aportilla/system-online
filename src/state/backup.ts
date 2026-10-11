@@ -10,11 +10,15 @@
 // row with no entry. A row carries its item's place in its container, when it
 // has one, so Replace puts the icons back where they were.
 //
+// The containers the catalog keeps, the volumes and the System Folder with its
+// two folders, are directories with no manifest row. What they hold names
+// them by id, and a restore files it back into them.
+//
 // The manifest names Macintosh HD "hd", as SystemOnline's first library did,
 // so backups from before the catalog still read.
 
-import { DISK, FOLDER, childrenOf, isContainerKind } from 'vintage-frames/shell/pure'
-import type { CatalogState, Item } from 'vintage-frames/shell/pure'
+import { DISK, FOLDER, childrenOf, isContainerKind, isKept } from 'system-online-sdk/pure'
+import type { CatalogState, Item } from 'system-online-sdk/pure'
 import { FONT, TEXT, fontFamily, textData } from './kinds.ts'
 
 export const MANIFEST_NAME = 'desktop.json'
@@ -101,9 +105,9 @@ function segment(used: Set<string>, name: string, ext: string): string {
 /**
  * The archive for a catalog: its manifest and its entries, parents before
  * their children, and in each container its folders, then its text files,
- * then its fonts. Macintosh HD and the Trash are walked like any folder but
- * have no manifest row, so their items carry the folder id `"hd"` or
- * `"trash"` and come back there.
+ * then its fonts. The kept containers are walked like any folder but have no
+ * manifest row, so their items carry the folder id (`"hd"` for Macintosh HD,
+ * `"trash"`, `"system-folder"` …) and come back there.
  */
 export function planBackup(
   state: CatalogState,
@@ -129,7 +133,7 @@ export function planBackup(
       seen.add(f.id)
       const path = prefix + segment(used, f.name, '/')
       entries.push({ kind: 'dir', path, id: f.id })
-      if (f.kind === FOLDER) {
+      if (f.kind === FOLDER && !isKept(f.id)) {
         manifest.folders.push({
           id: f.id,
           name: f.name,

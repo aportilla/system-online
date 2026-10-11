@@ -5,7 +5,7 @@
 // To add one, put the .txt here and list it below with a new key, its name and
 // its home. An existing profile gets it from Special → Restore Default Files.
 
-import type { Item } from 'vintage-frames/shell'
+import type { Item } from 'system-online-sdk'
 import readMe from './read-me.txt?raw'
 import aboutTheFonts from './about-the-fonts.txt?raw'
 import type { TextDefault } from '../state/defaults.ts'

@@ -2,11 +2,13 @@
 
 `index.html`, `src/` and `apps/`, served by `vite` from the repo root. A
 System 7 desktop with five applications (the Finder, the Text Viewer, Desktop
-Patterns, the Font Viewer and Meteors) over the shell `vintage-frames/shell`,
-built on the published `vintage-frames` package and SystemOnline's own app
-files, and held to the same contract as anyone else's app. The shell's own behavior (the window manager, the menu bar, the
-catalog, the stock Finder, the saved session) is the kit's and documented
-there, in its `docs/SHELL.md`; this spec covers what SystemOnline puts on it.
+Patterns, the Font Viewer and Meteors) over the shell of the published
+`system-online-sdk` package, drawn with the published `vintage-frames`
+elements, with SystemOnline's own app files, and held to the same contract as
+anyone else's site. The shell's own behavior (the window manager, the menu
+bar, the catalog and its System Folder, the stock Finder, the saved session)
+is the SDK's and documented there, in its `docs/SHELL.md`; this spec covers
+what SystemOnline puts on it.
 
 ## The shell
 
@@ -27,10 +29,10 @@ localStorage (`system-online:desktop`).
    No application calls another. **Meteors** comes from its app file,
    `apps/Meteors.png`, built in its own repo (meteors-app): a PNG whose
    picture is its box and whose chunks carry its manifest, icon and code. The
-   kit's `appFiles()` (`vite.config.ts`) builds it in, refusing a file whose
-   kit range this site's kit doesn't meet, and the page's one copy of the kit
-   serves its code. The Finder's defaults take its id and name from the
-   manifest.
+   SDK's `appFiles()` (`vite.config.ts`) builds it in, refusing a file built
+   at an app API level this site's SDK doesn't run, and the page's one copy of
+   the kit and the SDK serves its code. The Finder's defaults take its id and
+   name from the manifest.
 2. **The menu bar** holds the Apple menu, then the front application's menus,
    then the clock. The front application is the active window's, or the Finder
    while none is active.
@@ -46,9 +48,15 @@ localStorage (`system-online:desktop`).
    The browser keeps ⌘W, ⌘Q and ⌘N, so Close and Quit take ⌃W and ⌃Q.
    While an application's alert is up, the bar shows that application's
    menus, whichever is front.
-3. **The Apple menu** is the page's: _About SystemOnline…_, a rule, then the
-   items applications install in it (Desktop Patterns), the way a control
-   panel sat in the Apple Menu Items folder.
+3. **The Apple menu** is the page's and the System Folder's: _About
+   SystemOnline…_, a rule, then what the System Folder's Apple Menu Items
+   holds, by name, a folder or an alias of one as a submenu of what it holds.
+   A new desktop's Apple Menu Items holds an alias of the System Folder's
+   Control Panels, so the menu reads Apple ▸ Control Panels ▸ Desktop
+   Patterns, as System 7.5's did: control panels lived in the Control Panels
+   folder, and the Apple menu reached them through its alias. Choosing an
+   entry opens it as a double-click would. What Startup Items holds opens at
+   every boot; a new desktop's is empty.
 4. **Windows.** A window that shows a file, or an application opened from its
    icon, opens out of the icon and closes back into it; a window opened from
    a menu comes and goes at once. An
@@ -57,8 +65,9 @@ localStorage (`system-online:desktop`).
    a resize re-pins every window and desktop icon, and View → Arrange Windows
    (⌘J), in every application, puts the windows back.
 5. **The session** keeps every window's box, which were open and which was
-   active, the desktop pattern, the About box's Show at startup (`greet`), and
-   Meteors' best score (`meteors-best`).
+   active, the desktop pattern, the About box's Show at startup (`greet`),
+   whether the desktop has been given the System Folder's defaults
+   (`system-folder`, clause 8), and Meteors' best score (`meteors-best`).
    A reload reopens the windows that were open. `?fresh=1` neither reads nor
    writes it, and keeps the catalog in memory: the desktop a first visit
    sees, gone on a reload.
@@ -69,20 +78,27 @@ localStorage (`system-online:desktop`).
 
 ## The library
 
-The shell's catalog, with Macintosh HD and the Trash as its volumes, two
-kinds of SystemOnline's own (`src/state/kinds.ts`), and the shell's own `app`
-kind: an application's icon, which opens it.
+The shell's catalog, with Macintosh HD and the Trash as its volumes, the
+System Folder on Macintosh HD with Apple Menu Items and Startup Items in it,
+two kinds of SystemOnline's own (`src/state/kinds.ts`), and the shell's own
+two: `app`, an application's icon, which opens it, and `alias`, which stands
+for another item and opens it.
 
 7. **A text file** (kind `text`) keeps its words, or the key of a text the app
    ships (`src/texts/`), whose words are always the app's. **A font
    suitcase** (kind `font`) keeps its family; the strikes are the app's
    (`public/fonts/imported/`), and its size is their bytes.
 8. **The defaults** (`src/state/defaults.ts`): Read Me and Meteors' icon on
-   the desktop, and in Macintosh HD a Fonts folder of one suitcase per family
-   and About the Fonts.
+   the desktop; in Macintosh HD a Fonts folder of one suitcase per family and
+   About the Fonts; and in the System Folder a Control Panels folder holding
+   Desktop Patterns' icon, which Apple Menu Items holds an alias of.
    They are the catalog's seed, stored once; **Special → Restore Default
    Files** stores any missing since, a trashed or renamed one counting as
-   present.
+   present, and makes the Fonts or Control Panels folder again where one is
+   gone. The alias counts while it stands for a folder named Control Panels,
+   wherever either is. A desktop from before the System Folder is given its
+   defaults once, at its first boot after it, so its Apple menu keeps
+   Desktop Patterns.
 9. **Back Up All Files…** downloads the library as one zip whose tree reads as
    the desktop (`macintosh-hd/`, `trash/`, folders as directories, texts as
    `.txt`) with a `desktop.json` manifest (`src/state/backup.ts`); fonts are
@@ -90,20 +106,28 @@ kind: an application's icon, which opens it.
    Backup…**, or the zip dropped on the page, asks whether to Add it beside
    the desktop, at free cells, or Replace the desktop with it, at its places.
    The manifest names Macintosh HD `hd`, so backups from before the catalog
-   still restore. An application's icon is the system's, not a file: a backup
-   leaves it out, and a Replace puts it back at a free cell.
-10. Without IndexedDB (a private window) the desktop holds Macintosh HD and
-    the Trash, and every command that would store explains why it can't.
+   still restore. The System Folder and its two folders are directories with
+   no manifest row, as Macintosh HD and the Trash are, so what they hold
+   comes back into them. An application's icon is the system's, not a file: a
+   backup leaves it out, and a Replace puts it back at a free cell, with the
+   System Folder's defaults. Aliases are left out too, and a Replace puts back
+   the defaults' alone.
+10. Without IndexedDB (a private window) the desktop holds Macintosh HD, its
+    System Folder and the Trash, and every command that would store explains
+    why it can't.
 
 ## The Finder
 
-11. The kit's stock Finder: icons, folder windows, renaming, filing by drag,
-    Copy and Paste, Clean Up, Empty Trash…. SystemOnline gives it its art
-    (the folder, the Trash and its mark, a text file's icon for a generic
-    document, and the caution art its alerts carry; the app icon stands in for
-    Macintosh HD and the suitcases), its volumes and its seed, and adds to
-    Special: _Restore Default Files_, then _Back Up All Files…_ and _Restore
-    from Backup…_, whose alerts it holds (`dialogs.html`).
+11. The SDK's stock Finder: icons, folder windows, renaming, filing by drag,
+    aliases (File → Make Alias, ⌘M, their names in italics), Copy and Paste,
+    Clean Up, Empty Trash…. SystemOnline gives it its art (the folder; the
+    System Folder, Apple Menu Items and Startup Items, each the folder marked
+    with a small Macintosh, an apple and a happy Macintosh; the Trash and its
+    mark; a text file's icon for a generic document; and the caution art its
+    alerts carry; the app icon stands in for Macintosh HD and the suitcases),
+    its volumes, its System Folder and its seed, and adds to Special:
+    _Restore Default Files_, then _Back Up All Files…_ and _Restore from
+    Backup…_, whose alerts it holds (`dialogs.html`).
 
 ## The Text Viewer
 
@@ -116,13 +140,16 @@ kind: an application's icon, which opens it.
 
 ## Desktop Patterns
 
-13. Apple menu → Desktop Patterns opens one fixed, centered panel: a preview
-    well, a 13 × 3 chooser of the kit's 38 patterns, and a default **Set
-    Desktop Pattern**. A click (or the arrow keys) previews a pattern and rings
-    its cell, 1px black over the edge and 1px white inside; only the button
-    sets the desktop's, which the session keeps. Closing discards an unset
-    choice. Every piece is a kit element, the ring eight 1px `vf-container`s.
-    File: _Close_, _Quit_. View: _Arrange Windows_.
+13. Desktop Patterns' icon in the System Folder's Control Panels
+    (`art/desktop-patterns.png`: three pattern tiles, fanned), or Apple ▸
+    Control Panels ▸ Desktop Patterns, opens one fixed, centered panel, out of
+    the icon when opened from it: a preview well, a 13 × 3 chooser of the
+    kit's 38 patterns, and a default **Set Desktop Pattern**. A click (or the
+    arrow keys) previews a pattern and rings its cell, 1px black over the edge
+    and 1px white inside; only the button sets the desktop's, which the
+    session keeps. Closing discards an unset choice. Every piece is a kit
+    element, the ring eight 1px `vf-container`s. File: _Close_, _Quit_. View:
+    _Arrange Windows_.
 
 ## The Font Viewer
 

@@ -1,18 +1,20 @@
 # SystemOnline
 
-A Mac OS System 7 desktop in the browser: a menu bar, a Finder with folders
-and a Trash, windows that open out of their icons, and five applications, all
-on the 1-bit grid at true 72dpi size.
+A Mac OS System 7 desktop in the browser: a menu bar, a Finder with folders,
+aliases, a System Folder and a Trash, windows that open out of their icons,
+and five applications, all on the 1-bit grid at true 72dpi size.
 
 Use it at <https://system-online.portill.io/>.
 
 Everything you see is drawn by [**vintage-frames**](https://www.npmjs.com/package/vintage-frames),
-the System 7 component kit, installed from npm like any other dependency, and
-the desktop runs on its shell, `vintage-frames/shell`: the window manager, the
-menu bar, the catalog of files and the stock Finder. This repo is the
-*application*: the applications, the shell's configuration, their content,
-and the imported strike collection the Font Viewer opens. An application
-built in a repo of its own arrives as an app file in `apps/`: Meteors, from
+the System 7 component kit, and the desktop runs on
+[**system-online-sdk**](https://www.npmjs.com/package/system-online-sdk)'s
+shell: the window manager, the menu bar, the catalog of files with its System
+Folder, and the stock Finder. Both are installed from npm like any other
+dependency. This repo is the *site*: the applications, the shell's
+configuration, their content, and the imported strike collection the Font
+Viewer opens. An application built in a repo of its own arrives as an app
+file in `apps/`: Meteors, from
 [meteors-app](https://github.com/aportilla/meteors-app).
 
 ```sh
@@ -33,16 +35,18 @@ npm run dev        # http://localhost:5173/
 
 | | |
 | --- | --- |
-| **Finder** | the kit's stock Finder (icons, folder windows, rename, filing by drag, the Trash, Copy and Paste, Clean Up), plus Back Up All Files… and Restore from Backup…, Restore Default Files |
+| **Finder** | the SDK's stock Finder (icons, folder windows, rename, filing by drag, aliases, the System Folder, the Trash, Copy and Paste, Clean Up), plus Back Up All Files… and Restore from Backup…, Restore Default Files |
 | **Text Viewer** | read-me files, read-only |
-| **Desktop Patterns** | Apple menu → Desktop Patterns: the kit's 38 patterns for the desktop |
+| **Desktop Patterns** | Apple menu → Control Panels → Desktop Patterns: the kit's 38 patterns for the desktop |
 | **Font Viewer** | a font suitcase's sample line in every strike, and every character of one |
 | **Meteors** | its icon on the desktop: an Asteroids-style game on a 320 × 240 1-bit screen, built in from its app file, `apps/Meteors.png` |
 
-Whichever window is in front, its application owns the menu bar. The files and
-their icons' places live in the browser's IndexedDB, and the windows and the
-desktop pattern in localStorage; a reload reopens what was open. `?fresh=1`
-boots the desktop a first visit sees, and saves nothing.
+Whichever window is in front, its application owns the menu bar. The Apple
+menu lists what the System Folder's Apple Menu Items holds, and what Startup
+Items holds opens at every boot. The files and their icons' places live in the
+browser's IndexedDB, and the windows and the desktop pattern in localStorage; a
+reload reopens what was open. `?fresh=1` boots the desktop a first visit sees,
+and saves nothing.
 
 ## Layout
 
@@ -83,10 +87,13 @@ under their own names, converted from classic font suitcases, which the Font
 Viewer opens. They moved here from the vintage-frames repo on 2026-08-11 so the
 component kit distributes no Apple artwork. See [docs/FONTS.md](docs/FONTS.md).
 
-## Working on a component instead
+## Working on the shell or a component instead
 
-Component bugs and features belong in
+The shell, the stock Finder and app files belong in
+[aportilla/system-online-sdk](https://github.com/aportilla/system-online-sdk),
+whose [docs](https://github.com/aportilla/system-online-sdk/tree/main/docs)
+are the guides; component bugs and features belong in
 [aportilla/vintage-frames](https://github.com/aportilla/vintage-frames). To see
-a change here before it's published, `npm link` the kit's checkout — but note
-that the desktop consuming the *published* package is the point of the split:
-it exercises the same public API every other consumer gets.
+a change here before it's published, `npm link` the package's checkout — but
+note that the desktop consuming the *published* packages is the point of the
+split: it exercises the same public API every other consumer gets.

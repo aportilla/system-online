@@ -1,4 +1,4 @@
-// Composition root: the shell (vintage-frames/shell) over the page's desktop,
+// Composition root: the shell (system-online-sdk) over the page's desktop,
 // with SystemOnline's five applications, the About box, and the startup
 // curtain lifted once the desktop is composed. Meteors comes from its app
 // file in apps/, built in by vite.config.ts's appFiles().
@@ -6,7 +6,8 @@
 // The shell fits the desktop to the viewport, keeps the catalog in IndexedDB
 // and the session in localStorage, and reopens the last session's windows.
 // ?fresh=1 boots the desktop a first visit sees: the catalog in memory, the
-// session neither read nor written, so a reload forgets both.
+// session neither read nor written, so a reload forgets both. A desktop from
+// before the System Folder is given its defaults once, after the boot.
 
 // Imported first: boot/curtain.ts lifts the curtain on window load even if this
 // module throws.
@@ -14,11 +15,11 @@ import { liftCurtain } from './boot/curtain.ts'
 import 'vintage-frames'
 import { VfWindow, applyCursor } from 'vintage-frames'
 import type { VfDesktop } from 'vintage-frames'
-import { createShell, indexedDbStorage, localStorageState, memoryStorage } from 'vintage-frames/shell'
+import { createShell, indexedDbStorage, localStorageState, memoryStorage } from 'system-online-sdk'
 import './page.css'
 import './desktop.css'
 import { GREET, initAbout } from './about.ts'
-import { finder } from './apps/finder/index.ts'
+import { SYSTEM_GIVEN, finder, giveSystemFolder } from './apps/finder/index.ts'
 import { textViewer } from './apps/text-viewer/index.ts'
 import { desktopPatterns } from './apps/desktop-patterns/index.ts'
 import { fontViewer } from './apps/font-viewer/index.ts'
@@ -35,7 +36,7 @@ const onGestureStart = (e: Event) => e.preventDefault()
 document.addEventListener('gesturestart', onGestureStart)
 
 // The session reads ?fresh=1 itself.
-const state = localStorageState('system-online:desktop', { extra: { [GREET]: true } })
+const state = localStorageState('system-online:desktop', { extra: { [GREET]: true, [SYSTEM_GIVEN]: false } })
 const shell = createShell(desktop, {
   apps: [
     finder({ storage: fresh ? memoryStorage() : indexedDbStorage('system-online') }),
@@ -57,6 +58,10 @@ void liftCurtain()
 void shell.ready.then(() => {
   if (about.greets() && !desktop.stackingOrder.some((w) => w instanceof VfWindow)) about.show()
 })
+
+// The seed never runs again for a desktop from before the System Folder, so
+// the Finder stores what it lacks of the System Folder's defaults, once.
+void shell.ready.then(() => giveSystemFolder(shell.catalog, state))
 
 // HMR teardown. Vite re-runs this module without unloading the old instance,
 // so everything wired above is disposed.

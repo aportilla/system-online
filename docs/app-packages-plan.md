@@ -1,5 +1,16 @@
 # Plan: application packages
 
+**Moved, 2026-10-11:** the shell and app files left vintage-frames for
+system-online-sdk. This plan's `vintage-frames/build` is
+`system-online-sdk/build` now, `vintage-frames/shell` and
+`vintage-frames/shell/pure` are `system-online-sdk` and
+`system-online-sdk/pure`, and app files are format 2, their chunks
+`system-online.app` and `system-online.code`. The move was step 6's minor:
+Meteors took the renames alone and was rebuilt as 0.2.0, at app API level 3;
+SystemOnline took the renames, that file, and the System Folder that came
+with vintage-frames 0.19. Whether a second application moves before the shell
+settles is still open. The record below is left as written.
+
 **Status:** steps 1 to 5 landed 2026-10-07, and Meteors ships as an app file
 from its own repo, meteors-app. Left: eye checks 4 and 5, decision 21, and
 step 6 at the kit's next minor. The story so far:

@@ -3,7 +3,7 @@
 
 import { effectiveScale } from 'vintage-frames'
 import type { VfDialog, VfParagraph } from 'vintage-frames'
-import type { AppContext, WindowManager } from 'vintage-frames/shell'
+import type { AppContext, WindowManager } from 'system-online-sdk'
 
 /** The selected text when the selection is anchored in one of `app`'s
  *  windows, otherwise ''. */
@@ -33,7 +33,7 @@ const authored = new WeakMap<VfDialog, number>()
  * in its [data-message] paragraph. Resolves the pressed button's value, or
  * null for Escape.
  *
- * A longer message grows the box, as the kit's own Finder alerts do: 16 under
+ * A longer message grows the box, as the stock Finder's alerts do: 16 under
  * the message, the button row, then 16 and the plain frame's 10 below it. It
  * is measured on vf-show, since a closed dialog lays out nothing; the new size
  * lands before the first paint.

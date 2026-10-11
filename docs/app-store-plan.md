@@ -2,9 +2,15 @@
 
 **Status:** drafted 2026-10-10. Step 1 is under way: its repo,
 `system-online-app-index`, is pushed, and its Cloudflare project is next.
-Step 2's kit ask is written (`store-helpers.md`), and step 3's,
-`runtime-installs.md`, is the next to write; `docs/kit-asks.md` tracks
-both.
+Step 2 shipped, in vintage-frames 0.17.1. Step 3's ask,
+`runtime-installs.md`, is the next to write; `docs/kit-asks.md` tracks it.
+On 2026-10-11 the shell and app files moved to system-online-sdk, and
+SystemOnline with them. The store's asks are the SDK's now. App files are
+format 2, at app API level 3: a build's `requires` names the SDK range it was
+made with, and whether a desktop runs it turns on its `api` alone
+(`appRuns`). The plan below gives the SDK the kit's part in what is still to
+come, and leaves the record of its drafting as written. The index moves onto
+the SDK next, trading Meteors 0.1.0's format 1 file for 0.2.0.
 Decisions 1, 2, 6, 9 and 17, 11's sideloading and 4's repo were taken
 2026-10-10; the rest are recommended (§6). Decision 6 makes the store an
 application of its own, an app file SystemOnline ships installed and
@@ -38,15 +44,15 @@ changes, and an `index.json` built from the files, so the listing can't
 disagree with them. Publishing is a file committed there, and nothing here
 is redeployed. The App Store is an application of its own: an app file like
 any other, which SystemOnline ships installed and signed by your key. It
-reads the index, shows each application this desktop's kit can run as its
+reads the index, shows each application this desktop's SDK can run as its
 box, in color, and installs one through the same door a dropped file takes.
 In the background it finds the updates for the applications your key
 signed and lists them, and a click installs one, or all of them: nothing
-updates without asking. With a build for each kit already published, that
-is what makes a kit minor survivable for installed applications. The store
-stands on the packages plan's Phase 3, installing app files at runtime,
-and this plan takes Phase 3 up: its mechanics as kit asks (§5), the site's
-side here.
+updates without asking. With a build for each app API level already
+published, that is what makes an SDK release that drops a level survivable
+for installed applications. The store stands on the packages plan's Phase
+3, installing app files at runtime, and this plan takes Phase 3 up: its
+mechanics as SDK asks (§5), the site's side here.
 
 "The index", not "the catalog": the catalog is the shell's record of what
 is where, and the store writes to it.
@@ -89,17 +95,19 @@ Checking the idea against the kit and this site shaped it in eight ways:
 
 ## 1. Where things stand
 
-**App files** are the kit's since 0.17.0 (docs/app-packages-plan.md): one
-PNG whose picture is the application's box and whose chunks carry its
-manifest and its code. `vintage-frames/build` writes them, and
-`vintage-frames/shell/pure` reads them (`readAppFile`) and checks a version
-against a range (`satisfies`, `VERSION`). Meteors is the one app file,
-built in its own repo, meteors-app. Desktop Patterns leans on nothing here
-and could be the next.
+**App files** are system-online-sdk's since its 0.1.0, as they were
+vintage-frames' from 0.17.0 (docs/app-packages-plan.md): one PNG whose
+picture is the application's box and whose chunks carry its manifest and
+its code. `system-online-sdk/build` writes them, and
+`system-online-sdk/pure` reads them (`readAppFile`, `inspectAppFile`) and
+says whether this SDK runs one (`appRuns`, by its `api`). They are format
+2, at app API level 3. Meteors is the one app file, built in its own repo,
+meteors-app, at 0.2.0. Desktop Patterns leans on nothing here and could be
+the next.
 
 **Built in, at build time.** `main.ts` imports `apps/Meteors.png` through
-the kit's `appFiles()`, which refuses a file whose `requires` the site's
-kit doesn't meet, and bundles the code with the site's. A new version of
+the SDK's `appFiles()`, which refuses a file built at a level the site's
+SDK doesn't run, and bundles the code with the site's. A new version of
 Meteors is a commit and a deploy here.
 
 **Installed at runtime** is the packages plan's Phase 3 (§3.6 there), a
@@ -108,9 +116,9 @@ uninstalls it, backups carry it, the boot loads each installed file and
 skips one that fails, and signatures guard what opens. Its kit asks are 8
 to 13 there. It waits for the shell to leave experimental status (decision
 18 there), since "installed applications that break on every minor make a
-broken desktop". Step 6 there, the next kit minor through Meteors, hasn't
-happened yet, and none is queued: the kit is at 0.17.0, and its next minor
-will be this plan's step 3.
+broken desktop". Step 6 there, the next minor through Meteors, came with
+the SDK's 0.1.0: Meteors took the renames alone and a rebuild. The SDK's
+next minor will be this plan's step 3.
 
 ## 2. What the Mac had
 
@@ -133,12 +141,12 @@ takes it away, and the box is printed packaging, in color.
 
 ## 3. Design
 
-**Who does what.** Desktop mechanics are the kit's: reading, checking,
+**Who does what.** Desktop mechanics are the SDK's: reading, checking,
 loading, registering, updating and uninstalling an app file, checking its
 signature against the keys a site gives it, and handing applications the
 site's index and what's installed. The App Store is an application of its
 own, in a repo of its own, keeping every rule an app file keeps: it reads
-the index, chooses builds, lists updates, and installs through the kit.
+the index, chooses builds, lists updates, and installs through the SDK.
 SystemOnline holds the settings: the index's URL, its trust (the keys it
 holds, and what a file none of them signed gets), and which applications a
 new desktop comes with, the store among them. The index is a repo of its
@@ -154,9 +162,9 @@ scripts/listing.ts               the build's pure half: the files in, the listin
 scripts/build.ts                 reads and checks every file; dist/ is the files and index.json
 scripts/add.ts                   files a built app file at its path; refuses a version already there
 test/                            the build's contract
-package.json                     vintage-frames as a dev dependency, for reading app files
+package.json                     system-online-sdk as a dev dependency, for reading app files
 _headers                         CORS, and how long each file may be cached
-README.md                        publishing, and the order a kit bump takes
+README.md                        publishing, and the order an SDK bump takes
 .github/workflows/ci.yml         the gates
 ```
 
@@ -170,14 +178,15 @@ README.md                        publishing, and the order a kit bump takes
       "id": "meteors",
       "versions": [
         {
-          "version": "0.1.0",
+          "version": "0.2.0",
           "name": "Meteors",
           "author": "Adam Portilla",
           "description": "…",
-          "requires": "^0.17.0",
+          "requires": "^0.1.0",
+          "api": 3,
           "icon": "data:image/png;base64,iVBORw0KGgo…",
-          "file": "apps/meteors/0.1.0/Meteors.png",
-          "bytes": 11755,
+          "file": "apps/meteors/0.2.0/Meteors.png",
+          "bytes": 11904,
           "sha256": "…"
         }
       ]
@@ -195,14 +204,14 @@ README.md                        publishing, and the order a kit bump takes
   wrong file installs nothing.
 - Applications are listed by name, and each one's versions newest first.
 
-**Built from the files.** The build reads each file with the kit's reader
+**Built from the files.** The build reads each file with the SDK's reader
 and refuses, naming the file: one that isn't an app file, one whose id,
 version or file name isn't its path's, and a second file for one id and
 version. The manifest is the source of truth, so the listing can't say
 anything the files don't.
 
 **Publishing is a file.** `npm run add -- ../meteors-app/dist/Meteors.png`
-reads the file's manifest, copies it to `apps/meteors/0.1.0/Meteors.png`,
+reads the file's manifest, copies it to `apps/meteors/0.2.0/Meteors.png`,
 and refuses a version that's already there, or a file the build would
 refuse. A published version never changes, so a fix is a new version.
 Commit and push, and Cloudflare builds and serves it. Nothing in
@@ -229,9 +238,10 @@ has no use for a package.
 
 Pure, in the store's `src/listing.ts`, and tested under Node in its repo.
 
-- For each application, the newest version whose `requires` this page's
-  kit meets, `satisfies` against `VERSION`. An application with none is
-  left off the shelf: the store shows only what this desktop runs.
+- For each application, the newest version this page's SDK runs,
+  `appRuns(manifest)`: its `api` from the SDK's `APP_API_OLDEST` to
+  `APP_API`. An application with none is left off the shelf: the store
+  shows only what this desktop runs.
 - Against what's installed, an application reads **Install** (not
   installed), **Update** (an older version installed) or **Installed**
   (that version or a newer one).
@@ -240,9 +250,9 @@ Pure, in the store's `src/listing.ts`, and tested under Node in its repo.
   by hand, and reads Installed whatever the index holds (§3.5).
 - Updates go forward only, so a newer build installed by hand, a
   developer's own, stays. One exception: an installed application the boot
-  skipped for its `requires`, at a version the index lists, is offered the
-  newest build this kit runs even when that's older. Rolling the site back
-  to an older kit then strands nothing.
+  skipped for its `api`, at a version the index lists, is offered the
+  newest build this SDK runs even when that's older. Rolling the site back
+  to an older SDK then strands nothing.
 - A listing it can't read, or of a format it doesn't know, is no index. An
   entry it can't read is left out and the rest stand. A `file` off the
   index's origin is refused.
@@ -258,12 +268,12 @@ an app file keeps and holds no URL and no key of its own, so one store
 file works on any desktop on the shell. SystemOnline ships it installed
 (§3.6). Apple menu → **App Store…** opens it, as on today's macOS: an
 alias of the store in the System Folder's Apple Menu Items, which
-SystemOnline's defaults put there (the kit's `system-folder.md`). Until
-that ships, the store adds the item itself with `ctx.systemItem`, as
-Desktop Patterns does. Its icon opens it too, on a new desktop beside
+SystemOnline's defaults put there as they put Control Panels' alias there
+(`src/state/defaults.ts`, whose Apple menu defaults gain an alias of an
+application's icon). Its icon opens it too, on a new desktop beside
 Meteors', and is yours to draw.
 
-- **What it reads from the kit** (asks 7 and 14): the site's index URL, and
+- **What it reads from the SDK** (asks 7 and 14): the site's index URL, and
   each installed application's manifest, its signature's standing and
   whether it loaded, with a signal when that changes. It installs with
   `ctx.install` (ask 1).
@@ -295,13 +305,13 @@ Meteors', and is yours to draw.
 
 ### 3.4 Installing
 
-**One door, the kit's.** The store, a dropped or pasted file, a restored
+**One door, the SDK's.** The store, a dropped or pasted file, a restored
 backup and a new desktop's defaults all hand bytes to the shell's install
 (§5, ask 1). The store has no install of its own, and the packages plan's
 Phase 3 is the same door from the Finder's side.
 
-- **Installing** reads and checks the file (its format, its `requires` and
-  its signature), keeps it beside an `app` item, loads the code and
+- **Installing** reads and checks the file (its format, its `api` and its
+  signature), keeps it beside an `app` item, loads the code and
   registers the application: its kinds, menus, dialogs and `init`. The
   icon goes where the file was dropped, at a default's home, or, from the
   store, at the desktop's next free cell.
@@ -323,7 +333,7 @@ an update for each installed application your key signed that §3.2 reads
 as Update. A click installs one, and Update All every one listed, through
 the same door as an install (§3.4).
 
-- **One the boot skipped** for its `requires` loads as its update installs,
+- **One the boot skipped** for its `api` loads as its update installs,
   so its icon opens this session. Until then, opening it says why (ask 5),
   and when the store lists its update, offers the App Store.
 - **One that loaded** takes the new file at once, and its new code runs
@@ -335,22 +345,24 @@ the same door as an install (§3.4).
 - Applications the index doesn't list are left alone, and a check that
   can't reach the index says nothing: the next boot tries again.
 
-**A kit bump** then goes in this order:
+**An SDK release that raises `APP_API_OLDEST`**, the only kind that skips
+an installed application, then goes in this order. Any other release
+leaves every installed application running.
 
-1. Each application builds on the new kit, a minor for the moved range, and
-   is published. The index holds a build for each kit.
+1. Each application builds on the new SDK, a minor for the moved range, and
+   is published. The index holds a build for each level.
 2. The defaults in `apps/` are rebuilt, since the site's build refuses the
    bump without them, and `npm run check-index` names any application in
-   the index with no build for the new kit.
+   the index with no build at the new level.
 3. The site deploys. At a visitor's first boot after it, each application
-   on the old range is skipped, the store among them. Opening the store
-   offers SystemOnline's own copy of it, rebuilt in step 2 (ask 5); a click
-   restores it, and it lists the others' new builds as updates. A click, or
-   Update All, installs them, and they load.
+   built below the new oldest level is skipped, the store among them.
+   Opening the store offers SystemOnline's own copy of it, rebuilt in step 2
+   (ask 5); a click restores it, and it lists the others' new builds as
+   updates. A click, or Update All, installs them, and they load.
 
 A visitor offline keeps the icon, which says why it won't open (ask 5),
 until the store reaches the index. This answers what the packages plan's
-decision 18 waited for: with the index, a minor that breaks an installed
+decision 18 waited for: with the index, a release that breaks an installed
 application finds its replacement already published, a click away.
 
 ### 3.6 Your applications, installed
@@ -363,9 +375,9 @@ system-online"_ then holds for every application you make, the store
 included.
 
 - `apps/` keeps the default copies, the index's signed files, so a default
-  is offered its updates as any installed application is. The kit's file
+  is offered its updates as any installed application is. The SDK's file
   form of `appFiles()` (ask 8) gives the site each file and its manifest,
-  checked against the kit at build as `?app` is, without building the code
+  checked against the SDK at build as `?app` is, without building the code
   in.
 - The Finder's defaults carry each application's file. A new desktop
   installs Meteors and the store from them, and Restore Default Files
@@ -392,12 +404,12 @@ page, so who can change it matters.
   in `vite.config.ts`, set from the environment in dev and never read from
   the address. A link that pointed the store elsewhere would present
   anyone's code as yours. SystemOnline hands it to the shell with its
-  trust, and the kit hands it to the store (ask 14).
+  trust, and the SDK hands it to the store (ask 14).
 - **The store has no power of its own.** It's trusted as your applications
-  are, signed by your key, and what it installs goes through the kit's
+  are, signed by your key, and what it installs goes through the SDK's
   door, where the site's trust decides. A store someone else wrote,
   installed here, could install nothing this desktop's trust wouldn't.
-- **Trust is each site's setting** (decision 17). The kit checks every
+- **Trust is each site's setting** (decision 17). The SDK checks every
   signature, and a site tells it which public keys it holds, any number or
   none, and what a file none of them signed gets: installed, refused, or
   asked about with the site's own alert. Without the setting, the shell
@@ -428,8 +440,8 @@ page, so who can change it matters.
   yours; a changed file is caught. The site's own deploy holds the keys and
   stays the root of trust.
 - **No sandbox.** An iframe per application would mean a copy of the kit
-  in each and the window manager reaching across frames, which breaks the
-  page's one copy of the kit (packages plan §1).
+  and the SDK in each and the window manager reaching across frames, which
+  breaks the page's one copy of each (packages plan §1).
 
 ## 4. Steps
 
@@ -438,19 +450,22 @@ green in the repo it touches.
 
 1. **The index** (§3.1): the repo, the build and its tests, `npm run add`,
    CI, the Cloudflare project and its headers, and Meteors 0.1.0 published.
-   Nothing changes on the desktop. It builds on 0.17.0, so until step 2 it
-   orders versions with a copy of the kit's comparison, and refuses a file
-   that isn't an app file without saying why.
+   Nothing changes on the desktop. It builds on vintage-frames 0.17.0, so
+   until step 2 it orders versions with a copy of the kit's comparison, and
+   refuses a file that isn't an app file without saying why. Its move onto
+   the SDK takes step 2's helpers, and Meteors 0.2.0 in place of 0.1.0,
+   whose format 1 file the SDK refuses.
 2. **The store's helpers** (§5, asks 10 to 12): one kit patch, since each
    only adds, so nothing rebuilds. The index's build then takes
    `compareVersions` and `inspectAppFile` from the kit, and Meteors'
-   description goes out with its next version.
-3. **The kit installs at runtime and checks signatures** (§5, asks 1 to 9
-   and 13): one minor, built against this site through a linked kit, then
-   released, with `npm run add` signing on it. It is the packages plan's
-   step 6 as well, since no other minor is queued: Meteors goes through this
-   one, its build on the new range signed and published to the index, and
-   what that costs an application is what §3.5 leans on.
+   description goes out with its next version. _Shipped in vintage-frames
+   0.17.1, and the SDK's since its 0.1.0; Meteors' description went out with
+   0.2.0._
+3. **The SDK installs at runtime and checks signatures** (§5, asks 1 to 9
+   and 13): one SDK minor, built against this site through a linked SDK,
+   then released, with `npm run add` signing on it. Meteors builds on it,
+   signed and published to the index, and what that costs an application is
+   what §3.5 leans on.
 4. **SystemOnline installs at runtime** (§3.4, §3.6, §3.7): a dropped app
    file installs, your key's without asking and anyone else's after the
    alert, and Empty Trash uninstalls it; Meteors becomes an installed
@@ -462,19 +477,22 @@ green in the repo it touches.
    by default here, with its icon on a new desktop and App Store… in the
    Apple menu.
 6. **Updates** (§3.5): the store's check after the boot, the updates it
-   lists, Update and Update All, and `npm run check-index` for a kit bump.
+   lists, Update and Update All, and `npm run check-index` for an SDK
+   release that raises `APP_API_OLDEST`.
 
-## 5. Kit asks
+## 5. SDK asks
 
-Each goes to the kit as `feature-requests/<name>.md`, as the app files did.
-Asks 1 to 5 and 9 are the packages plan's (4, 5 and 8 to 11 there), made
-concrete by the store; 6 to 8 and 14 are new, and 13 is 12 there.
+Each goes to system-online-sdk as `feature-requests/<name>.md`; they were
+the kit's until the shell moved there, and the store's helpers (10 to 12)
+shipped in the kit. Asks 1 to 5 and 9 are the packages plan's (4, 5 and 8
+to 11 there), made concrete by the store; 6 to 8 and 14 are new, and 13 is
+12 there.
 
 For installing at runtime, in one minor (step 3):
 
 1. **Applications after the start** (8 and 11 there). An `install(bytes,
    where)`, on the shell and on `ctx`, reads an app file, checks its format
-   and `requires`, keeps the file beside an `app` item, loads the code and
+   and `api`, keeps the file beside an `app` item, loads the code and
    registers the application, and resolves what happened: installed,
    updated, or refused and why. The `app` kind's `claim` calls it for a
    dropped or pasted file, so every door is one function.
@@ -483,9 +501,10 @@ For installing at runtime, in one minor (step 3):
    and the rest boot.
 3. **Isolation** (9 there): an `init` that throws, or a reopen that
    rejects, takes down that application alone.
-4. **The kit's names for loaded code** (10 there): the code's imports of
-   the kit's three entries reach the page's copy, through an import map or
-   the loader. The kit picks.
+4. **The packages' names for loaded code** (10 there): the code's imports
+   of `vintage-frames`, `system-online-sdk` and `system-online-sdk/pure`
+   reach the page's copies, through an import map or the loader. The SDK
+   picks.
 5. **The icon from the manifest** (5 and 11 there): an installed
    application's icon is drawn from its manifest whether its code loaded or
    not, and opening one that didn't load says why, with a way on the site
@@ -501,13 +520,14 @@ For installing at runtime, in one minor (step 3):
    when that changes. The store's buttons and its updates read it.
 8. **Defaults that carry their files**: a seed or a site's command installs
    an app file, and `appFiles()` gains a form that hands the site a file's
-   URL and manifest, checked against the kit as `?app` is, without building
+   URL and manifest, checked against the SDK as `?app` is, without building
    its code in.
 9. **Refuse a duplicate** (4 there): with installs, one id from two sources
    is a real case.
 
 Smaller, for the store, in a patch ahead of the minor (step 2), as
-`store-helpers.md`:
+`store-helpers.md`, shipped in vintage-frames 0.17.1 (`shell/pure` there is
+`system-online-sdk/pure` now):
 
 10. **`compareVersions` and `inspectAppFile`** exported from `shell/pure`,
     beside `satisfies` and `readAppFile`, and a reader that refuses a
@@ -553,18 +573,18 @@ from the first, and the store can be an app file:
    `apps/<id>/<version>/<Name>.png`. _Recommended._
 6. **The store an application of its own**, an app file SystemOnline ships
    installed and signed by your key, keeping every rule an app file keeps,
-   over built in here or the kit's stock application. The kit hands it the
+   over built in here or the SDK's stock application. The SDK hands it the
    site's index and installs through the site's trust, so it holds no URL
    and no power of its own, and another desktop runs it against its own
-   index. A kit bump skips it as it does any application, and
-   SystemOnline's own copy brings it back with a click. _Taken 2026-10-10:
+   index. An SDK release that drops its level skips it as it does any
+   application, and SystemOnline's own copy brings it back with a click. _Taken 2026-10-10:
    "can the app-store be an app itself? rather than baked into
    system-online or vintage-frames kit?", then "So the system-online
    instance would ship with the app-store pre-installed and trusted... but
    it follows the same standalone app rules as any other... presumably
    we'll need the kit to support appropriate interfaces of course"._
 7. **Only what this desktop runs** (§3.2): an application with no build for
-   this kit is left off the shelf. _Recommended._
+   this SDK is left off the shelf. _Recommended._
 8. **Your applications installed, not built in** (§3.6), over keeping
    Meteors built in with installed copies shadowing it. Applications load
    one way, and every one of yours updates without a deploy.
@@ -602,7 +622,7 @@ from the first, and the store can be an app file:
     over an `<img>` the browser scales. _Recommended._
 16. **The description in the manifest** (ask 11), over the index alone, so
     it travels with a file passed by hand. _Recommended._
-17. **Trust is each site's setting** (§3.7, ask 13), over the kit enforcing
+17. **Trust is each site's setting** (§3.7, ask 13), over the SDK enforcing
     signatures: the keys a site holds, any number or none, and what a file
     none of them signed gets. Without the setting, any app file installs.
     Another desktop on the shell can run open, or sign its own
@@ -620,14 +640,13 @@ from the first, and the store can be an app file:
 By the policy: contracts, not wiring.
 
 - **Choosing a build**, in the store's repo (`src/listing.ts`,
-  `test/listing.test.mjs`), importing nothing of the kit but
-  `vintage-frames/shell/pure`:
+  `test/listing.test.mjs`), importing nothing of either package but
+  `system-online-sdk/pure`:
   - a listing of an unknown format, or that isn't one, reads as no index;
     an entry that doesn't read is left out and the rest stand; a `file` off
     the index's origin is refused;
-  - the newest version whose `requires` the kit meets is chosen,
-    prereleases by `satisfies`' rule, and an application with none is left
-    out;
+  - the newest version this SDK runs (`appRuns`) is chosen, and an
+    application with none is left out;
   - Install, Update and Installed against what's installed; Update only
     for an application signed by a key the site holds, never for one added
     by hand; a newer build installed by hand stays; a skipped application
@@ -638,7 +657,7 @@ By the policy: contracts, not wiring.
   reads to the listing; a file that isn't an app file, one whose manifest
   isn't its path's, and a second file for one id and version are each
   refused, naming the file.
-- The kit's asks carry their own tests, in the kit.
+- The SDK's asks carry their own tests, in the SDK.
 - The store's window, installing, the updates' wiring and the host's
   headers are checked by eye.
 
@@ -646,7 +665,7 @@ By the policy: contracts, not wiring.
 
 After step 1:
 
-1. The host serves `index.json` with Meteors 0.1.0, and a file fetched from
+1. The host serves `index.json` with Meteors 0.2.0, and a file fetched from
    it reads as an app file, byte for byte the committed one, with
    `Access-Control-Allow-Origin: *`.
 
@@ -685,24 +704,25 @@ After step 6:
 10. An unsigned build of Meteors, dropped on a desktop that has the signed
     one, asks to replace it, and once it has, the store offers it no
     update.
-11. The kit-bump drill, through a linked kit: a desktop with Meteors and
-    the store on the old range boots on the new kit, both are skipped, and
-    nothing installs on its own. Opening the store offers SystemOnline's
+11. The drill for an SDK release that raises `APP_API_OLDEST`, through a
+    linked SDK: a desktop with Meteors and the store built at the old level
+    boots on the new SDK, both are skipped, and nothing installs on its own. Opening the store offers SystemOnline's
     copy, and a click restores it; it lists Meteors' new build, Update
     installs it, and it opens. With the index unreachable, Meteors' icon
     says why and offers nothing.
 
 ## 9. Follow-ups
 
-- **Builds for the next kit fetched ahead**, so a kit bump finds them
-  already on the disk, as a fat binary carried code for two processors.
+- **Builds for the next level fetched ahead**, so an SDK release that drops
+  a level finds them already on the disk, as a fat binary carried code for
+  two processors.
 - **An Atom feed** of releases, from the same listing, for feed readers.
 - **The index's own page**: the boxes and their downloads, for people
   outside the desktop, who are who the box is for.
 - **Release notes** per version, in the store.
 - **Open** in the store's row once an application is installed.
 - **The update count in the Apple menu**: App Store… 2 updates, as today's
-  macOS shows it. With the menu the System Folder's, it needs the kit to
+  macOS shows it. With the menu the System Folder's, it needs the SDK to
   let an application mark the entries that open it.
 - **Other people's applications in the index**, by pull request, signed
   with your key on merge.
@@ -719,12 +739,11 @@ After step 6:
 **The store's repo**, new (step 5): built as meteors-app is (§3.3), with
 `src/listing.ts` and `test/listing.test.mjs`.
 
-**The kit** (steps 2 and 3): the asks, as
-`feature-requests/runtime-installs.md`, `store-helpers.md` and
-`signatures.md`; then its shell, its build entry, their tests, SHELL.md and
-APP-FILES.md.
+**The SDK** (step 3): the asks, as `feature-requests/runtime-installs.md`
+and `signatures.md`; then its shell, its build entry, their tests, SHELL.md
+and APP-FILES.md. Step 2's `store-helpers.md` shipped in the kit.
 
-**meteors-app**: `src/app.ts` gains its description.
+**meteors-app**: `src/app.ts` gains its description. _Done, in 0.2.0._
 
 **Here**:
 
@@ -732,7 +751,8 @@ APP-FILES.md.
 - **Changed**: `src/main.ts` (Meteors and the store installed defaults; the
   index's URL and the trust in the shell's settings);
   `src/apps/finder/index.ts` and `src/state/defaults.ts` (defaults that
-  carry their files, and the store's icon); `src/apps/finder/backup.ts`
+  carry their files, the store's icon, and its alias in Apple Menu Items);
+  `src/apps/finder/backup.ts`
   and `src/state/backup.ts` (installed applications in backups);
   `vite.config.ts` and `src/env.d.ts` (the index's URL); `package.json`
   (`check-index`); `docs/SPEC.md`, `README.md`, and `CLAUDE.md` (the

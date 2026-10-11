@@ -1,10 +1,10 @@
 // The library's kinds: a text file and a font suitcase, as items of the shell's
-// catalog (vintage-frames/shell). Each keeps little in its item's `data`: a
+// catalog (system-online-sdk). Each keeps little in its item's `data`: a
 // text file its words, or the key of a text the app ships (src/texts/); a
 // suitcase its family, whose strikes are the app's. Pure, so the defaults and
 // the backup format run under Node.
 
-import type { Item } from 'vintage-frames/shell/pure'
+import type { Item } from 'system-online-sdk/pure'
 
 /** A text file's kind, which the Text Viewer opens. */
 export const TEXT = 'text'

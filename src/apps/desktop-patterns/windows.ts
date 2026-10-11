@@ -11,7 +11,7 @@
 
 import type { VfButton, VfContainer, VfGrid, VfWindow } from 'vintage-frames'
 import { PATTERN_NAMES } from 'vintage-frames'
-import type { Box } from 'vintage-frames/shell'
+import type { Box } from 'system-online-sdk'
 
 /** A chooser cell's edge in system px. */
 const CELL = 16

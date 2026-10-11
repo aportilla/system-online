@@ -5,8 +5,8 @@
 
 import { VfWindow } from 'vintage-frames'
 import type { VfViewportBox } from 'vintage-frames'
-import { defineApp } from 'vintage-frames/shell'
-import type { AppDefinition, Item } from 'vintage-frames/shell'
+import { defineApp } from 'system-online-sdk'
+import type { AppDefinition, Item } from 'system-online-sdk'
 import menus from './menus.html?raw'
 import dialogs from './dialogs.html?raw'
 import windowMarkup from './windows.html?raw'

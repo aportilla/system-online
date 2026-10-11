@@ -22,7 +22,8 @@
     "charset-manifest": "/tmp/fontenv/bin/python3 fonts/charset-manifest.py"
   },
   "dependencies": {
-    "vintage-frames": "^0.17.0"
+    "system-online-sdk": "^0.1.0",
+    "vintage-frames": "^0.20.0"
   },
   "devDependencies": {
     "@types/node": "^24.19.0",
