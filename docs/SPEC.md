@@ -20,19 +20,20 @@ the catalog in IndexedDB (database `system-online`) and the session in
 localStorage (`system-online:desktop`).
 
 1. **Applications.** Each is one directory under `src/apps/` (`finder`,
-   `text-viewer`, `desktop-patterns`, `font-viewer`) exporting a function that
-   returns the shell's `defineApp` definition: an id, a name, its menus
-   (`menus.html`), its alerts (`dialogs.html`), its windows (`windows.html`,
-   filled by `windows.ts`), the catalog kinds it opens, and `init(ctx)`. A
-   zoom box's column is pure geometry (`layout.ts`); the window manager runs
-   the box. `src/apps/windows.ts` holds what the windows and dialogs share.
-   No application calls another. **Meteors** comes from its app file,
-   `apps/Meteors.png`, built in its own repo (meteors-app): a PNG whose
+   `text-viewer`, `font-viewer`) exporting a function that returns the
+   shell's `defineApp` definition: an id, a name, its menus (`menus.html`),
+   its alerts (`dialogs.html`), its windows (`windows.html`, filled by
+   `windows.ts`), the catalog kinds it opens, and `init(ctx)`. A zoom box's
+   column is pure geometry (`layout.ts`); the window manager runs the box.
+   `src/apps/windows.ts` holds what the windows and dialogs share. No
+   application calls another. **Desktop Patterns** and **Meteors** come from
+   their app files, `apps/Desktop Patterns.png` and `apps/Meteors.png`, each
+   built in its own repo (desktop-patterns-app, meteors-app): a PNG whose
    picture is its box and whose chunks carry its manifest, icon and code. The
-   SDK's `appFiles()` (`vite.config.ts`) builds it in, refusing a file built
-   at an app API level this site's SDK doesn't run, and the page's one copy of
-   the kit and the SDK serves its code. The Finder's defaults take its id and
-   name from the manifest.
+   SDK's `appFiles()` (`vite.config.ts`) builds each in, refusing a file
+   built at an app API level this site's SDK doesn't run, and the page's one
+   copy of the kit and the SDK serves its code. The Finder's defaults take
+   each one's id and name from its manifest.
 2. **The menu bar** holds the Apple menu, then the front application's menus,
    then the clock. The front application is the active window's, or the Finder
    while none is active.
@@ -139,6 +140,9 @@ for another item and opens it.
     _Select All_. View: _Arrange Windows_.
 
 ## Desktop Patterns
+
+Built in from `apps/Desktop Patterns.png`. Its source, and the files named
+here, are the desktop-patterns-app repo's `src/`.
 
 13. Desktop Patterns' icon in the System Folder's Control Panels
     (`art/desktop-patterns.png`: three pattern tiles, fanned), or Apple ▸

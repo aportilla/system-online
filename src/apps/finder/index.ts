@@ -20,8 +20,8 @@ import { CHARSET_FAMILIES } from '../../charset-manifest.ts'
 import { CONTROL_PANELS_FOLDER, missingDefaults, restoreDefaults } from '../../state/defaults.ts'
 import type { Defaults } from '../../state/defaults.ts'
 import { TEXTS } from '../../texts/index.ts'
+import { manifest as desktopPatterns } from '../../../apps/Desktop Patterns.png?app'
 import { manifest as meteors } from '../../../apps/Meteors.png?app'
-import { DESKTOP_PATTERNS } from '../desktop-patterns/index.ts'
 import { ask } from '../windows.ts'
 import { initBackup } from './backup.ts'
 
@@ -31,15 +31,16 @@ const DISK_ART = `${import.meta.env.BASE_URL}icons/app-icon.png`
 const CAUTION_ART = `${import.meta.env.BASE_URL}icons/alert.png`
 
 /** What a desktop comes with: the built-in texts, Meteors' icon on the
- *  desktop, named by its app file's manifest, a suitcase for every family
- *  the app ships, and Desktop Patterns in the System Folder's Control Panels,
- *  which Apple Menu Items holds an alias of: Apple ▸ Control Panels ▸ Desktop
- *  Patterns, as System 7.5 had it. Startup Items starts empty. */
+ *  desktop, a suitcase for every family the app ships, and Desktop Patterns
+ *  in the System Folder's Control Panels, which Apple Menu Items holds an
+ *  alias of: Apple ▸ Control Panels ▸ Desktop Patterns, as System 7.5 had
+ *  it. Both applications are named by their app files' manifests. Startup
+ *  Items starts empty. */
 const DEFAULTS: Defaults = {
   texts: TEXTS,
   apps: [
     { app: meteors.id, name: meteors.name, home: 'desktop' },
-    { app: DESKTOP_PATTERNS, name: 'Desktop Patterns', home: 'control-panels' },
+    { app: desktopPatterns.id, name: desktopPatterns.name, home: 'control-panels' },
   ],
   families: CHARSET_FAMILIES.map((f) => f.label),
   appleMenu: [CONTROL_PANELS_FOLDER],

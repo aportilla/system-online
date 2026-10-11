@@ -101,14 +101,14 @@ picture is the application's box and whose chunks carry its manifest and
 its code. `system-online-sdk/build` writes them, and
 `system-online-sdk/pure` reads them (`readAppFile`, `inspectAppFile`) and
 says whether this SDK runs one (`appRuns`, by its `api`). They are format
-2, at app API level 3. Meteors is the one app file, built in its own repo,
-meteors-app, at 0.2.0. Desktop Patterns leans on nothing here and could be
-the next.
+2, at app API level 3. There are two app files, each built in its own repo:
+Meteors, from meteors-app at 0.2.0, and Desktop Patterns, from
+desktop-patterns-app at 0.1.0 since 2026-10-11.
 
-**Built in, at build time.** `main.ts` imports `apps/Meteors.png` through
+**Built in, at build time.** `main.ts` imports each file in `apps/` through
 the SDK's `appFiles()`, which refuses a file built at a level the site's
 SDK doesn't run, and bundles the code with the site's. A new version of
-Meteors is a commit and a deploy here.
+either is a commit and a deploy here.
 
 **Installed at runtime** is the packages plan's Phase 3 (§3.6 there), a
 sketch: a dropped app file becomes the application's icon, Empty Trash
@@ -730,7 +730,7 @@ After step 6:
   the boot would have.
 - **Rows loaded as they scroll in**, once the index holds more than a
   handful.
-- **Desktop Patterns as an app file**, then in the index.
+- **Desktop Patterns in the index**: an app file since 2026-10-11.
 
 ## 10. Files touched
 

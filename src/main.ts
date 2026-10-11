@@ -1,7 +1,7 @@
 // Composition root: the shell (system-online-sdk) over the page's desktop,
 // with SystemOnline's five applications, the About box, and the startup
-// curtain lifted once the desktop is composed. Meteors comes from its app
-// file in apps/, built in by vite.config.ts's appFiles().
+// curtain lifted once the desktop is composed. Desktop Patterns and Meteors
+// come from their app files in apps/, built in by vite.config.ts's appFiles().
 //
 // The shell fits the desktop to the viewport, keeps the catalog in IndexedDB
 // and the session in localStorage, and reopens the last session's windows.
@@ -21,8 +21,8 @@ import './desktop.css'
 import { GREET, initAbout } from './about.ts'
 import { SYSTEM_GIVEN, finder, giveSystemFolder } from './apps/finder/index.ts'
 import { textViewer } from './apps/text-viewer/index.ts'
-import { desktopPatterns } from './apps/desktop-patterns/index.ts'
 import { fontViewer } from './apps/font-viewer/index.ts'
+import desktopPatterns from '../apps/Desktop Patterns.png?app'
 import meteors from '../apps/Meteors.png?app'
 
 const fresh = new URLSearchParams(location.search).get('fresh') === '1'

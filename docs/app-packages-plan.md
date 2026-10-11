@@ -8,8 +8,11 @@ system-online-sdk. This plan's `vintage-frames/build` is
 `system-online.app` and `system-online.code`. The move was step 6's minor:
 Meteors took the renames alone and was rebuilt as 0.2.0, at app API level 3;
 SystemOnline took the renames, that file, and the System Folder that came
-with vintage-frames 0.19. Whether a second application moves before the shell
-settles is still open. The record below is left as written.
+with vintage-frames 0.19. The same day Desktop Patterns moved too, the second
+application to leave: it ships as `apps/Desktop Patterns.png` from its own
+repo, desktop-patterns-app, at 0.1.0 and app API level 3, with the same id,
+and its source left `src/apps/desktop-patterns/`. The record below is left
+as written.
 
 **Status:** steps 1 to 5 landed 2026-10-07, and Meteors ships as an app file
 from its own repo, meteors-app. Left: eye checks 4 and 5, decision 21, and

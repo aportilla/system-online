@@ -34,9 +34,9 @@ its relative imports carry their `.ts` extension.
 
 ## Applications and the shell
 
-The desktop is five applications — the Finder, the Text Viewer, Desktop
-Patterns and the Font Viewer, one directory each under `src/apps/`, and
-Meteors, built in from its app file in `apps/` — over `system-online-sdk`'s
+The desktop is five applications — the Finder, the Text Viewer and the Font
+Viewer, one directory each under `src/apps/`, and Desktop Patterns and
+Meteors, built in from their app files in `apps/` — over `system-online-sdk`'s
 shell (experimental). Its guides are the SDK's docs: `GUIDE.md` for a site,
 `SHELL.md` for the shell, `APP-FILES.md` for app files
 (`../system-online-sdk/docs/` in a checkout beside this one). The window
@@ -69,23 +69,17 @@ shell's configuration. Keep it that way:
 - **Cross-application calls**, if one is ever needed, go through `ctx.apps`,
   read at the call.
 - **App files** in `apps/` are applications built in repos of their own:
-  `Meteors.png` is the meteors-app repo's `npm run build`. The SDK's
-  `appFiles()` (`vite.config.ts`) builds each in from
+  `Desktop Patterns.png` is the desktop-patterns-app repo's `npm run build`,
+  and `Meteors.png` the meteors-app repo's. The SDK's `appFiles()`
+  (`vite.config.ts`) builds each in from
   `import x from '../apps/<Name>.png?app'`, and fails the build on a file
-  built at an app API level this site's SDK doesn't run. A change to one is
-  made in its repo and its build copied over, never here; an SDK release that
-  raises `APP_API_OLDEST` waits for each app file built on it (the SDK's
-  `GUIDE.md` § Moving to a new release).
-- **Desktop Patterns leans on nothing here**, so it can ship as an app file
-  as Meteors does. An application in an app file keeps to:
-  - imports from `vintage-frames`, `system-online-sdk`,
-    `system-online-sdk/pure` and its own files, and no Lit of its own;
-  - art it imports, never a page path;
-  - layout on its own elements, never in `desktop.css`;
-  - session keys that carry its id, read back defensively, and nothing
-    broken without a session;
-  - nothing from `ctx.services` or `ctx.apps`;
-  - kinds named after its id, and an id that never changes.
+  built at an app API level this site's SDK doesn't run. The Finder's
+  defaults take each one's id and name from its `manifest`. A change to one
+  is made in its repo and its build copied over, never here; an SDK release
+  that raises `APP_API_OLDEST` waits for each app file built on it (the
+  SDK's `GUIDE.md` § Moving to a new release). The rules an application in
+  an app file keeps are the SDK's (`APP-FILES.md` § The rules an application
+  keeps).
 - Comments are short and direct: label a section or state a non-obvious
   constraint. A larger change starts as a plan in `docs/<topic>-plan.md`
   (docs/app-model-plan.md is the model).
@@ -127,7 +121,8 @@ or generated-by trailers.
 - `src/apps/<id>/` — the applications; `src/state/` — the library's kinds,
   its defaults, the System Folder's among them, and the backup format
 - `apps/` — app files of applications built in their own repos:
-  `Meteors.png`, from meteors-app
+  `Desktop Patterns.png`, from desktop-patterns-app, and `Meteors.png`, from
+  meteors-app
 - `docs/SPEC.md` — what's on the desktop, clause by clause
 - `docs/app-model-plan.md` — the plan the application model was first built
   from, here; the shell has since moved into the kit, and from there to

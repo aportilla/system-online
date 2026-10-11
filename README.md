@@ -13,9 +13,10 @@ shell: the window manager, the menu bar, the catalog of files with its System
 Folder, and the stock Finder. Both are installed from npm like any other
 dependency. This repo is the *site*: the applications, the shell's
 configuration, their content, and the imported strike collection the Font
-Viewer opens. An application built in a repo of its own arrives as an app
-file in `apps/`: Meteors, from
-[meteors-app](https://github.com/aportilla/meteors-app).
+Viewer opens. Applications built in repos of their own arrive as app files
+in `apps/`: Desktop Patterns, from
+[desktop-patterns-app](https://github.com/aportilla/desktop-patterns-app),
+and Meteors, from [meteors-app](https://github.com/aportilla/meteors-app).
 
 ```sh
 npm install
@@ -37,7 +38,7 @@ npm run dev        # http://localhost:5173/
 | --- | --- |
 | **Finder** | the SDK's stock Finder (icons, folder windows, rename, filing by drag, aliases, the System Folder, the Trash, Copy and Paste, Clean Up), plus Back Up All Files… and Restore from Backup…, Restore Default Files |
 | **Text Viewer** | read-me files, read-only |
-| **Desktop Patterns** | Apple menu → Control Panels → Desktop Patterns: the kit's 38 patterns for the desktop |
+| **Desktop Patterns** | Apple menu → Control Panels → Desktop Patterns: the kit's 38 patterns for the desktop, built in from its app file, `apps/Desktop Patterns.png` |
 | **Font Viewer** | a font suitcase's sample line in every strike, and every character of one |
 | **Meteors** | its icon on the desktop: an Asteroids-style game on a 320 × 240 1-bit screen, built in from its app file, `apps/Meteors.png` |
 
@@ -55,7 +56,7 @@ index.html               the skeleton: desktop, menu bar, icon field, About box
 src/main.ts              the composition root: the shell and its applications
 src/about.ts             the About box and the boot greeting
 src/apps/<id>/           one directory per application: menus, dialogs, windows, behavior
-apps/                    app files of applications built in their own repos (Meteors.png)
+apps/                    app files of applications built in their own repos (Desktop Patterns.png, Meteors.png)
 src/state/               the library's kinds, its defaults, the backup format
 src/texts/               the built-in read-me files
 src/desktop.css          LAYOUT only
