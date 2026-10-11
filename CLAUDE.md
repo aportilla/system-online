@@ -119,6 +119,10 @@ or generated-by trailers.
   from, here; the shell has since moved into the kit
 - `docs/app-packages-plan.md` — app files: applications as boxed PNGs, built
   in their own repos and built in here
+- `docs/app-store-plan.md` — the App Store: an index of app files, and a
+  store that reads it; under way, and its status says where
+- `docs/kit-asks.md` — what this site has asked of the kit and waits on, and
+  what changes here when each ships; check it at each vintage-frames bump
 - `docs/FONTS.md` — the imported strike collection, its two converters, and
   the point-size naming scheme
 - `fonts/*.py` — the collection pipeline: `dfont-to-bdf.py` → `import-bdf.py`
