@@ -34,15 +34,16 @@ its relative imports carry their `.ts` extension.
 
 ## Applications and the shell
 
-The desktop is five applications — the Finder, the Text Viewer and the Font
-Viewer, one directory each under `src/apps/`, and Desktop Patterns and
-Meteors, built in from their app files in `apps/` — over `system-online-sdk`'s
-shell (experimental). Its guides are the SDK's docs: `GUIDE.md` for a site,
-`SHELL.md` for the shell, `APP-FILES.md` for app files
+The desktop is five applications — the Finder and the Text Viewer, one
+directory each under `src/apps/`, and Desktop Patterns, the Font Viewer and
+Meteors, built in from their app files in `apps/` — over
+`system-online-sdk`'s shell (experimental). Its guides are the SDK's docs:
+`GUIDE.md` for a site, `SHELL.md` for the shell, `APP-FILES.md` for app files
 (`../system-online-sdk/docs/` in a checkout beside this one). The window
-manager, the menu bar, the catalog and its System Folder, the stock Finder and
-the saved session are the SDK's; this repo holds the applications and the
-shell's configuration. Keep it that way:
+manager, the menu bar, the catalog and its System Folder, the stock Finder,
+the system's fonts and the saved session are the SDK's; this repo holds the
+applications and the shell's configuration, the families it serves its
+system among it. Keep it that way:
 
 - **Application behavior lives in its application's directory**: its
   definition, menus and kinds (`index.ts`, `menus.html`), its alerts
@@ -54,23 +55,28 @@ shell's configuration. Keep it that way:
   `src/apps/windows.ts` holds what the applications' windows and dialogs
   share. The shell composes no UI: every alert is an application's, and the
   About box is the page's.
-- **The Apple menu is the System Folder's.** Below About, the shell lists
-  what Apple Menu Items holds. An application gets into it through the
-  defaults (`src/state/defaults.ts`), as an alias filed there, never by
-  adding an item itself.
+- **The Apple menu is the System Folder's**, and so are the installed fonts.
+  Below About, the shell lists what Apple Menu Items holds. An application
+  gets into it through the defaults (`src/state/defaults.ts`), as an alias
+  filed there, never by adding an item itself. A family is installed the
+  same way, by a suitcase filed directly in Fonts.
 - **Desktop mechanics belong in the SDK.** If an application needs the shell
   to do something it doesn't, that's a change to the SDK, asked for in its
   `feature-requests/`, not a window manager or Finder rebuilt here. An ask
   about an element goes to vintage-frames.
-- **The library's kinds are SystemOnline's**: a text file and a font suitcase
-  (`src/state/kinds.ts`), small data on catalog items. The pure modules in
-  `src/state/` take the catalog's ids and selectors from
-  `system-online-sdk/pure`, the SDK's DOM-free entry, so they run under Node.
+- **The library's kind is SystemOnline's**: a text file
+  (`src/state/kinds.ts`), small data on a catalog item. A font suitcase is
+  the system's, the shell's `font` kind: its family is one this repo serves
+  its system (`src/fonts.ts`, from the strike collection), and the Font
+  Viewer opens it without owning it. The pure modules in `src/state/` take
+  the catalog's ids, kinds and selectors from `system-online-sdk/pure`, the
+  SDK's DOM-free entry, so they run under Node.
 - **Cross-application calls**, if one is ever needed, go through `ctx.apps`,
   read at the call.
 - **App files** in `apps/` are applications built in repos of their own:
   `Desktop Patterns.png` is the desktop-patterns-app repo's `npm run build`,
-  and `Meteors.png` the meteors-app repo's. The SDK's `appFiles()`
+  `Font Viewer.png` the font-viewer-app repo's, and `Meteors.png` the
+  meteors-app repo's. The SDK's `appFiles()`
   (`vite.config.ts`) builds each in from
   `import x from '../apps/<Name>.png?app'`, and fails the build on a file
   built at an app API level this site's SDK doesn't run. The Finder's
@@ -101,7 +107,8 @@ shell's configuration. Keep it that way:
   package and are the kit's *own re-drawn strikes* — credit Susan Kare and
   Apple as the original designers, never call them Apple's files.
   `public/fonts/imported/` is the opposite: genuine Apple strikes under their
-  own names. Never describe one as the other.
+  own names, which this repo serves as the system's fonts. Never describe
+  one as the other.
 - Everything is authored in **system pixels** on the 1-bit grid; a component
   renders one system px as a whole number of device px. Layout here is
   authored in system px too and multiplied by `--vf-scale` in `calc()`.
@@ -118,11 +125,12 @@ or generated-by trailers.
 - `index.html` — the skeleton (desktop, menu bar, icon field, About box);
   `src/main.ts` — the composition root, which starts the shell;
   `src/about.ts` — the About box
-- `src/apps/<id>/` — the applications; `src/state/` — the library's kinds,
-  its defaults, the System Folder's among them, and the backup format
+- `src/apps/<id>/` — the applications; `src/state/` — the library's kind,
+  its defaults, the System Folder's among them, and the backup format;
+  `src/fonts.ts` — the system's fonts, every family of the strike collection
 - `apps/` — app files of applications built in their own repos:
-  `Desktop Patterns.png`, from desktop-patterns-app, and `Meteors.png`, from
-  meteors-app
+  `Desktop Patterns.png`, from desktop-patterns-app, `Font Viewer.png`, from
+  font-viewer-app, and `Meteors.png`, from meteors-app
 - `docs/SPEC.md` — what's on the desktop, clause by clause
 - `docs/app-model-plan.md` — the plan the application model was first built
   from, here; the shell has since moved into the kit, and from there to

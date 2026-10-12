@@ -10,7 +10,6 @@
 import type { VfButton } from 'vintage-frames'
 import { APP_KIND, TRASH, isKept, itemCount, itemOf } from 'system-online-sdk'
 import type { AppContext, CatalogState, FinderApi } from 'system-online-sdk'
-import { CHARSET_FAMILIES } from '../../charset-manifest.ts'
 import { MANIFEST_NAME, backupFilename, itemsOf, planBackup, readManifest } from '../../state/backup.ts'
 import type { BackupContents } from '../../state/backup.ts'
 import { restoreDefaults } from '../../state/defaults.ts'
@@ -105,7 +104,7 @@ export function initBackup(finder: FinderApi, ctx: AppContext, defaults: Default
   const alert = ctx.dialog('alert')
   const say = (message: string) => void ask(ctx, alert, message)
   /** Every item stored, the Trash's included: every item but the volumes,
-   *  the System Folder and its two folders, and the applications' icons. */
+   *  the System Folder and its folders, and the applications' icons. */
   const libraryCount = () => catalog.get().items.filter((i) => !isKept(i.id) && i.kind !== APP_KIND).length
 
   function restoreQuestion(name: string, read: ReadBackup, here: number) {
@@ -145,7 +144,7 @@ export function initBackup(finder: FinderApi, ctx: AppContext, defaults: Default
     if (answer !== 'add' && answer !== 'replace') return
     const { items, skipped } = itemsOf(read, {
       shipsText: (key) => builtinText(key) != null,
-      shipsFamily: (family) => CHARSET_FAMILIES.some((f) => f.label === family),
+      shipsFamily: (family) => ctx.fonts.family(family) != null,
       places: answer === 'replace',
     })
     try {

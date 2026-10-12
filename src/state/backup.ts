@@ -6,20 +6,32 @@
 // text file is its text, a folder is a directory entry, Macintosh HD is
 // macintosh-hd/ and the Trash is trash/. A segment is the item's slug plus its
 // extension, suffixed -2, -3 … inside one container, so the exact name lives in
-// the manifest alone. A font's strikes are the app's, so a font is a manifest
-// row with no entry. A row carries its item's place in its container, when it
-// has one, so Replace puts the icons back where they were.
+// the manifest alone. A suitcase's strikes are the system's, so a font is a
+// manifest row with no entry. A row carries its item's place in its
+// container, when it has one, so Replace puts the icons back where they were.
 //
 // The containers the catalog keeps, the volumes and the System Folder with its
-// two folders, are directories with no manifest row. What they hold names
+// three folders, are directories with no manifest row. What they hold names
 // them by id, and a restore files it back into them.
 //
 // The manifest names Macintosh HD "hd", as SystemOnline's first library did,
-// so backups from before the catalog still read.
+// so backups from before the catalog still read. A backup from before the
+// System Folder had Fonts keeps its suitcases in Macintosh HD → Fonts, and a
+// restore files them in Fonts.
 
-import { DISK, FOLDER, childrenOf, isContainerKind, isKept } from 'system-online-sdk/pure'
+import {
+  DISK,
+  FOLDER,
+  FONTS,
+  FONT_KIND,
+  childrenOf,
+  fontFamilyOf,
+  isContainerKind,
+  isKept,
+} from 'system-online-sdk/pure'
 import type { CatalogState, Item } from 'system-online-sdk/pure'
-import { FONT, TEXT, fontFamily, textData } from './kinds.ts'
+import { formerFonts } from './defaults.ts'
+import { TEXT, textData } from './kinds.ts'
 
 export const MANIFEST_NAME = 'desktop.json'
 export const BACKUP_FORMAT = 'system-online-desktop'
@@ -160,7 +172,7 @@ export function planBackup(
         path,
       })
     }
-    for (const t of kids.filter((i) => i.kind === FONT)) {
+    for (const t of kids.filter((i) => i.kind === FONT_KIND)) {
       manifest.fonts.push({
         id: t.id,
         name: t.name,
@@ -168,7 +180,7 @@ export function planBackup(
         createdAt: t.createdAt,
         modifiedAt: t.modifiedAt,
         ...placeOf(t),
-        family: fontFamily(t),
+        family: fontFamilyOf(t) ?? '',
       })
     }
   }
@@ -254,9 +266,12 @@ export function readManifest(text: string): BackupManifest {
 /**
  * A read backup as catalog items, for the catalog's import. A text keeps its
  * built-in's key while the app still ships that text, else its words are
- * stored, so nothing is lost. A font whose family the app doesn't ship is
- * skipped and counted. `places` keeps each row's place, for Replace; without
- * it the items take their containers' free cells, for Add.
+ * stored, so nothing is lost. A font whose family the system doesn't serve is
+ * skipped and counted. A backup from before the System Folder had Fonts
+ * keeps its suitcases in Macintosh HD → Fonts: they come back into Fonts, and
+ * that folder, left empty, doesn't come back (formerFonts). `places` keeps
+ * each row's place, for Replace; without it the items take their containers'
+ * free cells, for Add.
  */
 export function itemsOf(
   contents: BackupContents,
@@ -281,6 +296,11 @@ export function itemsOf(
     items.push({ ...item(t, TEXT, t.folder), data })
   }
   const fonts = contents.fonts.filter((t) => shipsFamily(t.family))
-  for (const t of fonts) items.push({ ...item(t, FONT, t.folder), data: { family: t.family } })
-  return { items, skipped: contents.fonts.length - fonts.length }
+  for (const t of fonts) items.push({ ...item(t, FONT_KIND, t.folder), data: { family: t.family } })
+  const former = formerFonts(items)
+  const filed = new Set(former.suitcases.map((i) => i.id))
+  return {
+    items: items.filter((i) => i.id !== former.folder).map((i) => (filed.has(i.id) ? { ...i, parent: FONTS } : i)),
+    skipped: contents.fonts.length - fonts.length,
+  }
 }

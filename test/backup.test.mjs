@@ -15,18 +15,26 @@ const item = (id, name, kind, parent, extra = {}) => ({
   ...extra,
 })
 
-/** A desktop: a Fonts folder in Macintosh HD with a suitcase, a built-in and
- *  a stored read-me of one name on the desktop, a read-me in the Trash, and
- *  one in the System Folder's Apple Menu Items. */
+/** A desktop: a suitcase in the System Folder's Fonts and another in a
+ *  folder in Macintosh HD, a built-in and a stored read-me of one name on the
+ *  desktop, a read-me in the Trash, and one in the System Folder's Apple Menu
+ *  Items. */
 const desktop = () =>
   listing(
-    item('fonts', 'Fonts', 'folder', 'disk', { left: 16, top: 36 }),
     item('geneva', 'Geneva', 'font', 'fonts', { data: { family: 'Geneva' } }),
+    item('projects', 'Projects', 'folder', 'disk', { left: 16, top: 36 }),
+    item('chicago', 'Chicago', 'font', 'projects', { data: { family: 'Chicago' } }),
     item('readme', 'Read Me', 'text', null, { data: { builtin: 'read-me' }, left: 400, top: 36 }),
     item('twin', 'Read Me', 'text', null, { data: { text: 'a twin' } }),
     item('scrap', 'Scrap', 'text', 'trash', { data: { text: 'x' } }),
     item('notes', 'Notes', 'text', 'apple-menu-items', { data: { text: 'n' } })
   )
+
+/** A plan read back, each text with its words. */
+const contentsOf = (state) => {
+  const { manifest } = planBackup(state)
+  return { ...manifest, texts: manifest.texts.map((r) => ({ ...r, text: `words of ${r.name}` })) }
+}
 
 test('plan: paths mirror the tree, the kept containers as directories with no manifest row', () => {
   const { manifest, entries } = planBackup(desktop(), { app: '1.0.0', date: new Date(2026, 8, 27) })
@@ -39,7 +47,8 @@ test('plan: paths mirror the tree, the kept containers as directories with no ma
       'macintosh-hd/system-folder/apple-menu-items/',
       'macintosh-hd/system-folder/apple-menu-items/notes.txt',
       'macintosh-hd/system-folder/startup-items/',
-      'macintosh-hd/fonts/',
+      'macintosh-hd/system-folder/fonts/',
+      'macintosh-hd/projects/',
       'trash/',
       'trash/scrap.txt',
       'read-me.txt',
@@ -49,11 +58,14 @@ test('plan: paths mirror the tree, the kept containers as directories with no ma
   // Macintosh HD is "hd" in a manifest, as in backups from before the catalog.
   assert.deepEqual(
     manifest.folders.map((f) => [f.name, f.parent, f.left, f.top]),
-    [['Fonts', 'hd', 16, 36]]
+    [['Projects', 'hd', 16, 36]]
   )
   assert.deepEqual(
     manifest.fonts.map((f) => [f.family, f.folder]),
-    [['Geneva', 'fonts']]
+    [
+      ['Geneva', 'fonts'],
+      ['Chicago', 'projects'],
+    ]
   )
   assert.deepEqual(
     manifest.texts.map((r) => [r.path, r.folder, r.builtin]),
@@ -79,27 +91,54 @@ test('manifest: a plan reads back as written, and anything else says what is wro
   )
 })
 
-test('items: back into the kept folders; a built-in kept while shipped; unshipped fonts counted; places for Replace', () => {
-  const { manifest } = planBackup(desktop())
-  const contents = { ...manifest, texts: manifest.texts.map((r) => ({ ...r, text: `words of ${r.name}` })) }
+test('items: back into the kept folders; a built-in kept while shipped; unserved fonts counted; places for Replace', () => {
+  const contents = contentsOf(desktop())
   const opts = { shipsText: (key) => key === 'read-me', shipsFamily: () => true }
   const replace = itemsOf(contents, { ...opts, places: true })
   assert.equal(replace.skipped, 0)
   const byId = new Map(replace.items.map((i) => [i.id, i]))
-  assert.equal(byId.get('fonts').parent, 'disk')
+  assert.equal(byId.get('projects').parent, 'disk')
   assert.equal(byId.get('notes').parent, 'apple-menu-items')
-  assert.deepEqual([byId.get('fonts').left, byId.get('fonts').top], [16, 36])
+  assert.deepEqual([byId.get('projects').left, byId.get('projects').top], [16, 36])
   assert.deepEqual(byId.get('readme').data, { builtin: 'read-me' })
   assert.deepEqual(byId.get('twin').data, { text: 'words of Read Me' })
-  assert.deepEqual(byId.get('geneva').data, { family: 'Geneva' })
+  assert.deepEqual([byId.get('geneva').parent, byId.get('geneva').data], ['fonts', { family: 'Geneva' }])
+  assert.equal(byId.get('chicago').parent, 'projects')
   // A built-in no longer shipped keeps its words.
   const gone = itemsOf(contents, { ...opts, shipsText: () => false, places: false })
   assert.deepEqual(gone.items.find((i) => i.id === 'readme').data, { text: 'words of Read Me' })
   // Add takes free cells: no places.
   assert.ok(gone.items.every((i) => i.left == null && i.top == null))
   const noFonts = itemsOf(contents, { ...opts, shipsFamily: () => false, places: false })
-  assert.equal(noFonts.skipped, 1)
+  assert.equal(noFonts.skipped, 2)
   assert.ok(!noFonts.items.some((i) => i.kind === 'font'))
+})
+
+test('items: a backup from before Fonts files the suitcases of Macintosh HD → Fonts in Fonts, and leaves that folder out once empty', () => {
+  const opts = { shipsText: () => true, shipsFamily: () => true, places: true }
+  const where = ({ items }) => items.map((i) => [i.id, i.parent, i.left ?? null])
+  const before = listing(
+    item('old', 'Fonts', 'folder', 'disk', { left: 16, top: 36 }),
+    item('geneva', 'Geneva', 'font', 'old', { data: { family: 'Geneva' }, left: 16, top: 16 }),
+    item('chicago', 'Chicago', 'font', 'old', { data: { family: 'Chicago' } }),
+    item('monaco', 'Monaco', 'font', null, { data: { family: 'Monaco' } })
+  )
+  assert.deepEqual(where(itemsOf(contentsOf(before), opts)), [
+    ['geneva', 'fonts', 16],
+    ['chicago', 'fonts', null],
+    ['monaco', null, null],
+  ])
+  // Anything else in it keeps the folder.
+  const shared = listing(
+    item('old', 'Fonts', 'folder', 'disk', { left: 16, top: 36 }),
+    item('geneva', 'Geneva', 'font', 'old', { data: { family: 'Geneva' } }),
+    item('notes', 'Notes', 'text', 'old', { data: { text: 'n' } })
+  )
+  assert.deepEqual(where(itemsOf(contentsOf(shared), opts)), [
+    ['old', 'disk', 16],
+    ['notes', 'old', null],
+    ['geneva', 'fonts', null],
+  ])
 })
 
 test('names: slugs and the dated file name', () => {

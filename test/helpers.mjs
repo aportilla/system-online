@@ -2,13 +2,14 @@
 // *.test.mjs only.
 
 /** The containers the catalog keeps, as it lists them for this desktop:
- *  Macintosh HD and the Trash, then the System Folder and its two folders. */
+ *  Macintosh HD and the Trash, then the System Folder and its three folders. */
 export const KEPT = [
   { id: 'disk', name: 'Macintosh HD', kind: 'disk', parent: null, createdAt: 0, modifiedAt: 0 },
   { id: 'trash', name: 'Trash', kind: 'trash', parent: null, createdAt: 0, modifiedAt: 0 },
   { id: 'system-folder', name: 'System Folder', kind: 'folder', parent: 'disk', createdAt: 0, modifiedAt: 0 },
   { id: 'apple-menu-items', name: 'Apple Menu Items', kind: 'folder', parent: 'system-folder', createdAt: 0, modifiedAt: 0 },
   { id: 'startup-items', name: 'Startup Items', kind: 'folder', parent: 'system-folder', createdAt: 0, modifiedAt: 0 },
+  { id: 'fonts', name: 'Fonts', kind: 'folder', parent: 'system-folder', createdAt: 0, modifiedAt: 0 },
 ]
 
 /** A catalog state: the kept containers, then `items`. */

@@ -101,14 +101,16 @@ picture is the application's box and whose chunks carry its manifest and
 its code. `system-online-sdk/build` writes them, and
 `system-online-sdk/pure` reads them (`readAppFile`, `inspectAppFile`) and
 says whether this SDK runs one (`appRuns`, by its `api`). They are format
-2, at app API level 3. There are two app files, each built in its own repo:
-Meteors, from meteors-app at 0.2.0, and Desktop Patterns, from
-desktop-patterns-app at 0.1.0 since 2026-10-11.
+2, at app API level 3. There are three app files, each built in its own
+repo: Meteors, from meteors-app at 0.2.0, Desktop Patterns, from
+desktop-patterns-app at 0.1.0 since 2026-10-11, and the Font Viewer, from
+font-viewer-app at 0.2.0 since the same day, on system-online-sdk 0.2.0's
+system fonts.
 
 **Built in, at build time.** `main.ts` imports each file in `apps/` through
 the SDK's `appFiles()`, which refuses a file built at a level the site's
 SDK doesn't run, and bundles the code with the site's. A new version of
-either is a commit and a deploy here.
+any of them is a commit and a deploy here.
 
 **Installed at runtime** is the packages plan's Phase 3 (§3.6 there), a
 sketch: a dropped app file becomes the application's icon, Empty Trash
@@ -386,9 +388,10 @@ included.
   the change gives the icon the default's file, once, so the icon, its
   place and the best score carry over. It has no store either, and gets
   one, once, as a new desktop does.
-- The system's own applications stay built in: the Finder, the Text Viewer
-  and the Font Viewer, which are SystemOnline's library, and Desktop
-  Patterns, until it's an app file.
+- The system's own applications stay built in: the Finder and the Text
+  Viewer, which are SystemOnline's library. Desktop Patterns and the Font
+  Viewer have been app files since 2026-10-11, so either way is open to
+  them: built in, or installed as Meteors is.
 - The dev loop keeps working under `?fresh=1`: meteors-app's `copyTo`
   writes into `apps/`, and a fresh desktop installs each new file. A saved
   desktop keeps the copy it installed, as a visitor's does. Those builds
@@ -730,7 +733,8 @@ After step 6:
   the boot would have.
 - **Rows loaded as they scroll in**, once the index holds more than a
   handful.
-- **Desktop Patterns in the index**: an app file since 2026-10-11.
+- **Desktop Patterns and the Font Viewer in the index**: app files since
+  2026-10-11.
 
 ## 10. Files touched
 

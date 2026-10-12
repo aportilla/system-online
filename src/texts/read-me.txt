@@ -13,7 +13,7 @@ Click a selected icon's name to rename it. File → New Folder makes a folder in
 
 File → Make Alias makes an alias of the selected icon: a stand-in, its name in italics, that opens the original wherever it has moved.
 
-Macintosh HD → System Folder runs the desktop. The Apple menu lists whatever its Apple Menu Items folder holds, a folder as a submenu, and whatever is in Startup Items opens each time the desktop starts. Drop an alias into either.
+Macintosh HD → System Folder runs the desktop. The Apple menu lists whatever its Apple Menu Items folder holds, a folder as a submenu, and whatever is in Startup Items opens each time the desktop starts. Drop an alias into either. Its Fonts folder holds the fonts installed for every application, a suitcase for each.
 
 Special → Clean Up puts the icons of the desktop or the front window back on the grid. View → Arrange Windows puts the windows back where they open.
 
@@ -26,7 +26,7 @@ Whichever window is in front, its application owns the menu bar. Click the deskt
   Opens read-me files like this one. Select text and choose Edit → Copy to copy it.
 
   FONT VIEWER
-  Opens the font suitcases in Macintosh HD → Fonts. Each window shows the family's sample line at every size it comes in, then every character of one size. The Size menu picks the size.
+  Opens the font suitcases in the System Folder's Fonts folder, or anywhere else. Each window shows the family's sample line at every size it comes in, then every character of one size. The Size menu picks the size.
 
   DESKTOP PATTERNS
   Apple menu → Control Panels → Desktop Patterns, or its icon in the System Folder's Control Panels. Click a pattern to preview it, then Set Desktop Pattern.

@@ -19,6 +19,12 @@ repos: meteors-app's description shipped with Meteors 0.2.0, and
 system-online-app-index takes the store helpers in its own move onto the SDK
 (the SDK's `GUIDE.md` § Moving onto the SDK).
 
+system-online-sdk 0.2.0 shipped `system-fonts.md`, which font-viewer-app
+asked for, and SystemOnline moved onto it the same day, taking up its own
+`font-viewer-app-file.md` with the Font Viewer 0.2.0's app file: the system
+serves the strike collection, a Fonts folder in the System Folder installs
+it, and the built-in Font Viewer left.
+
 ## Waiting
 
 ### `runtime-installs.md`, not yet written

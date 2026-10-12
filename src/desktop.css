@@ -17,18 +17,3 @@
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
-
-/* ----------------------------- Font Viewer ----------------------------- */
-
-/* A font window's body (apps/font-viewer/windows.html). Each paragraph carries
-   its strike as tokens (windows.ts); this keeps what doesn't change with the
-   strike: smoothing off through the token, since the paragraph's text lives in
-   its shadow root, so every glyph shows true pixels. */
-.font-specimen {
-  --vf-font-smoothing: none;
-}
-
-/* The character rows are one run each, so they break anywhere. */
-.font-charset {
-  word-break: break-all;
-}

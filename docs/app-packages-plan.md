@@ -11,8 +11,12 @@ SystemOnline took the renames, that file, and the System Folder that came
 with vintage-frames 0.19. The same day Desktop Patterns moved too, the second
 application to leave: it ships as `apps/Desktop Patterns.png` from its own
 repo, desktop-patterns-app, at 0.1.0 and app API level 3, with the same id,
-and its source left `src/apps/desktop-patterns/`. The record below is left
-as written.
+and its source left `src/apps/desktop-patterns/`. The Font Viewer was the
+third, once system-online-sdk 0.2.0 gave the system its fonts: it ships as
+`apps/Font Viewer.png` from font-viewer-app, at 0.2.0 and app API level 3,
+with the same id, and its source left `src/apps/font-viewer/`. The strike
+collection stayed here, served as the system's fonts. The record below is
+left as written.
 
 **Status:** steps 1 to 5 landed 2026-10-07, and Meteors ships as an app file
 from its own repo, meteors-app. Left: eye checks 4 and 5, decision 21, and

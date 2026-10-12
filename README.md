@@ -10,13 +10,15 @@ Everything you see is drawn by [**vintage-frames**](https://www.npmjs.com/packag
 the System 7 component kit, and the desktop runs on
 [**system-online-sdk**](https://www.npmjs.com/package/system-online-sdk)'s
 shell: the window manager, the menu bar, the catalog of files with its System
-Folder, and the stock Finder. Both are installed from npm like any other
-dependency. This repo is the *site*: the applications, the shell's
-configuration, their content, and the imported strike collection the Font
-Viewer opens. Applications built in repos of their own arrive as app files
-in `apps/`: Desktop Patterns, from
+Folder, the stock Finder, and the fonts every application sets type in. Both
+are installed from npm like any other dependency. This repo is the *site*:
+the applications, the shell's configuration, their content, and the imported
+strike collection it serves as the system's fonts. Applications built in
+repos of their own arrive as app files in `apps/`: Desktop Patterns, from
 [desktop-patterns-app](https://github.com/aportilla/desktop-patterns-app),
-and Meteors, from [meteors-app](https://github.com/aportilla/meteors-app).
+the Font Viewer, from
+[font-viewer-app](https://github.com/aportilla/font-viewer-app), and
+Meteors, from [meteors-app](https://github.com/aportilla/meteors-app).
 
 ```sh
 npm install
@@ -39,24 +41,26 @@ npm run dev        # http://localhost:5173/
 | **Finder** | the SDK's stock Finder (icons, folder windows, rename, filing by drag, aliases, the System Folder, the Trash, Copy and Paste, Clean Up), plus Back Up All Files… and Restore from Backup…, Restore Default Files |
 | **Text Viewer** | read-me files, read-only |
 | **Desktop Patterns** | Apple menu → Control Panels → Desktop Patterns: the kit's 38 patterns for the desktop, built in from its app file, `apps/Desktop Patterns.png` |
-| **Font Viewer** | a font suitcase's sample line in every strike, and every character of one |
+| **Font Viewer** | a font suitcase's sample line in every strike, and every character of one, built in from its app file, `apps/Font Viewer.png` |
 | **Meteors** | its icon on the desktop: an Asteroids-style game on a 320 × 240 1-bit screen, built in from its app file, `apps/Meteors.png` |
 
 Whichever window is in front, its application owns the menu bar. The Apple
-menu lists what the System Folder's Apple Menu Items holds, and what Startup
-Items holds opens at every boot. The files and their icons' places live in the
-browser's IndexedDB, and the windows and the desktop pattern in localStorage; a
-reload reopens what was open. `?fresh=1` boots the desktop a first visit sees,
-and saves nothing.
+menu lists what the System Folder's Apple Menu Items holds, what Startup
+Items holds opens at every boot, and a font suitcase in its Fonts installs
+that family for every application. The files and their icons' places live
+in the browser's IndexedDB, and the windows and the desktop pattern in
+localStorage; a reload reopens what was open. `?fresh=1` boots the desktop a
+first visit sees, and saves nothing.
 
 ## Layout
 
 ```
 index.html               the skeleton: desktop, menu bar, icon field, About box
-src/main.ts              the composition root: the shell and its applications
+src/main.ts              the composition root: the shell, its applications and its fonts
 src/about.ts             the About box and the boot greeting
+src/fonts.ts             the system's fonts: every family of the strike collection
 src/apps/<id>/           one directory per application: menus, dialogs, windows, behavior
-apps/                    app files of applications built in their own repos (Desktop Patterns.png, Meteors.png)
+apps/                    app files of applications built in their own repos (Desktop Patterns.png, Font Viewer.png, Meteors.png)
 src/state/               the library's kinds, its defaults, the backup format
 src/texts/               the built-in read-me files
 src/desktop.css          LAYOUT only
@@ -84,9 +88,10 @@ strikes**, in the style of the faces Susan Kare designed for Apple's original
 Macintosh, credited to her and Apple as designers but not Apple's files.
 
 `public/fonts/imported/` is the opposite: ~80 **genuine Apple bitmap strikes**
-under their own names, converted from classic font suitcases, which the Font
-Viewer opens. They moved here from the vintage-frames repo on 2026-08-11 so the
-component kit distributes no Apple artwork. See [docs/FONTS.md](docs/FONTS.md).
+under their own names, converted from classic font suitcases, which the
+system serves and the Font Viewer shows. They moved here from the
+vintage-frames repo on 2026-08-11 so the component kit distributes no Apple
+artwork. See [docs/FONTS.md](docs/FONTS.md).
 
 ## Working on the shell or a component instead
 
