@@ -7,13 +7,3 @@
  * place their own children through the kit's top/left and stacks, in system
  * px, so almost nothing is left to say here.
  */
-
-/* ----------------------------- Text Viewer ----------------------------- */
-
-/* A text window's body (apps/text-viewer/windows.html). Keeps the file's line
-   breaks, wraps long lines and breaks words wider than the window.
-   white-space inherits through the paragraph's shadow tree. */
-.text-body {
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}

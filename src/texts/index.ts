@@ -1,6 +1,7 @@
 // Built-in text files, imported whole with Vite's ?raw. A seeded text file
-// stores the key alone, so every one opens the text shipped here (textOf). A
-// key never changes once shipped.
+// stores the key alone, so every one opens the text shipped here: main.ts
+// hands builtinText to the Text Viewer, and the backup writes textOf. A key
+// never changes once shipped.
 //
 // To add one, put the .txt here and list it below with a new key, its name and
 // its home. An existing profile gets it from Special → Restore Default Files.

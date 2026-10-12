@@ -1,8 +1,9 @@
 // Composition root: the shell (system-online-sdk) over the page's desktop,
 // with SystemOnline's five applications and its system's fonts (fonts.ts),
 // the About box, and the startup curtain lifted once the desktop is composed.
-// Desktop Patterns, the Font Viewer and Meteors come from their app files in
-// apps/, built in by vite.config.ts's appFiles().
+// The Text Viewer, Desktop Patterns, the Font Viewer and Meteors come from
+// their app files in apps/, built in by vite.config.ts's appFiles(); the Text
+// Viewer is handed the built-in texts' words (texts/).
 //
 // The shell fits the desktop to the viewport, keeps the catalog in IndexedDB
 // and the session in localStorage, and reopens the last session's windows.
@@ -23,7 +24,8 @@ import './desktop.css'
 import { GREET, initAbout } from './about.ts'
 import { FONT_FAMILIES } from './fonts.ts'
 import { FONTS_FILED, SYSTEM_GIVEN, fileFonts, finder, giveSystemFolder } from './apps/finder/index.ts'
-import { textViewer } from './apps/text-viewer/index.ts'
+import { builtinText } from './texts/index.ts'
+import textViewer from '../apps/Text Viewer.png?app'
 import desktopPatterns from '../apps/Desktop Patterns.png?app'
 import fontViewer from '../apps/Font Viewer.png?app'
 import meteors from '../apps/Meteors.png?app'
@@ -45,7 +47,7 @@ const state = localStorageState('system-online:desktop', {
 const shell = createShell(desktop, {
   apps: [
     finder({ storage: fresh ? memoryStorage() : indexedDbStorage('system-online') }),
-    textViewer(),
+    textViewer({ builtinText }),
     desktopPatterns(),
     fontViewer(),
     meteors(),

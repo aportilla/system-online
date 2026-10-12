@@ -19,22 +19,20 @@ starts the shell over it with the five applications and the system's fonts
 (`src/fonts.ts`), fitted to the viewport, the catalog in IndexedDB (database
 `system-online`) and the session in localStorage (`system-online:desktop`).
 
-1. **Applications.** Each is one directory under `src/apps/` (`finder`,
-   `text-viewer`) exporting a function that returns the shell's `defineApp`
-   definition: an id, a name, its menus (`menus.html`), its alerts
-   (`dialogs.html`), its windows (`windows.html`, filled by `windows.ts`),
-   the catalog kinds it opens, and `init(ctx)`. A zoom box's column is pure
-   geometry (`layout.ts`); the window manager runs the box.
-   `src/apps/windows.ts` holds what the windows and dialogs share. No
-   application calls another. **Desktop Patterns**, **the Font Viewer** and
-   **Meteors** come from their app files, `apps/Desktop Patterns.png`,
+1. **Applications.** The Finder is the one directory under `src/apps/`
+   (`finder`): SystemOnline's configuration of the SDK's stock Finder
+   (clause 11), its alerts asked through `src/apps/windows.ts`. No
+   application calls another. **The Text Viewer**, **Desktop Patterns**,
+   **the Font Viewer** and **Meteors** come from their app files,
+   `apps/Text Viewer.png`, `apps/Desktop Patterns.png`,
    `apps/Font Viewer.png` and `apps/Meteors.png`, each built in its own repo
-   (desktop-patterns-app, font-viewer-app, meteors-app): a PNG whose picture
-   is its box and whose chunks carry its manifest, icon and code. The SDK's
-   `appFiles()` (`vite.config.ts`) builds each in, refusing a file built at
-   an app API level this site's SDK doesn't run, and the page's one copy of
-   the kit and the SDK serves its code. The Finder's defaults take Desktop
-   Patterns' and Meteors' ids and names from their manifests.
+   (text-viewer-app, desktop-patterns-app, font-viewer-app, meteors-app): a
+   PNG whose picture is its box and whose chunks carry its manifest, icon and
+   code. The SDK's `appFiles()` (`vite.config.ts`) builds each in, refusing a
+   file built at an app API level this site's SDK doesn't run, and the page's
+   one copy of the kit and the SDK serves its code. The Finder's defaults
+   take Desktop Patterns' and Meteors' ids and names from their manifests,
+   and the Text Viewer is handed the built-in texts' words (clause 12).
 2. **The menu bar** holds the Apple menu, then the front application's menus,
    then the clock. The front application is the active window's, or the Finder
    while none is active.
@@ -148,6 +146,13 @@ suitcase.
 
 ## The Text Viewer
 
+Built in from `apps/Text Viewer.png`. Its source is the text-viewer-app
+repo's `src/`. It registers the `text` kind and opens it, and SystemOnline
+hands it the built-in texts' words (`textViewer({ builtinText })`, from
+`src/texts/`); opening a built-in the site no longer ships says so in its
+alert. It opens from its text files, so SystemOnline puts no icon of it on
+the desktop.
+
 12. One window per text file: `movable outline-drag resizable zoomable
     scrollbars="vertical"`, 440 × 320, the text verbatim in one body-face
     paragraph that keeps its line breaks and wraps at the window. The zoom box
@@ -242,10 +247,10 @@ the meteors-app repo's `src/`.
 The page may use small amounts of **layout** CSS but NO aesthetic CSS — looks
 come from the components. Every caption is a `vf-label`, every run of copy a
 `vf-paragraph`, every box a `vf-container` or a stack, and `src/desktop.css`
-holds only the text body's wrapping. The Font Viewer sets its smoothing token
-and row breaking on its own elements, and Meteors' screen carries its
-pixelated magnification itself, on its canvas, so neither leans on a
-stylesheet of the site's.
+holds no rule. The Text Viewer's body keeps its line breaks and wraps by its
+own style, the Font Viewer sets its smoothing token and row breaking on its
+own elements, and Meteors' screen carries its pixelated magnification
+itself, on its canvas, so none leans on a stylesheet of the site's.
 
 `src/page.css` is the other half: the page-level CSS a component cannot reach
 from its shadow root (the black behind the desktop, the scroll suppression that

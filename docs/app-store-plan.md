@@ -101,11 +101,11 @@ picture is the application's box and whose chunks carry its manifest and
 its code. `system-online-sdk/build` writes them, and
 `system-online-sdk/pure` reads them (`readAppFile`, `inspectAppFile`) and
 says whether this SDK runs one (`appRuns`, by its `api`). They are format
-2, at app API level 3. There are three app files, each built in its own
-repo: Meteors, from meteors-app at 0.2.0, Desktop Patterns, from
-desktop-patterns-app at 0.1.0 since 2026-10-11, and the Font Viewer, from
-font-viewer-app at 0.2.0 since the same day, on system-online-sdk 0.2.0's
-system fonts.
+2, at app API level 3. There are four app files, each built in its own
+repo and all on system-online-sdk 0.2.0: Meteors, from meteors-app at
+0.3.0, and since 2026-10-11 Desktop Patterns, from desktop-patterns-app at
+0.2.0, the Font Viewer, from font-viewer-app at 0.2.0, on the SDK's system
+fonts, and the Text Viewer, from text-viewer-app at 0.2.0.
 
 **Built in, at build time.** `main.ts` imports each file in `apps/` through
 the SDK's `appFiles()`, which refuses a file built at a level the site's

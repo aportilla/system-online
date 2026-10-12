@@ -14,7 +14,9 @@ Folder, the stock Finder, and the fonts every application sets type in. Both
 are installed from npm like any other dependency. This repo is the *site*:
 the applications, the shell's configuration, their content, and the imported
 strike collection it serves as the system's fonts. Applications built in
-repos of their own arrive as app files in `apps/`: Desktop Patterns, from
+repos of their own arrive as app files in `apps/`: the Text Viewer, from
+[text-viewer-app](https://github.com/aportilla/text-viewer-app), Desktop
+Patterns, from
 [desktop-patterns-app](https://github.com/aportilla/desktop-patterns-app),
 the Font Viewer, from
 [font-viewer-app](https://github.com/aportilla/font-viewer-app), and
@@ -39,7 +41,7 @@ npm run dev        # http://localhost:5173/
 | | |
 | --- | --- |
 | **Finder** | the SDK's stock Finder (icons, folder windows, rename, filing by drag, aliases, the System Folder, the Trash, Copy and Paste, Clean Up), plus Back Up All Files… and Restore from Backup…, Restore Default Files |
-| **Text Viewer** | read-me files, read-only |
+| **Text Viewer** | read-me files, read-only, built in from its app file, `apps/Text Viewer.png` |
 | **Desktop Patterns** | Apple menu → Control Panels → Desktop Patterns: the kit's 38 patterns for the desktop, built in from its app file, `apps/Desktop Patterns.png` |
 | **Font Viewer** | a font suitcase's sample line in every strike, and every character of one, built in from its app file, `apps/Font Viewer.png` |
 | **Meteors** | its icon on the desktop: an Asteroids-style game on a 320 × 240 1-bit screen, built in from its app file, `apps/Meteors.png` |
@@ -59,8 +61,8 @@ index.html               the skeleton: desktop, menu bar, icon field, About box
 src/main.ts              the composition root: the shell, its applications and its fonts
 src/about.ts             the About box and the boot greeting
 src/fonts.ts             the system's fonts: every family of the strike collection
-src/apps/<id>/           one directory per application: menus, dialogs, windows, behavior
-apps/                    app files of applications built in their own repos (Desktop Patterns.png, Font Viewer.png, Meteors.png)
+src/apps/finder/         the Finder: its art, defaults, dialogs and backups
+apps/                    app files of applications built in their own repos (Desktop Patterns.png, Font Viewer.png, Meteors.png, Text Viewer.png)
 src/state/               the library's kinds, its defaults, the backup format
 src/texts/               the built-in read-me files
 src/desktop.css          LAYOUT only

@@ -34,9 +34,9 @@ its relative imports carry their `.ts` extension.
 
 ## Applications and the shell
 
-The desktop is five applications — the Finder and the Text Viewer, one
-directory each under `src/apps/`, and Desktop Patterns, the Font Viewer and
-Meteors, built in from their app files in `apps/` — over
+The desktop is five applications — the Finder, configured in
+`src/apps/finder/`, and the Text Viewer, Desktop Patterns, the Font Viewer
+and Meteors, built in from their app files in `apps/` — over
 `system-online-sdk`'s shell (experimental). Its guides are the SDK's docs:
 `GUIDE.md` for a site, `SHELL.md` for the shell, `APP-FILES.md` for app files
 (`../system-online-sdk/docs/` in a checkout beside this one). The window
@@ -64,8 +64,11 @@ system among it. Keep it that way:
   to do something it doesn't, that's a change to the SDK, asked for in its
   `feature-requests/`, not a window manager or Finder rebuilt here. An ask
   about an element goes to vintage-frames.
-- **The library's kind is SystemOnline's**: a text file
-  (`src/state/kinds.ts`), small data on a catalog item. A font suitcase is
+- **The library's kind is the text file** (`src/state/kinds.ts`), small
+  data on a catalog item: its own words, or the key of a built-in whose
+  words are SystemOnline's (`src/texts/`). The Text Viewer registers the
+  `text` kind from its app file, and is handed the built-ins' words as
+  `textViewer({ builtinText })`. A font suitcase is
   the system's, the shell's `font` kind: its family is one this repo serves
   its system (`src/fonts.ts`, from the strike collection), and the Font
   Viewer opens it without owning it. The pure modules in `src/state/` take
@@ -75,8 +78,9 @@ system among it. Keep it that way:
   read at the call.
 - **App files** in `apps/` are applications built in repos of their own:
   `Desktop Patterns.png` is the desktop-patterns-app repo's `npm run build`,
-  `Font Viewer.png` the font-viewer-app repo's, and `Meteors.png` the
-  meteors-app repo's. The SDK's `appFiles()`
+  `Font Viewer.png` the font-viewer-app repo's, `Meteors.png` the
+  meteors-app repo's, and `Text Viewer.png` the text-viewer-app repo's. The
+  SDK's `appFiles()`
   (`vite.config.ts`) builds each in from
   `import x from '../apps/<Name>.png?app'`, and fails the build on a file
   built at an app API level this site's SDK doesn't run. The Finder's
@@ -125,12 +129,13 @@ or generated-by trailers.
 - `index.html` — the skeleton (desktop, menu bar, icon field, About box);
   `src/main.ts` — the composition root, which starts the shell;
   `src/about.ts` — the About box
-- `src/apps/<id>/` — the applications; `src/state/` — the library's kind,
+- `src/apps/finder/` — the Finder; `src/state/` — the library's kind,
   its defaults, the System Folder's among them, and the backup format;
   `src/fonts.ts` — the system's fonts, every family of the strike collection
 - `apps/` — app files of applications built in their own repos:
   `Desktop Patterns.png`, from desktop-patterns-app, `Font Viewer.png`, from
-  font-viewer-app, and `Meteors.png`, from meteors-app
+  font-viewer-app, `Meteors.png`, from meteors-app, and `Text Viewer.png`,
+  from text-viewer-app
 - `docs/SPEC.md` — what's on the desktop, clause by clause
 - `docs/app-model-plan.md` — the plan the application model was first built
   from, here; the shell has since moved into the kit, and from there to

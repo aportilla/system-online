@@ -15,8 +15,14 @@ and its source left `src/apps/desktop-patterns/`. The Font Viewer was the
 third, once system-online-sdk 0.2.0 gave the system its fonts: it ships as
 `apps/Font Viewer.png` from font-viewer-app, at 0.2.0 and app API level 3,
 with the same id, and its source left `src/apps/font-viewer/`. The strike
-collection stayed here, served as the system's fonts. The record below is
-left as written.
+collection stayed here, served as the system's fonts. The Text Viewer was the
+fourth, the same day: its kind stays `text`, which Sprite Machine's text
+files carry too, and a site hands it the texts it ships through its factory,
+`textViewer({ builtinText })`, so neither is SystemOnline's alone any more.
+It ships as `apps/Text Viewer.png` from text-viewer-app, at 0.2.0 and app API
+level 3, with the same id, and its source left `src/apps/text-viewer/`. With
+it, Desktop Patterns and Meteors were built again on system-online-sdk 0.2.0,
+as 0.2.0 and 0.3.0. The record below is left as written.
 
 **Status:** steps 1 to 5 landed 2026-10-07, and Meteors ships as an app file
 from its own repo, meteors-app. Left: eye checks 4 and 5, decision 21, and
