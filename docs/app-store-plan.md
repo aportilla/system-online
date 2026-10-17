@@ -9,8 +9,12 @@ SystemOnline with them. The store's asks are the SDK's now. App files are
 format 2, at app API level 3: a build's `requires` names the SDK range it was
 made with, and whether a desktop runs it turns on its `api` alone
 (`appRuns`). The plan below gives the SDK the kit's part in what is still to
-come, and leaves the record of its drafting as written. The index moves onto
-the SDK next, trading Meteors 0.1.0's format 1 file for 0.2.0.
+come, and leaves the record of its drafting as written. On 2026-10-17 the
+index moved onto the SDK, trading Meteors 0.1.0's format 1 file for the
+current build of every application: Meteors 0.3.0, and Desktop Patterns,
+the Font Viewer and the Text Viewer at 0.2.0. Step 1 published Meteors
+alone, and §9 left the others for later: _"Go ahead and do all our other
+apps as well."_
 Decisions 1, 2, 6, 9 and 17, 11's sideloading and 4's repo were taken
 2026-10-10; the rest are recommended (§6). Decision 6 makes the store an
 application of its own, an app file SystemOnline ships installed and

@@ -16,8 +16,8 @@ moved onto it on 2026-10-11. That move took up the three asks vintage-frames
 shipped from 0.17.1 to 0.19.1: `store-helpers.md`, `system-folder.md` and
 `folder-aliases-and-submenus.md`. The first also listed work for two other
 repos: meteors-app's description shipped with Meteors 0.2.0, and
-system-online-app-index takes the store helpers in its own move onto the SDK
-(the SDK's `GUIDE.md` § Moving onto the SDK).
+system-online-app-index took the store helpers in its own move onto the SDK,
+on 2026-10-17.
 
 system-online-sdk 0.2.0 shipped `system-fonts.md`, which font-viewer-app
 asked for, and SystemOnline moved onto it the same day, taking up its own
