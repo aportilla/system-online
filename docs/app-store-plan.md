@@ -1,8 +1,8 @@
 # Plan: the App Store
 
-**Status:** drafted 2026-10-10. Step 1 is under way: its repo,
-`system-online-app-index`, is pushed, and its Cloudflare project is next.
-Step 2 shipped, in vintage-frames 0.17.1. Step 3's ask,
+**Status:** drafted 2026-10-10. Step 1 is done: `system-online-app-index`
+is served at `https://apps.portill.io/` since 2026-10-17, and eye check 1
+passed there that day. Step 2 shipped, in vintage-frames 0.17.1. Step 3's ask,
 `runtime-installs.md`, is the next to write; `docs/kit-asks.md` tracks it.
 On 2026-10-11 the shell and app files moved to system-online-sdk, and
 SystemOnline with them. The store's asks are the SDK's now. App files are
@@ -461,7 +461,8 @@ green in the repo it touches.
    until step 2 it orders versions with a copy of the kit's comparison, and
    refuses a file that isn't an app file without saying why. Its move onto
    the SDK takes step 2's helpers, and Meteors 0.2.0 in place of 0.1.0,
-   whose format 1 file the SDK refuses.
+   whose format 1 file the SDK refuses. _Done 2026-10-17: on the SDK, with
+   all four applications, served at `https://apps.portill.io/`._
 2. **The store's helpers** (§5, asks 10 to 12): one kit patch, since each
    only adds, so nothing rebuilds. The index's build then takes
    `compareVersions` and `inspectAppFile` from the kit, and Meteors'
@@ -575,7 +576,8 @@ from the first, and the store can be an app file:
 4. **A repo and a host of their own**: `system-online-app-index`, deployed
    by Cloudflare as the site is, at a name such as `apps.portill.io`, so a
    publish never deploys the site. _The repo taken 2026-10-10, as
-   `system-online-app-index`; the host's name is yours._
+   `system-online-app-index`, and the host 2026-10-17, as
+   `apps.portill.io`._
 5. **Every version kept and never replaced**, each at
    `apps/<id>/<version>/<Name>.png`. _Recommended._
 6. **The store an application of its own**, an app file SystemOnline ships
