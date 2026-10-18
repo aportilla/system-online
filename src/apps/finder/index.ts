@@ -4,7 +4,8 @@
 // serves (src/fonts.ts); the default files, suitcases and application icons
 // are its seed, and Special gains Restore Default Files, then Back Up All
 // Files… and Restore from Backup… (backup.ts). The stock alerts carry the
-// caution art; the ones SystemOnline adds are in dialogs.html.
+// caution art; the ones SystemOnline adds, and its answers to the Finder's
+// install alerts (installs.ts), are in dialogs.html.
 
 import { FONTS, TRASH, finder as stockFinder } from 'system-online-sdk'
 import type { AppDefinition, Catalog, CatalogStorage, FinderApi, Point, ShellState } from 'system-online-sdk'
@@ -25,6 +26,7 @@ import { manifest as desktopPatterns } from '../../../apps/Desktop Patterns.png?
 import { manifest as meteors } from '../../../apps/Meteors.png?app'
 import { ask } from '../windows.ts'
 import { initBackup } from './backup.ts'
+import { initInstalls } from './installs.ts'
 
 // Served from public/: stand-in art for Macintosh HD and a font suitcase, and
 // the alerts' caution art, which dialogs.html shares.
@@ -137,6 +139,7 @@ export function finder({ storage }: { storage: CatalogStorage | null }): AppDefi
         },
       })
       initBackup(finder, ctx, DEFAULTS)
+      initInstalls(finder, ctx)
     },
   })
 }

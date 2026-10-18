@@ -90,6 +90,13 @@ system among it. Keep it that way:
   SDK's `GUIDE.md` § Moving to a new release). The rules an application in
   an app file keeps are the SDK's (`APP-FILES.md` § The rules an application
   keeps).
+- **Installing at runtime**: an app file dropped or pasted in the Finder
+  installs through the SDK's door, against the trust in `src/main.ts`:
+  SystemOnline's public key, which the index's `scripts/signing.ts` holds
+  too. A file it signed installs without asking, any other after the
+  Finder's alert, which SystemOnline answers (`src/apps/finder/installs.ts`).
+  The private key is a file on the machine that signs, never in a repo, and
+  a session never prints it or puts its text in a command.
 - Comments are short and direct: label a section or state a non-obvious
   constraint. A larger change starts as a plan in `docs/<topic>-plan.md`
   (docs/app-model-plan.md is the model).

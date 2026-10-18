@@ -54,14 +54,18 @@ in the browser's IndexedDB, and the windows and the desktop pattern in
 localStorage; a reload reopens what was open. `?fresh=1` boots the desktop a
 first visit sees, and saves nothing.
 
+An app file dropped on the desktop installs its application. One
+SystemOnline signed installs at once; any other asks first, since an
+application can read and change everything on the desktop.
+
 ## Layout
 
 ```
 index.html               the skeleton: desktop, menu bar, icon field, About box
-src/main.ts              the composition root: the shell, its applications and its fonts
+src/main.ts              the composition root: the shell, its applications, its fonts and its trust
 src/about.ts             the About box and the boot greeting
 src/fonts.ts             the system's fonts: every family of the strike collection
-src/apps/finder/         the Finder: its art, defaults, dialogs and backups
+src/apps/finder/         the Finder: its art, defaults, dialogs, backups and install alerts
 apps/                    app files of applications built in their own repos (Desktop Patterns.png, Font Viewer.png, Meteors.png, Text Viewer.png)
 src/state/               the library's kinds, its defaults, the backup format
 src/texts/               the built-in read-me files

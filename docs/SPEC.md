@@ -17,7 +17,10 @@ desktop's icon field and the About box, under the kit's page-drawn cursor and
 a startup curtain that lifts once the kit's faces have loaded. `src/main.ts`
 starts the shell over it with the five applications and the system's fonts
 (`src/fonts.ts`), fitted to the viewport, the catalog in IndexedDB (database
-`system-online`) and the session in localStorage (`system-online:desktop`).
+`system-online`) and the session in localStorage (`system-online:desktop`),
+and gives it SystemOnline's trust, its public key (clause 11), and the index
+of app files at `apps.portill.io`, which the shell hands applications
+(`VITE_INDEX` names another at build).
 
 1. **Applications.** The Finder is the one directory under `src/apps/`
    (`finder`): SystemOnline's configuration of the SDK's stock Finder
@@ -33,6 +36,7 @@ starts the shell over it with the five applications and the system's fonts
    one copy of the kit and the SDK serves its code. The Finder's defaults
    take Desktop Patterns' and Meteors' ids and names from their manifests,
    and the Text Viewer is handed the built-in texts' words (clause 12).
+   More install from app files (clause 11).
 2. **The menu bar** holds the Apple menu, then the front application's menus,
    then the clock. The front application is the active window's, or the Finder
    while none is active.
@@ -143,6 +147,19 @@ suitcase.
     System Folder with Fonts, and its seed, and adds to Special:
     _Restore Default Files_, then _Back Up All Files…_ and _Restore from
     Backup…_, whose alerts it holds (`dialogs.html`).
+
+    An app file dropped or pasted on the desktop or into a folder installs
+    its application, its icon where the file was let go, through the shell
+    and SystemOnline's trust (`src/main.ts`). A file SystemOnline's key
+    signed installs without asking; any other asks first, in SystemOnline's
+    own alert (`src/apps/finder/installs.ts`), which says nobody vouches for
+    it and that it can read and change everything on the desktop, Cancel
+    the default. One whose application is already here asks to replace it,
+    saying when the copy won't be offered updates; one the shell refuses
+    says why, a copy of a built-in application among them, and so does an
+    application's icon that won't open. Empty Trash with an installed
+    application's last icon in it uninstalls it. A backup doesn't carry
+    installed applications yet, so a Replace uninstalls them.
 
 ## The Text Viewer
 

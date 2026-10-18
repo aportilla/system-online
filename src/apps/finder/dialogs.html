@@ -1,9 +1,9 @@
 <!-- The Finder's dialogs: SystemOnline's own, held by the stock Finder and
-     asked from extend (index.ts, backup.ts). The body is width − 10 by
-     height − 10 for frame="plain". The art and the message sit 16 in from the
-     body's top-left, and the button group's origin corner 16 in from its
-     bottom-right. Each is authored at its least height; a longer message
-     grows it (ask, ../windows.ts). Storage Unavailable is the stock
+     asked from extend (index.ts, backup.ts, installs.ts). The body is
+     width − 10 by height − 10 for frame="plain". The art and the message sit
+     16 in from the body's top-left, and the button group's origin corner 16
+     in from its bottom-right. Each is authored at its least height; a longer
+     message grows it (ask, ../windows.ts). Storage Unavailable is the stock
      Finder's (finder.storageReady()). -->
 
 <!-- The Restore question. Replace is shown only over something to
@@ -22,7 +22,37 @@
   </form>
 </vf-dialog>
 
-<!-- Everything else: a failure, or what a restore found. -->
+<!-- An app file SystemOnline's key didn't sign. Cancel is the default, so
+     installing what nobody vouched for takes a press of its own. -->
+<vf-dialog data-dialog="untrusted" frame="plain" label="Install" width="440" height="118">
+  <form method="dialog" novalidate>
+    <vf-img width="32" height="32" left="16" top="16">
+      <img src="/icons/alert.png" alt="" />
+    </vf-img>
+    <vf-paragraph face="display" width="350" left="64" top="16" data-message></vf-paragraph>
+    <vf-button-group origin="bottom right" left="414" top="92">
+      <vf-button type="submit" value="install">Install</vf-button>
+      <vf-button type="submit" value="cancel" variant="default">Cancel</vf-button>
+    </vf-button-group>
+  </form>
+</vf-dialog>
+
+<!-- An app file whose application is already on the desktop. -->
+<vf-dialog data-dialog="replace" frame="plain" label="Replace" width="440" height="118">
+  <form method="dialog" novalidate>
+    <vf-img width="32" height="32" left="16" top="16">
+      <img src="/icons/alert.png" alt="" />
+    </vf-img>
+    <vf-paragraph face="display" width="350" left="64" top="16" data-message></vf-paragraph>
+    <vf-button-group origin="bottom right" left="414" top="92">
+      <vf-button type="submit" value="cancel">Cancel</vf-button>
+      <vf-button type="submit" value="replace" variant="default">Replace</vf-button>
+    </vf-button-group>
+  </form>
+</vf-dialog>
+
+<!-- Everything else: a failure, what a restore found, or why an application
+     couldn't be installed or opened. -->
 <vf-dialog data-dialog="alert" frame="plain" label="Alert" width="400" height="118">
   <form method="dialog" novalidate>
     <vf-img width="32" height="32" left="16" top="16">

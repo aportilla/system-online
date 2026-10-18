@@ -3,7 +3,11 @@
 **Status:** drafted 2026-10-10. Step 1 is done: `system-online-app-index`
 is served at `https://apps.portill.io/` since 2026-10-17, and eye check 1
 passed there that day. Step 2 shipped, in vintage-frames 0.17.1. Step 3's ask,
-`runtime-installs.md`, is the next to write; `docs/kit-asks.md` tracks it.
+`runtime-installs.md`, was written 2026-10-17, signatures in it, and shipped
+in system-online-sdk 0.3.0 on 2026-10-18; the index signs what it files
+since that day. Step 4 began here the same day: the trust, the index's URL
+and SystemOnline's answers to the Finder's new alerts, every application
+still built in.
 On 2026-10-11 the shell and app files moved to system-online-sdk, and
 SystemOnline with them. The store's asks are the SDK's now. App files are
 format 2, at app API level 3: a build's `requires` names the SDK range it was
@@ -16,7 +20,12 @@ the Font Viewer and the Text Viewer at 0.2.0. Step 1 published Meteors
 alone, and §9 left the others for later: _"Go ahead and do all our other
 apps as well."_
 Decisions 1, 2, 6, 9 and 17, 11's sideloading and 4's repo were taken
-2026-10-10; the rest are recommended (§6). Decision 6 makes the store an
+2026-10-10, 5, 7, 8 and 18 to 22 on 2026-10-17, and 10, 11's asking first,
+12 and 13 on 2026-10-18, as SDK 0.3.0 shipped them; the rest are
+recommended (§6). Decision 8 now builds nothing in, the Text Viewer
+included, and 20 keeps the Finder the system's. Decision 22 meets a
+system update that breaks applications at the boot, and 7 says what this
+desktop can't run rather than hiding it. Decision 6 makes the store an
 application of its own, an app file SystemOnline ships installed and
 signed by your key. Decision 17 makes trust each site's setting, so a
 desktop on another domain can run open, or sign its own applications. The
@@ -50,6 +59,8 @@ is redeployed. The App Store is an application of its own: an app file like
 any other, which SystemOnline ships installed and signed by your key. It
 reads the index, shows each application this desktop's SDK can run as its
 box, in color, and installs one through the same door a dropped file takes.
+Beside that list is another, of what's installed here, and Uninstall on
+each.
 In the background it finds the updates for the applications your key
 signed and lists them, and a click installs one, or all of them: nothing
 updates without asking. With a build for each app API level already
@@ -246,8 +257,13 @@ Pure, in the store's `src/listing.ts`, and tested under Node in its repo.
 
 - For each application, the newest version this page's SDK runs,
   `appRuns(manifest)`: its `api` from the SDK's `APP_API_OLDEST` to
-  `APP_API`. An application with none is left off the shelf: the store
-  shows only what this desktop runs.
+  `APP_API`. That's the one Install and Update fetch, since the index
+  keeps every version (decision 5).
+- **What this desktop doesn't run is said, not hidden** (decision 7).
+  When a newer version needs a newer system, an `api` above `APP_API`,
+  the row says so beside the one it offers. An application with no
+  version this desktop runs is listed under Available with no Install,
+  saying it needs a newer system.
 - Against what's installed, an application reads **Install** (not
   installed), **Update** (an older version installed) or **Installed**
   (that version or a newer one).
@@ -282,12 +298,20 @@ Meteors', and is yours to draw.
 - **What it reads from the SDK** (asks 7 and 14): the site's index URL, and
   each installed application's manifest, its signature's standing and
   whether it loaded, with a signal when that changes. It installs with
-  `ctx.install` (ask 1).
-- **One window**, scrolling, laid out as a page of a mail-order catalog:
-  each application a row, its box at the left, and at the right its name,
-  version and author, its description, its size and its button. Those with
-  an update come first, under a line that counts them, with Update All.
-  The look is checked by eye.
+  `ctx.install` and uninstalls with `ctx.uninstall` (ask 1).
+- **One window, two lists** (decision 19), each scrolling, laid out as a
+  page of a mail-order catalog: each application a row, its box at the
+  left, and at the right its name, version and author, its description,
+  its size and its buttons. The View menu and the window's head switch
+  between them, and the look is checked by eye.
+  - **Available**: every application in the index this desktop runs
+    (§3.2), each with Install, Update or Installed.
+  - **Installed**: every application installed here, from the index or
+    not, signed or not, each with Uninstall. Those with an update come
+    first, under a line that counts them, with Update All, and each with
+    Update beside its Uninstall. One the boot skipped says why.
+  - The window opens on Installed when it lists an update, and on
+    Available otherwise.
 - **The box on the grid.** The box is the file's own picture, in color
   (decision 1), and this is the one place the desktop shows it. The store
   draws it into a canvas on the grid, one of the frame's px to one system
@@ -305,7 +329,14 @@ Meteors', and is yours to draw.
   application's icon lands at the desktop's next free cell, an updated one
   keeps its place, and the row reads Installed. Without storage, install
   answers why, and the store says it can't install on this desktop.
-- **Menus**: File: Close ⌃W, Quit ⌃Q. View: Arrange Windows ⌘J.
+- **Uninstall** asks first, with the store's own alert naming the
+  application and saying its documents stay, then hands its id to the
+  shell's uninstall (§3.4). Its icons go from wherever they are, the Trash
+  included, its windows close, and its row in Available reads Install
+  again. The store's own row has none: its icon goes to the Trash as any
+  icon does, and Restore Default Files brings it back.
+- **Menus**: File: Close ⌃W, Quit ⌃Q. View: Available, Installed,
+  Arrange Windows ⌘J.
 - Under `?fresh=1` an install is in memory, and a reload forgets it with
   everything else.
 
@@ -317,19 +348,23 @@ backup and a new desktop's defaults all hand bytes to the shell's install
 Phase 3 is the same door from the Finder's side.
 
 - **Installing** reads and checks the file (its format, its `api` and its
-  signature), keeps it beside an `app` item, loads the code and
-  registers the application: its kinds, menus, dialogs and `init`. The
+  signature), keeps it, one per application however many icons it has,
+  loads the code and registers the application: its kinds, menus, dialogs
+  and `init`. The
   icon goes where the file was dropped, at a default's home, or, from the
   store, at the desktop's next free cell.
 - **Replacing** an installed application with a file a visitor brings asks
   first, signed or not, as the Finder asked before replacing an item with
   the same name. It's how an application added by hand is updated.
-- **Uninstalling** is Empty Trash with the icon in it: the file goes with
-  the item, and the store's row reads Install again.
+- **Uninstalling** is Empty Trash with the application's last icon in it,
+  or the store's Uninstall, which takes every icon at once: the file goes,
+  and the store's row reads Install again. Its documents stay (decision
+  18): each is listed where it was, drawn plain, and opening one says no
+  application opens it, until one that does is installed.
 - **Backups carry installed applications**, as `.png` entries named for
   them, so an unzipped backup shows each one as its box. A restore installs
   them through the same door. SPEC §9's rule, that an application's icon is
-  the system's and left out, holds for the built-in applications alone.
+  the system's and left out, goes, since nothing is built in (§3.6).
 
 ### 3.5 Updates
 
@@ -361,45 +396,84 @@ leaves every installed application running.
    bump without them, and `npm run check-index` names any application in
    the index with no build at the new level.
 3. The site deploys. At a visitor's first boot after it, each application
-   built below the new oldest level is skipped, the store among them.
-   Opening the store offers SystemOnline's own copy of it, rebuilt in step 2
-   (ask 5); a click restores it, and it lists the others' new builds as
-   updates. A click, or Update All, installs them, and they load.
+   built below the new oldest level is skipped, the store among them, and
+   the boot ends with the alert below.
 
-A visitor offline keeps the icon, which says why it won't open (ask 5),
-until the store reaches the index. This answers what the packages plan's
-decision 18 waited for: with the index, a release that breaks an installed
-application finds its replacement already published, a click away.
+**At the boot, when something no longer runs** (decision 22). A boot that
+skipped an installed application for its `api` ends by saying so, rather
+than leaving each icon to be found broken when it's opened:
 
-### 3.6 Your applications, installed
+1. When the store is among them, the system first puts back its own copy
+   of the store, the one in `apps/` that shipped with this deploy, which
+   runs here by construction (§3.6). It asks nothing, since it's the
+   system mending itself so the store can ask about the rest (decision
+   23). It loads at once (ask 6).
+2. The store reads the index and raises one alert: the system was
+   updated, and these applications need a newer version to run on it,
+   with Update All and Not Now. One with no build for this system yet, or
+   one added by hand, is named apart: it stays, and its icon says why
+   (ask 5). Offline, the alert names them and says the index can't be
+   reached.
+3. Update All installs each through the same door as any update. Each
+   loads at once, and the windows it had open at the last visit reopen
+   (asks 2 and 6).
+4. Not Now leaves them skipped. The next boot asks again, and meanwhile
+   the store's Installed list has them first and each icon says why.
 
-Meteors stops being built in, and Meteors and the App Store are installed
-applications a new desktop comes with (decisions 6 and 8). The store lists
-their updates as it does any other's, so a new version of either is a
-publish, never a deploy. Your _"updated live without a redeployment of
-system-online"_ then holds for every application you make, the store
-included.
+The alert's look is yours to design; what it says is above. An update
+that isn't needed to run, a newer build of one that loaded, raises nothing
+at the boot and waits in the store's list (decision 9).
 
+This answers what the packages plan's decision 18 waited for: with the
+index, a release that breaks an installed application finds its
+replacement already published, and the next boot offers it.
+
+### 3.6 Every application installed
+
+Nothing is built in (decision 8). Every application is an app file
+installed at runtime: Meteors, Desktop Patterns, the Font Viewer, the Text
+Viewer and the App Store, each a default a new desktop comes with. A
+desktop on the shell is then the system and a list of app files: _"so that
+a hosted instance of system online can be configured with any app images by
+'default' but they're still app images"_. The store lists every one's
+updates as it does any other's, so a new version of any is a publish, never
+a deploy. Your _"updated live without a redeployment of system-online"_
+then holds for every application you make, the store included.
+
+- **The system is what's left**: the Finder, the System Folder, the
+  system's fonts and its documentation. The Finder is the SDK's,
+  configured here, and the one application `createShell` is handed. It is
+  the desktop, and what installs the rest, so it's never an app file
+  (decision 20).
 - `apps/` keeps the default copies, the index's signed files, so a default
   is offered its updates as any installed application is. The SDK's file
   form of `appFiles()` (ask 8) gives the site each file and its manifest,
   checked against the SDK at build as `?app` is, without building the code
-  in.
+  in. Nothing imports `?app` any more.
 - The Finder's defaults carry each application's file. A new desktop
-  installs Meteors and the store from them, and Restore Default Files
-  reinstalls a trashed one.
-- A desktop from before has Meteors' icon and no file. Its first boot after
-  the change gives the icon the default's file, once, so the icon, its
-  place and the best score carry over. It has no store either, and gets
-  one, once, as a new desktop does.
-- The system's own applications stay built in: the Finder and the Text
-  Viewer, which are SystemOnline's library. Desktop Patterns and the Font
-  Viewer have been app files since 2026-10-11, so either way is open to
-  them: built in, or installed as Meteors is.
-- The dev loop keeps working under `?fresh=1`: meteors-app's `copyTo`
-  writes into `apps/`, and a fresh desktop installs each new file. A saved
-  desktop keeps the copy it installed, as a visitor's does. Those builds
-  are unsigned, so what's committed to `apps/` is the index's copy.
+  installs every one from them, and Restore Default Files reinstalls a
+  trashed one.
+- A desktop from before has an icon for each of the four and no file. Its
+  first boot after the change gives each icon its default's file, once, so
+  the icons, their places and Meteors' best score carry over. It has no
+  store either, and gets one, once, as a new desktop does.
+- **The system's documentation** (decision 21): Read Me and the other
+  texts in `src/texts/` are the system's, updated with it, as its fonts
+  are. The site serves each at a path that never changes
+  (`/texts/<key>.txt`, without a long cache), and a seeded text file holds
+  that path where it held the key. The Text Viewer, which the site can
+  hand nothing once it's installed, fetches the words from it, and each
+  deploy reaches every desktop. A desktop from before has its keys
+  rewritten to paths, once. Offline, a system document says it can't be
+  read; a visitor's own text opens as ever. It needs a Text Viewer build
+  that reads a path and takes no `builtinText`.
+- **Documents outlive their application** (decision 18): trashing the Text
+  Viewer leaves the library where it was, drawn plain, until it's back.
+- The dev loop keeps working under `?fresh=1`: an application's repo's
+  `copyTo` writes into `apps/`, and a fresh desktop installs each new
+  file. A saved desktop keeps the copy it installed, as a visitor's does.
+  Those builds are unsigned, so what's committed to `apps/` is the index's
+  copy.
 
 ### 3.7 Trust
 
@@ -407,9 +481,9 @@ A loaded application runs with the page's whole reach: the catalog, the
 session, every window. The index is a way to put code into every visitor's
 page, so who can change it matters.
 
-- **The index's URL is fixed at build**, a build constant beside the others
-  in `vite.config.ts`, set from the environment in dev and never read from
-  the address. A link that pointed the store elsewhere would present
+- **The index's URL is fixed at build**: Vite's `VITE_INDEX`, set from the
+  environment (the live index unless it names another), and never read
+  from the address. A link that pointed the store elsewhere would present
   anyone's code as yours. SystemOnline hands it to the shell with its
   trust, and the SDK hands it to the store (ask 14).
 - **The store has no power of its own.** It's trusted as your applications
@@ -469,24 +543,33 @@ green in the repo it touches.
    description goes out with its next version. _Shipped in vintage-frames
    0.17.1, and the SDK's since its 0.1.0; Meteors' description went out with
    0.2.0._
-3. **The SDK installs at runtime and checks signatures** (§5, asks 1 to 9
-   and 13): one SDK minor, built against this site through a linked SDK,
-   then released, with `npm run add` signing on it. Meteors builds on it,
-   signed and published to the index, and what that costs an application is
-   what §3.5 leans on.
+3. **The SDK installs at runtime and checks signatures** (§5, asks 1 to 9,
+   13 and 14): one SDK minor, built against this site through a linked SDK,
+   then released, with `npm run add` signing on it. Each application builds
+   on it, signed and published to the index, and what that costs an
+   application is what §3.5 leans on. The Text Viewer's build reads a
+   system document by its path (§3.6). _Shipped in system-online-sdk 0.3.0
+   on 2026-10-18, and `npm run add` signs since that day; the applications'
+   signed builds are still to come._
 4. **SystemOnline installs at runtime** (§3.4, §3.6, §3.7): a dropped app
    file installs, your key's without asking and anyone else's after the
-   alert, and Empty Trash uninstalls it; Meteors becomes an installed
-   default, from the index's signed copy; backups carry installed
-   applications; the site holds your public key. This is the packages
-   plan's Phase 3, done here.
+   alert, and Empty Trash uninstalls it; every application becomes an
+   installed default, from the index's signed copy, and nothing is built
+   in; the built-in texts become the system's documentation, served by
+   path; backups carry installed applications; the site holds your public
+   key. This is the packages plan's Phase 3, done here. _Begun 2026-10-18:
+   on SDK 0.3.0 the site holds your public key and asks about any other
+   file, hands applications the index's URL, and answers the Finder's new
+   alerts with its own (`src/apps/finder/installs.ts`); every application
+   is still built in._
 5. **The App Store** (§3.2, §3.3): its repo, built as meteors-app is, with
    `listing.ts` and its tests; signed and published to the index; installed
    by default here, with its icon on a new desktop and App Store… in the
    Apple menu.
 6. **Updates** (§3.5): the store's check after the boot, the updates it
-   lists, Update and Update All, and `npm run check-index` for an SDK
-   release that raises `APP_API_OLDEST`.
+   lists, Update and Update All, the alert at the boot when something no
+   longer runs, the system putting back its own store, and `npm run
+   check-index` for an SDK release that raises `APP_API_OLDEST`.
 
 ## 5. SDK asks
 
@@ -500,13 +583,17 @@ For installing at runtime, in one minor (step 3):
 
 1. **Applications after the start** (8 and 11 there). An `install(bytes,
    where)`, on the shell and on `ctx`, reads an app file, checks its format
-   and `api`, keeps the file beside an `app` item, loads the code and
+   and `api`, keeps the file, one per application id, loads the code and
    registers the application, and resolves what happened: installed,
    updated, or refused and why. The `app` kind's `claim` calls it for a
-   dropped or pasted file, so every door is one function.
+   dropped or pasted file, so every door is one function. An
+   `uninstall(id)` beside it takes every icon of an application and its
+   file at once, for the store's Uninstall. A document stays listed
+   whether or not anything opens it (decision 18).
 2. **Installed applications in the boot** (8 there): loaded between reading
    the catalog and reopening the session. One that doesn't load is skipped,
-   and the rest boot.
+   and the rest boot. A skipped one's windows stay in the saved session
+   until it loads.
 3. **Isolation** (9 there): an `init` that throws, or a reopen that
    rejects, takes down that application alone.
 4. **The packages' names for loaded code** (10 there): the code's imports
@@ -522,10 +609,12 @@ For installing at runtime, in one minor (step 3):
    an icon keeps the icon, its place and the session's windows, and
    replaces the file, or gives the icon the file it lacked, only when told
    to, so the site can ask first. A loaded application takes the new code
-   at its next load. Uninstalling while running is 13 there.
+   at its next load; one the boot skipped loads at once, and its windows
+   from the last visit reopen. Uninstalling while running is 13 there.
 7. **What's installed**, on the shell and on `ctx`: each installed
    application's manifest, and whether it loaded or why not, with a signal
-   when that changes. The store's buttons and its updates read it.
+   when that changes, and when the boot is done. The store's lists, its
+   buttons, its updates and its alert at the boot read it.
 8. **Defaults that carry their files**: a seed or a site's command installs
    an app file, and `appFiles()` gains a form that hands the site a file's
    URL and manifest, checked against the SDK as `?app` is, without building
@@ -579,7 +668,9 @@ from the first, and the store can be an app file:
    `system-online-app-index`, and the host 2026-10-17, as
    `apps.portill.io`._
 5. **Every version kept and never replaced**, each at
-   `apps/<id>/<version>/<Name>.png`. _Recommended._
+   `apps/<id>/<version>/<Name>.png`, so a desktop that can't run the
+   newest still finds the newest it can. _Taken 2026-10-17: "our app index
+   might need to retain older versions"._
 6. **The store an application of its own**, an app file SystemOnline ships
    installed and signed by your key, keeping every rule an app file keeps,
    over built in here or the SDK's stock application. The SDK hands it the
@@ -592,12 +683,22 @@ from the first, and the store can be an app file:
    instance would ship with the app-store pre-installed and trusted... but
    it follows the same standalone app rules as any other... presumably
    we'll need the kit to support appropriate interfaces of course"._
-7. **Only what this desktop runs** (§3.2): an application with no build for
-   this SDK is left off the shelf. _Recommended._
-8. **Your applications installed, not built in** (§3.6), over keeping
-   Meteors built in with installed copies shadowing it. Applications load
-   one way, and every one of yours updates without a deploy.
-   _Recommended._
+7. **What this desktop runs, and word of what it doesn't** (§3.2): the
+   store installs the newest build this SDK runs, and says when a newer
+   one needs a newer system; an application with no build for it is
+   listed, saying so, with no Install. This replaces leaving it off the
+   shelf. _Taken 2026-10-17: "a new app version might be available that
+   doesn't run on the users current system - in which case the app store
+   should let them know, but also should let this install and use the
+   latest version that DOES run on their system"._
+8. **Every application installed, none built in** (§3.6), over keeping
+   Meteors built in with installed copies shadowing it, or the Text Viewer
+   built in as the system's. Applications load one way, every one of yours
+   updates without a deploy, and a desktop is the system and its list of
+   app files. _Taken 2026-10-17: "my goal is to have NO built in apps... so
+   that a hosted instance of system online can be configured with any app
+   images by 'default' but they're still app images. the idea is that all
+   apps are app images"._
 9. **Updates when asked** (§3.5): the store lists the updates for
    applications your key signed, forward only but for the rollback case,
    and a click installs one, or Update All every one listed; the new code
@@ -610,19 +711,20 @@ from the first, and the store can be an app file:
    added by the user. They can be replaced manually though"._
 10. **Installing at runtime waits for the index and step 6, not for the
     shell's status**, which takes back the packages plan's decision 18
-    (§3.5). _Recommended._
+    (§3.5). _Taken 2026-10-18, as SDK 0.3.0 shipped it._
 11. **Sideloading stays open**: anyone's app file installs from a drop.
     _Taken 2026-10-10: "People could of course sideload their own apps by
     dropping them onto their desktops and installing them into the virtal
     system."_ A file your key didn't sign asks first (§3.7), over the
     packages plan's decision 19, where it wouldn't open at all.
-    _Recommended._
+    _Taken 2026-10-18, as SDK 0.3.0's trust shipped it._
 12. **Signatures from the first install** (step 3), over after the store.
     Updates rest on them (decision 9), and a file installed before them
     could never be offered one, since a published file never changes.
-    _Recommended._
+    _Taken 2026-10-18: SDK 0.3.0 shipped signatures with installing._
 13. **The index's URL fixed at build**, never read from the address.
-    _Recommended._
+    _Taken 2026-10-18: `VITE_INDEX` at build, else the live index
+    (`src/main.ts`)._
 14. **The name, App Store**, your words for it, with App Store… in the Apple
     menu as on today's macOS, and an icon on a new desktop. It is Apple's
     name for its own store, as Finder is for its own Finder.
@@ -643,6 +745,40 @@ from the first, and the store can be an app file:
     system-online like virtual desktop on their own domains... ideally they
     should be able to run their own app store and have the same trust
     relationship to their own published apps"._
+18. **A document stays when nothing opens it** (§3.4, ask 1), listed where
+    it was and drawn plain, over the catalog leaving it out as it does
+    today, which the packages plan's ask 13 kept for uninstalling. _Taken
+    2026-10-17: "we should keep user data even if there's no app that can
+    open it."_
+19. **Two lists in the store, and Uninstall in it** (§3.3): what the index
+    holds, and what's installed here with Uninstall on each, beside Empty
+    Trash. _Taken 2026-10-17: "for the app store app, i want to have a
+    list of all available apps in the index, as well as a list of all the
+    local installed apps with an option to uninstall them directly from
+    the app store app listing"._
+20. **The Finder is the system's** (§3.6): the SDK's, configured here, and
+    never an app file, since it's the desktop and what installs the rest.
+    _Taken 2026-10-17: "yes, finder will be part of the system"._
+21. **The built-in texts are the system's documentation** (§3.6), served
+    by the site and read by path, so each deploy updates them on every
+    desktop, over copying their words into each desktop at its seed.
+    _Taken 2026-10-17: "readme and other built-in texts will be special
+    cased as system documentation and are updated with the system"._
+22. **A system update that breaks applications is met at the boot**
+    (§3.5): one alert, the store's, naming what no longer runs and
+    offering Update All to the newest build of each that does, over
+    leaving each icon to say so when opened. _Taken 2026-10-17: "a system
+    update might be incompatible with the current versions of the apps...
+    in which case the app store should facilitate the upgrade of all
+    upgradable apps to a version that does work. That should happen on
+    boot ( page load )... with an alert/cta/dialog of some sort ( design
+    tbd ) to tell the user what needs to happen"._
+23. **The system puts back its own store without asking** when the boot
+    skipped the installed one (§3.5), the one exception to decision 9:
+    without it, nothing would be left to raise decision 22's alert. The
+    copy is the one shipped with the deploy, so it runs, and a newer store
+    in the index is then offered as any update. Over a system alert first
+    and the store's second. _Recommended._
 
 ## 7. Tests
 
@@ -654,14 +790,20 @@ By the policy: contracts, not wiring.
   - a listing of an unknown format, or that isn't one, reads as no index;
     an entry that doesn't read is left out and the rest stand; a `file` off
     the index's origin is refused;
-  - the newest version this SDK runs (`appRuns`) is chosen, and an
-    application with none is left out;
+  - the newest version this SDK runs (`appRuns`) is chosen; a newer one
+    above `APP_API` is noted beside it; an application with none is
+    listed as needing a newer system, with no Install;
+  - at the boot, the skipped applications split into those the index can
+    bring up to date and those it can't (no build at this level, or added
+    by hand);
   - Install, Update and Installed against what's installed; Update only
     for an application signed by a key the site holds, never for one added
     by hand; a newer build installed by hand stays; a skipped application
     at a version the index lists is offered an older build, and one at a
     version it doesn't list isn't; Update All's count is the rows reading
-    Update.
+    Update;
+  - the Installed list holds every installed application, the index's or
+    not, those with an update first.
 - **The index's build**, in system-online-app-index: a folder of files
   reads to the listing; a file that isn't an app file, one whose manifest
   isn't its path's, and a second file for one id and version are each
@@ -684,9 +826,14 @@ After steps 3 and 4:
    the desktop installs without asking: its icon where it was dropped, the
    game playing. Emptying the Trash with it in removes it again, and a
    reload doesn't bring it back. An unsigned build of it asks first, and a
-   copy with one byte of its code changed is refused.
-3. A new desktop (`?fresh=1`) has Meteors from its default; a desktop from
-   before keeps Meteors' icon, its place and the best score.
+   copy with one byte of its code changed is refused. With the Text Viewer
+   trashed and the Trash emptied, the library stays where it was, drawn
+   plain, and opening Read Me says nothing opens it; the Text Viewer's file
+   dropped back gives it its icon, and it opens.
+3. A new desktop (`?fresh=1`) has every application from its default, and
+   nothing is built in; a desktop from before keeps each application's
+   icon and place, and Meteors' best score. On either, Read Me shows this
+   deploy's words, and an edit to them shows at its next open.
 4. A backup with an installed application restores it, asking as a drop
    does.
 
@@ -694,9 +841,11 @@ After step 5:
 
 5. The store shows Meteors' box in color, crisp at 1×, 2× and 3×, its
    pixels on the grid, with its name, version, author, description, size,
-   and Installed.
+   and Installed under Available, and Uninstall under Installed.
 6. With Meteors trashed and the Trash emptied, Install puts its icon on the
-   desktop at a free cell, and it opens.
+   desktop at a free cell, and it opens. With Meteors open and a copy of
+   its icon in the Trash, Uninstall asks first, then its window closes and
+   both icons go.
 7. Offline, the store says it can't reach the index, and every installed
    application still opens.
 8. The store is an installed application: a new desktop has its icon, App
@@ -714,11 +863,17 @@ After step 6:
     one, asks to replace it, and once it has, the store offers it no
     update.
 11. The drill for an SDK release that raises `APP_API_OLDEST`, through a
-    linked SDK: a desktop with Meteors and the store built at the old level
-    boots on the new SDK, both are skipped, and nothing installs on its own. Opening the store offers SystemOnline's
-    copy, and a click restores it; it lists Meteors' new build, Update
-    installs it, and it opens. With the index unreachable, Meteors' icon
-    says why and offers nothing.
+    linked SDK: a desktop with Meteors and the store built at the old
+    level, Meteors' window open, boots on the new SDK. Both are skipped;
+    the store comes back from SystemOnline's copy without asking, and its
+    alert names Meteors. Update All installs its new build, and Meteors'
+    window is back where it was. Not Now, then a reload, asks again. With
+    the index unreachable, the alert says so, and Meteors' icon says why
+    it won't open.
+12. A Meteors build at an `api` above this SDK's, published to a local
+    index: the store offers the newest build that runs, and its row says
+    a newer version needs a newer system. An application whose every
+    build is above it is listed, saying so, with no Install.
 
 ## 9. Follow-ups
 
@@ -735,13 +890,8 @@ After step 6:
   let an application mark the entries that open it.
 - **Other people's applications in the index**, by pull request, signed
   with your key on merge.
-- **Reopening an application's windows** when it loads after the boot, as
-  the boot would have.
 - **Rows loaded as they scroll in**, once the index holds more than a
   handful.
-- **Desktop Patterns and the Font Viewer in the index**: app files since
-  2026-10-11.
-
 ## 10. Files touched
 
 **system-online-app-index**, new (step 1): the repo as §3.1 lists it.
@@ -749,23 +899,33 @@ After step 6:
 **The store's repo**, new (step 5): built as meteors-app is (§3.3), with
 `src/listing.ts` and `test/listing.test.mjs`.
 
-**The SDK** (step 3): the asks, as `feature-requests/runtime-installs.md`
-and `signatures.md`; then its shell, its build entry, their tests, SHELL.md
+**The SDK** (step 3): the ask, as `feature-requests/runtime-installs.md`,
+signatures in it; then its shell, its build entry, their tests, SHELL.md
 and APP-FILES.md. Step 2's `store-helpers.md` shipped in the kit.
 
 **meteors-app**: `src/app.ts` gains its description. _Done, in 0.2.0._
 
+**Each application's repo** (step 3): a build on the release, signed and
+published. **text-viewer-app**'s reads a system document's words from its
+path and takes no `builtinText`.
+
 **Here**:
 
-- **New**: the store's signed file in `apps/`.
-- **Changed**: `src/main.ts` (Meteors and the store installed defaults; the
-  index's URL and the trust in the shell's settings);
-  `src/apps/finder/index.ts` and `src/state/defaults.ts` (defaults that
-  carry their files, the store's icon, and its alias in Apple Menu Items);
+- **New**: the store's signed file in `apps/`, and the others there
+  replaced by their signed copies; `src/apps/finder/installs.ts` and two
+  dialogs in `dialogs.html`, the Finder's new alerts answered (done
+  2026-10-18).
+- **Moved**: `src/texts/`' words to `public/texts/`, served by path.
+- **Changed**: `src/main.ts` (every application an installed default, the
+  Finder alone handed to the shell; the index's URL and the trust in the
+  shell's settings; its own store put back when the boot skipped it); `src/apps/finder/index.ts` and
+  `src/state/defaults.ts` (defaults that carry their files, the store's
+  icon, and its alias in Apple Menu Items; a system document's path, and
+  the once-only moves for a desktop from before); `src/state/kinds.ts`
+  and `src/texts/index.ts` (a system document by its path);
   `src/apps/finder/backup.ts`
   and `src/state/backup.ts` (installed applications in backups);
-  `vite.config.ts` and `src/env.d.ts` (the index's URL); `package.json`
-  (`check-index`); `docs/SPEC.md`, `README.md`, and `CLAUDE.md` (the
+  `package.json` (`check-index`); `docs/SPEC.md`, `README.md`, and `CLAUDE.md` (the
   installed applications, the store among them, and this plan in "Where
   things are");
   `docs/app-packages-plan.md` (Phase 3 and decisions 18 and 19 point

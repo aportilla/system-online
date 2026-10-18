@@ -3,7 +3,9 @@
 // the About box, and the startup curtain lifted once the desktop is composed.
 // The Text Viewer, Desktop Patterns, the Font Viewer and Meteors come from
 // their app files in apps/, built in by vite.config.ts's appFiles(); the Text
-// Viewer is handed the built-in texts' words (texts/).
+// Viewer is handed the built-in texts' words (texts/). An app file dropped or
+// pasted in the Finder installs, through the shell's trust: one SystemOnline
+// signed without asking, any other once the visitor says so.
 //
 // The shell fits the desktop to the viewport, keeps the catalog in IndexedDB
 // and the session in localStorage, and reopens the last session's windows.
@@ -33,6 +35,13 @@ import meteors from '../apps/Meteors.png?app'
 const fresh = new URLSearchParams(location.search).get('fresh') === '1'
 const desktop = document.getElementById('desktop') as VfDesktop
 
+// SystemOnline's public key, which the index's scripts/signing.ts holds too.
+// The private key is a file on the machine that signs, never in a repo.
+const TRUST = { keys: ['lN1OZiOf2BlaY7GUL7IcAFKNQ81uml1/vuR8ktRqLMM='], otherwise: 'ask' } as const
+// The index of app files the shell hands applications (ctx.index): the live
+// one, or the one VITE_INDEX names at build. Never read from the address.
+const INDEX: string = import.meta.env.VITE_INDEX || 'https://apps.portill.io/index.json'
+
 const removeCursor = applyCursor()
 // page.css turns off zoom with touch-action. As a backup, this cancels
 // gesturestart, the pinch event only WebKit sends, in case Safari lets a pinch
@@ -55,6 +64,8 @@ const shell = createShell(desktop, {
   fonts: FONT_FAMILIES,
   fit: 'viewport',
   state,
+  trust: TRUST,
+  index: INDEX,
 })
 const about = initAbout(desktop, state)
 

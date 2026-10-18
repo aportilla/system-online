@@ -25,11 +25,19 @@ asked for, and SystemOnline moved onto it the same day, taking up its own
 serves the strike collection, a Fonts folder in the System Folder installs
 it, and the built-in Font Viewer left.
 
+system-online-sdk 0.3.0 shipped `runtime-installs.md` on 2026-10-18: the
+App Store plan's step 3, installing app files at runtime (asks 1 to 9),
+signatures (13) and the site's index handed to applications (14).
+SystemOnline moved onto it the same day and began the plan's step 4: the
+shell holds SystemOnline's public key and asks about any other file, hands
+applications the index's URL, and the Finder's new alerts are answered with
+SystemOnline's own, every application still built in. The rest of step 4
+asks nothing more of the SDK: each application's signed build in the index,
+then nothing built in and each file in `apps/` the index's signed copy,
+installed as a default; the built-in texts as the system's documentation,
+served by path for a Text Viewer build that reads one; backups that carry
+installed applications; then the plan's eye checks 2 to 4.
+
 ## Waiting
 
-### `runtime-installs.md`, not yet written
-
-The App Store plan's step 3, one SDK minor: installing app files at runtime
-(asks 1 to 9), signatures (13), and the site's index handed to applications
-(14). It's the next doc to write, from the plan's §5, in the SDK's
-`feature-requests/`.
+Nothing.
