@@ -7,7 +7,9 @@ passed there that day. Step 2 shipped, in vintage-frames 0.17.1. Step 3's ask,
 in system-online-sdk 0.3.0 on 2026-10-18; the index signs what it files
 since that day. Step 4 began here the same day: the trust, the index's URL
 and SystemOnline's answers to the Finder's new alerts, every application
-still built in.
+still built in. Step 5's store was written that day too, and its 0.1.0
+published to the index, signed, with Meteors 0.4.0, Desktop Patterns 0.3.0
+and the Font Viewer 0.3.0, whose signed copies SystemOnline builds in.
 On 2026-10-11 the shell and app files moved to system-online-sdk, and
 SystemOnline with them. The store's asks are the SDK's now. App files are
 format 2, at app API level 3: a build's `requires` names the SDK range it was
@@ -549,8 +551,10 @@ green in the repo it touches.
    on it, signed and published to the index, and what that costs an
    application is what §3.5 leans on. The Text Viewer's build reads a
    system document by its path (§3.6). _Shipped in system-online-sdk 0.3.0
-   on 2026-10-18, and `npm run add` signs since that day; the applications'
-   signed builds are still to come._
+   on 2026-10-18, and `npm run add` signs since that day. Signed builds
+   published the same day: the App Store 0.1.0, Meteors 0.4.0, Desktop
+   Patterns 0.3.0 and the Font Viewer 0.3.0. The Text Viewer's, which reads
+   a system document by its path, is to come._
 4. **SystemOnline installs at runtime** (§3.4, §3.6, §3.7): a dropped app
    file installs, your key's without asking and anyone else's after the
    alert, and Empty Trash uninstalls it; every application becomes an
@@ -565,7 +569,9 @@ green in the repo it touches.
 5. **The App Store** (§3.2, §3.3): its repo, built as meteors-app is, with
    `listing.ts` and its tests; signed and published to the index; installed
    by default here, with its icon on a new desktop and App Store… in the
-   Apple menu.
+   Apple menu. _Begun 2026-10-18 in system-online-app-store-app, and its
+   0.1.0 published to the index, signed, that day; its install by default
+   here waits on step 4's rest._
 6. **Updates** (§3.5): the store's check after the boot, the updates it
    lists, Update and Update All, the alert at the boot when something no
    longer runs, the system putting back its own store, and `npm run
