@@ -9,7 +9,9 @@ since that day. Step 4 began here the same day: the trust, the index's URL
 and SystemOnline's answers to the Finder's new alerts, every application
 still built in. Step 5's store was written that day too, and its 0.1.0
 published to the index, signed, with Meteors 0.4.0, Desktop Patterns 0.3.0
-and the Font Viewer 0.3.0, whose signed copies SystemOnline builds in.
+and the Font Viewer 0.3.0, whose signed copies SystemOnline builds in. The
+rest of step 4 is planned in §3.6 and §4 since that day, with decisions 24
+to 27.
 On 2026-10-11 the shell and app files moved to system-online-sdk, and
 SystemOnline with them. The store's asks are the SDK's now. App files are
 format 2, at app API level 3: a build's `requires` names the SDK range it was
@@ -23,8 +25,8 @@ alone, and §9 left the others for later: _"Go ahead and do all our other
 apps as well."_
 Decisions 1, 2, 6, 9 and 17, 11's sideloading and 4's repo were taken
 2026-10-10, 5, 7, 8 and 18 to 22 on 2026-10-17, and 10, 11's asking first,
-12 and 13 on 2026-10-18, as SDK 0.3.0 shipped them; the rest are
-recommended (§6). Decision 8 now builds nothing in, the Text Viewer
+12 and 13 on 2026-10-18, as SDK 0.3.0 shipped them, and 24 to 27 on
+2026-10-24; the rest are recommended (§6). Decision 8 now builds nothing in, the Text Viewer
 included, and 20 keeps the Finder the system's. Decision 22 meets a
 system update that breaks applications at the boot, and 7 says what this
 desktop can't run rather than hiding it. Decision 6 makes the store an
@@ -366,7 +368,21 @@ Phase 3 is the same door from the Finder's side.
 - **Backups carry installed applications**, as `.png` entries named for
   them, so an unzipped backup shows each one as its box. A restore installs
   them through the same door. SPEC §9's rule, that an application's icon is
-  the system's and left out, goes, since nothing is built in (§3.6).
+  the system's and left out, goes, since nothing is built in (§3.6). The
+  manifest's format becomes version 2:
+  - a row for each application icon: its name, its folder and place, and
+    its application's id;
+  - one entry for each application, its kept file byte for byte
+    (`ctx.appFile`), at its first icon's place in the tree.
+
+  A restore brings the icons back as it brings back files, then installs
+  each application the desktop doesn't have from the backup's file, asking
+  as a drop does: one your key signed installs without asking, and any
+  other asks first. One the desktop already has stays as it is, at its own
+  version, so a restore never quietly takes an application back to an
+  older one. A Replace uninstalls what the backup doesn't bring back, by
+  the SDK's rule, and the defaults put back the system's applications. A
+  version 1 backup, from before, has no applications and reads as ever.
 
 ### 3.5 Updates
 
@@ -448,27 +464,87 @@ then holds for every application you make, the store included.
   the desktop, and what installs the rest, so it's never an app file
   (decision 20).
 - `apps/` keeps the default copies, the index's signed files, so a default
-  is offered its updates as any installed application is. The SDK's file
-  form of `appFiles()` (ask 8) gives the site each file and its manifest,
-  checked against the SDK at build as `?app` is, without building the code
-  in. Nothing imports `?app` any more.
-- The Finder's defaults carry each application's file. A new desktop
-  installs every one from them, and Restore Default Files reinstalls a
-  trashed one.
-- A desktop from before has an icon for each of the four and no file. Its
-  first boot after the change gives each icon its default's file, once, so
-  the icons, their places and Meteors' best score carry over. It has no
-  store either, and gets one, once, as a new desktop does.
-- **The system's documentation** (decision 21): Read Me and the other
-  texts in `src/texts/` are the system's, updated with it, as its fonts
-  are. The site serves each at a path that never changes
-  (`/texts/<key>.txt`, without a long cache), and a seeded text file holds
-  that path where it held the key. The Text Viewer, which the site can
-  hand nothing once it's installed, fetches the words from it, and each
-  deploy reaches every desktop. A desktop from before has its keys
-  rewritten to paths, once. Offline, a system document says it can't be
-  read; a visitor's own text opens as ever. It needs a Text Viewer build
-  that reads a path and takes no `builtinText`.
+  is offered its updates as any installed application is: Meteors,
+  Desktop Patterns, the Font Viewer, the Text Viewer and the App Store,
+  each imported `?app-file` (ask 8), which gives the file's URL and its
+  manifest, checked against the SDK at build as `?app` is, and builds no
+  code in. Nothing imports `?app` any more, and `createShell` is handed the
+  Finder alone.
+
+**Every application has an icon.** An installed application is its icons:
+the shell keeps its file while one names it (ask 1). The Text Viewer and the
+Font Viewer, built in, never had one; installed, each needs a home
+(decision 25):
+
+| Application | Its home |
+| --- | --- |
+| Meteors | the desktop, as now |
+| App Store | the desktop, and App Store… in Apple Menu Items, an alias of its icon |
+| Desktop Patterns | the System Folder's Control Panels, as now |
+| Text Viewer | Macintosh HD, beside About the Fonts |
+| Font Viewer | Macintosh HD |
+
+- **The defaults install.** The Finder's seed is handed the shell's install
+  (ask 8), and a new desktop installs each application from its file at its
+  home, named by its manifest, before the boot loads the rest. An
+  application counts as present while any icon names it, trashed or not, as
+  now, and Restore Default Files installs a missing one from its file, at
+  its home. `restoreDefaults` stays pure: it's handed the install as a
+  function, and the Finder's side fetches the file and installs it. The
+  store's alias counts while it stands for an icon of the store, as Control
+  Panels' alias does for its folder.
+
+**The system's documentation** (decision 21). Read Me and About the Fonts
+are the system's, updated with it, as its fonts are.
+
+- **Served by path**: their words move from `src/texts/` to
+  `public/texts/<key>.txt`, at a path that never changes
+  (`/texts/read-me.txt`). `src/texts/index.ts` keeps each one's key, name
+  and home, and no words.
+- **A text file's data** is one of two (decision 24):
+  - `{ text }`: its own words, a visitor's, as now;
+  - `{ path }`: a system document, its words at `path`, a path on the page's
+    own origin, the site's to serve. The Text Viewer fetches them at each
+    open, revalidating, so a deploy's edit shows at the next open.
+
+  `{ builtin }`, a key whose words the site handed the Text Viewer, retires.
+  The one-time move below rewrites a desktop's keys to paths, and a restore
+  does the same for a backup's. A path that isn't on the page's origin
+  (another host, or `//host/…`) opens nothing, so a document can't send the
+  Text Viewer elsewhere.
+- **The Text Viewer 0.3.0** reads both, and takes no `builtinText`: once
+  installed, it's handed nothing. Words it can't fetch say so: offline,
+  that the document can't be read now; a path the site no longer serves,
+  that its text is no longer part of this desktop. A system document weighs
+  nothing in Empty Trash's count, since its words are the system's. A
+  visitor's own text opens as ever.
+- **In a backup**, a system document is a manifest row with its key and no
+  entry, as a suitcase is (decision 26). A restore gives each row whose key
+  the site still serves that key's path. An older backup's row, whose words
+  are in an entry, keeps its words when the site no longer serves its key,
+  and one with neither is skipped and counted.
+
+**A desktop from before** has icons for Meteors and Desktop Patterns, each
+with no file, none for the Text Viewer, the Font Viewer or the store, and
+its system documents as keys. Its first boot after the change loads no
+application but the Finder, so the session's windows wait for theirs (ask
+2). Once `ready` settles, the site moves it, once, under a session key, as
+it gave the System Folder its defaults:
+
+1. Its system documents' keys become paths. This comes first, so the Text
+   Viewer, installed next, never sees a key.
+2. Each icon with no file is given its default's file (`install` with
+   `replace`), so the icons, their places, their aliases and Meteors' best
+   score carry over.
+3. The Text Viewer, the Font Viewer and the store are installed at their
+   homes, with the store's Apple menu alias, as a new desktop has them. One
+   a visitor already has, the store dropped in by hand say, stays as it is.
+   An application the visitor removed, Meteors trashed and the Trash
+   emptied, stays removed: Restore Default Files brings it back.
+
+Each application loads as it's installed, and the windows it had open at the
+last visit reopen (ask 6).
+
 - **Documents outlive their application** (decision 18): trashing the Text
   Viewer leaves the library where it was, drawn plain, until it's back.
 - The dev loop keeps working under `?fresh=1`: an application's repo's
@@ -561,11 +637,24 @@ green in the repo it touches.
    installed default, from the index's signed copy, and nothing is built
    in; the built-in texts become the system's documentation, served by
    path; backups carry installed applications; the site holds your public
-   key. This is the packages plan's Phase 3, done here. _Begun 2026-10-18:
-   on SDK 0.3.0 the site holds your public key and asks about any other
-   file, hands applications the index's URL, and answers the Finder's new
-   alerts with its own (`src/apps/finder/installs.ts`); every application
-   is still built in._
+   key. This is the packages plan's Phase 3, done here, in four parts:
+   1. **Trust, the index and the alerts.** _Done 2026-10-18:_ on SDK 0.3.0
+      the site holds your public key and asks about any other file, hands
+      applications the index's URL, and answers the Finder's new alerts
+      with its own (`src/apps/finder/installs.ts`); every application still
+      built in.
+   2. **The Text Viewer 0.3.0**, in text-viewer-app: a document's words
+      from `{ text }` or `{ path }`, and no `builtinText` (§3.6). Its dev
+      desktop serves a system document of its own by path. Signed and
+      published, as the other four were.
+   3. **The switch, one deploy here** (decision 27): the system's
+      documentation by path; nothing built in, the five installed as
+      defaults at their homes, the store's alias among them; Restore
+      Default Files installing; and the one-time move for a desktop from
+      before (§3.6). Eye checks 2 and 3 (§8) pass against the production
+      build before it's pushed.
+   4. **Backups carry installed applications** (§3.4), a deploy after the
+      switch, and eye check 4.
 5. **The App Store** (§3.2, §3.3): its repo, built as meteors-app is, with
    `listing.ts` and its tests; signed and published to the index; installed
    by default here, with its icon on a new desktop and App Store… in the
@@ -785,6 +874,26 @@ from the first, and the store can be an app file:
     copy is the one shipped with the deploy, so it runs, and a newer store
     in the index is then offered as any update. Over a system alert first
     and the store's second. _Recommended._
+24. **A system document is a path on the page's own origin** (§3.6), its
+    words fetched at each open, over a key the Text Viewer would turn into
+    a path by a convention of the site's. The Text Viewer stays a stranger
+    to any site's layout, as an application in an app file should, and a
+    site serves its documents where it likes. _Taken 2026-10-24, with 25 to
+    27: "yes, i agree with your recomendations on 24-27"._
+25. **Every application at a home** (§3.6): the Text Viewer and the Font
+    Viewer in Macintosh HD, beside About the Fonts, as System 7 put
+    TeachText at the startup disk's root, over an Applications folder or
+    the System Folder, whose folders are the system's. _Taken 2026-10-24._
+26. **A system document in a backup is a row alone** (§3.6), its words the
+    system's as a suitcase's strikes are, over fetching them into the zip
+    at each backup. _Taken 2026-10-24._
+27. **The switch in one deploy** (§4, step 4's third part): documents by
+    path, nothing built in and the one-time move together, checked against
+    eye checks 2 and 3 first. Over documents by path a deploy ahead, which
+    would keep `builtinText` in the Text Viewer meanwhile and take a release
+    to remove it again. Backups follow in a deploy of their own, since the
+    switch stands without them: a Replace still puts the defaults back.
+    _Taken 2026-10-24._
 
 ## 7. Tests
 
@@ -813,7 +922,23 @@ By the policy: contracts, not wiring.
 - **The index's build**, in system-online-app-index: a folder of files
   reads to the listing; a file that isn't an app file, one whose manifest
   isn't its path's, and a second file for one id and version are each
-  refused, naming the file.
+  refused, naming the file; so are a signature that doesn't hold, one by a
+  key the index doesn't list, and an unsigned file but those published
+  before signing.
+- **A document's source**, in text-viewer-app (`src/text-file.ts`): a text
+  file reads as its own words, as a path on the page's origin, or as
+  nothing it can open: a key, a path on another origin or none.
+- **The defaults and the one-time move**, here (`src/state/`): a missing
+  application installs at its home through the install the defaults are
+  handed, and one counts as present while an icon names it, trashed or
+  not; the store's alias counts while it stands for an icon of the store;
+  the move rewrites keys to paths, gives each icon with no file its file,
+  installs the applications that never had an icon, and leaves one the
+  visitor removed removed.
+- **Backups**, here (`src/state/backup.ts`): a system document's row keeps
+  its key, and a restore gives it its path, or its words when the site no
+  longer serves the key; a version 2 backup's application rows and entries
+  read back, and a version 1 backup still reads.
 - The SDK's asks carry their own tests, in the SDK.
 - The store's window, installing, the updates' wiring and the host's
   headers are checked by eye.
@@ -836,10 +961,13 @@ After steps 3 and 4:
    trashed and the Trash emptied, the library stays where it was, drawn
    plain, and opening Read Me says nothing opens it; the Text Viewer's file
    dropped back gives it its icon, and it opens.
-3. A new desktop (`?fresh=1`) has every application from its default, and
-   nothing is built in; a desktop from before keeps each application's
-   icon and place, and Meteors' best score. On either, Read Me shows this
-   deploy's words, and an edit to them shows at its next open.
+3. A new desktop (`?fresh=1`) has every application from its default, each
+   at its home, and nothing is built in. A desktop from before keeps each
+   application's icon and place and Meteors' best score, gains the Text
+   Viewer, the Font Viewer and the store at their homes, and reopens a Read
+   Me window it had open. On either, Read Me shows this deploy's words, an
+   edit to them shows at its next open, and offline it says it can't be
+   read.
 4. A backup with an installed application restores it, asking as a drop
    does.
 
@@ -912,22 +1040,29 @@ and APP-FILES.md. Step 2's `store-helpers.md` shipped in the kit.
 **meteors-app**: `src/app.ts` gains its description. _Done, in 0.2.0._
 
 **Each application's repo** (step 3): a build on the release, signed and
-published. **text-viewer-app**'s reads a system document's words from its
-path and takes no `builtinText`.
+published. _Done 2026-10-18 for the App Store, Meteors, Desktop Patterns and
+the Font Viewer._
+
+**text-viewer-app** (step 4's second part): `src/text-file.ts` (a document's
+source), `src/index.ts` (opening a path, revalidating, and no
+`builtinText`), `dev/main.ts` (a system document of its own, served by
+path), `test/text-file.test.mjs`, `README.md` and `CLAUDE.md` (a text file's
+two forms of data), and 0.3.0 on SDK `^0.3.0`.
 
 **Here**:
 
-- **New**: the store's signed file in `apps/`, and the others there
-  replaced by their signed copies; `src/apps/finder/installs.ts` and two
-  dialogs in `dialogs.html`, the Finder's new alerts answered (done
-  2026-10-18).
+- **New**: the store's and the Text Viewer's signed files in `apps/`,
+  beside the other three, the index's signed copies since 2026-10-18;
+  `src/apps/finder/installs.ts` and two dialogs in `dialogs.html`, the
+  Finder's new alerts answered (done 2026-10-18).
 - **Moved**: `src/texts/`' words to `public/texts/`, served by path.
 - **Changed**: `src/main.ts` (every application an installed default, the
   Finder alone handed to the shell; the index's URL and the trust in the
-  shell's settings; its own store put back when the boot skipped it); `src/apps/finder/index.ts` and
-  `src/state/defaults.ts` (defaults that carry their files, the store's
-  icon, and its alias in Apple Menu Items; a system document's path, and
-  the once-only moves for a desktop from before); `src/state/kinds.ts`
+  shell's settings; its own store put back when the boot skipped it);
+  `src/apps/finder/index.ts` and `src/state/defaults.ts` (defaults that
+  install, at their homes; the store's alias in Apple Menu Items; a system
+  document's path; and the one-time move for a desktop from before);
+  `src/state/kinds.ts`
   and `src/texts/index.ts` (a system document by its path);
   `src/apps/finder/backup.ts`
   and `src/state/backup.ts` (installed applications in backups);
