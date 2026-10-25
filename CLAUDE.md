@@ -2,8 +2,9 @@
 
 A System 7 desktop simulation built on two npm packages: `system-online-sdk`,
 the shell that runs applications over one desktop, and `vintage-frames`, the
-elements it draws with. This repo is the site: the applications and the
-shell's configuration. The packages live in the sibling
+elements it draws with. This repo is the site: the shell's configuration,
+the default applications' app files and the system's documents. The
+packages live in the sibling
 [system-online-sdk](https://github.com/aportilla/system-online-sdk) and
 [vintage-frames](https://github.com/aportilla/vintage-frames) repos and arrive
 here as published dependencies, moved together: `vintage-frames` at the range
@@ -34,16 +35,18 @@ its relative imports carry their `.ts` extension.
 
 ## Applications and the shell
 
-The desktop is five applications — the Finder, configured in
-`src/apps/finder/`, and the Text Viewer, Desktop Patterns, the Font Viewer
-and Meteors, built in from their app files in `apps/` — over
-`system-online-sdk`'s shell (experimental). Its guides are the SDK's docs:
+The desktop is six applications — the Finder, configured in
+`src/apps/finder/` and the one built in, and the App Store, the Text Viewer,
+Desktop Patterns, the Font Viewer and Meteors, installed at runtime from
+their app files in `apps/` — over `system-online-sdk`'s shell
+(experimental). Its guides are the SDK's docs:
 `GUIDE.md` for a site, `SHELL.md` for the shell, `APP-FILES.md` for app files
 (`../system-online-sdk/docs/` in a checkout beside this one). The window
 manager, the menu bar, the catalog and its System Folder, the stock Finder,
-the system's fonts and the saved session are the SDK's; this repo holds the
-applications and the shell's configuration, the families it serves its
-system among it. Keep it that way:
+the system's fonts, the saved session and installing applications are the
+SDK's; this repo holds the shell's configuration, the families it serves
+its system among it, and the default applications' files. Keep it that
+way:
 
 - **Application behavior lives in its application's directory**: its
   definition, menus and kinds (`index.ts`, `menus.html`), its alerts
@@ -65,10 +68,12 @@ system among it. Keep it that way:
   `feature-requests/`, not a window manager or Finder rebuilt here. An ask
   about an element goes to vintage-frames.
 - **The library's kind is the text file** (`src/state/kinds.ts`), small
-  data on a catalog item: its own words, or the key of a built-in whose
-  words are SystemOnline's (`src/texts/`). The Text Viewer registers the
-  `text` kind from its app file, and is handed the built-ins' words as
-  `textViewer({ builtinText })`. A font suitcase is
+  data on a catalog item: its own words, or the path of a system document,
+  Read Me say, whose words are SystemOnline's, served from `public/texts/`
+  and listed in `src/texts/`, so each deploy updates them on every desktop.
+  The Text Viewer registers the `text` kind from its app file and fetches a
+  system document's words at each open; it's handed nothing. A font
+  suitcase is
   the system's, the shell's `font` kind: its family is one this repo serves
   its system (`src/fonts.ts`, from the strike collection), and the Font
   Viewer opens it without owning it. The pure modules in `src/state/` take
@@ -76,20 +81,24 @@ system among it. Keep it that way:
   SDK's DOM-free entry, so they run under Node.
 - **Cross-application calls**, if one is ever needed, go through `ctx.apps`,
   read at the call.
-- **App files** in `apps/` are applications built in repos of their own:
-  `Desktop Patterns.png` is the desktop-patterns-app repo's `npm run build`,
-  `Font Viewer.png` the font-viewer-app repo's, `Meteors.png` the
-  meteors-app repo's, and `Text Viewer.png` the text-viewer-app repo's. The
-  SDK's `appFiles()`
-  (`vite.config.ts`) builds each in from
-  `import x from '../apps/<Name>.png?app'`, and fails the build on a file
-  built at an app API level this site's SDK doesn't run. The Finder's
-  defaults take each one's id and name from its `manifest`. A change to one
-  is made in its repo and its build copied over, never here; an SDK release
-  that raises `APP_API_OLDEST` waits for each app file built on it (the
-  SDK's `GUIDE.md` § Moving to a new release). The rules an application in
-  an app file keeps are the SDK's (`APP-FILES.md` § The rules an application
-  keeps).
+- **App files** in `apps/` are the default applications, each built in a
+  repo of its own and each the index's signed copy: `App Store.png` from
+  system-online-app-store-app, `Desktop Patterns.png` from
+  desktop-patterns-app, `Font Viewer.png` from font-viewer-app,
+  `Meteors.png` from meteors-app, and `Text Viewer.png` from
+  text-viewer-app. Nothing is built in from them: the SDK's `appFiles()`
+  (`vite.config.ts`) serves each byte for byte with its manifest
+  (`import x, { manifest } from '../apps/<Name>.png?app-file'`), and fails
+  the build on a file built at an app API level this site's SDK doesn't run
+  or whose signature doesn't hold. The Finder's defaults install each at its
+  home (`src/apps/finder/index.ts`), and a new desktop's seed, Restore
+  Default Files and a backup's Replace all install through the shell's
+  door. A new version is made in its repo, signed and published to the
+  index with its `npm run add`, and the index's copy copied over, never
+  built here; an SDK release that raises `APP_API_OLDEST` waits for each
+  app file built on it (the SDK's `GUIDE.md` § Moving to a new release). The
+  rules an application in an app file keeps are the SDK's (`APP-FILES.md`
+  § The rules an application keeps).
 - **Installing at runtime**: an app file dropped or pasted in the Finder
   installs through the SDK's door, against the trust in `src/main.ts`:
   SystemOnline's public key, which the index's `scripts/signing.ts` holds
@@ -137,18 +146,23 @@ or generated-by trailers.
   `src/main.ts` — the composition root, which starts the shell;
   `src/about.ts` — the About box
 - `src/apps/finder/` — the Finder; `src/state/` — the library's kind,
-  its defaults, the System Folder's among them, and the backup format;
-  `src/fonts.ts` — the system's fonts, every family of the strike collection
-- `apps/` — app files of applications built in their own repos:
-  `Desktop Patterns.png`, from desktop-patterns-app, `Font Viewer.png`, from
-  font-viewer-app, `Meteors.png`, from meteors-app, and `Text Viewer.png`,
-  from text-viewer-app
+  its defaults, the System Folder's among them, the one-time moves of a
+  desktop from before, and the backup format; `src/fonts.ts` — the system's
+  fonts, every family of the strike collection
+- `src/texts/` — the system's documents, each one's key, name and home;
+  `public/texts/` — their words, served at `/texts/<key>.txt` and
+  revalidated at every fetch (`public/_headers`)
+- `apps/` — the default applications' app files, the index's signed copies:
+  `App Store.png`, from system-online-app-store-app, `Desktop Patterns.png`,
+  from desktop-patterns-app, `Font Viewer.png`, from font-viewer-app,
+  `Meteors.png`, from meteors-app, and `Text Viewer.png`, from
+  text-viewer-app
 - `docs/SPEC.md` — what's on the desktop, clause by clause
 - `docs/app-model-plan.md` — the plan the application model was first built
   from, here; the shell has since moved into the kit, and from there to
   system-online-sdk
 - `docs/app-packages-plan.md` — app files: applications as boxed PNGs, built
-  in their own repos and built in here
+  in their own repos and, until the App Store plan's step 4, built in here
 - `docs/app-store-plan.md` — the App Store: an index of app files, and a
   store that reads it; under way, and its status says where
 - `docs/kit-asks.md` — what this site has asked of the SDK and the kit and

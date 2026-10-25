@@ -22,6 +22,11 @@ THE APPLICATIONS
 
 Whichever window is in front, its application owns the menu bar. Click the desktop and the Finder's menus come back.
 
+Every application but the Finder is installed from its file: a picture of the application's box, with the application inside. Drop one on the desktop to install it; one SystemOnline didn't sign asks first. To remove one, drag its icon to the Trash and empty it.
+
+  APP STORE
+  Apple menu → App Store…, or its icon on the desktop. Every application published for this desktop, each in its box, to install, update or uninstall.
+
   TEXT VIEWER
   Opens read-me files like this one. Select text and choose Edit → Copy to copy it.
 
@@ -36,7 +41,7 @@ BACKING UP YOUR FILES
 
 Your desktop is kept in this browser's own storage, and nothing is sent anywhere.
 
-Special → Back Up All Files… saves the whole desktop as one zip named for the day. Unzip it and your folders are folders and your read-me files plain text. Aliases are left out.
+Special → Back Up All Files… saves the whole desktop as one zip named for the day. Unzip it and your folders are folders and your read-me files plain text. Aliases and applications are left out, and Replace puts back the applications this desktop came with.
 
 To bring a backup back, drag the zip onto the page or choose Special → Restore from Backup… and pick it. Add puts its files beside yours; Replace swaps your desktop for the backup's.
 

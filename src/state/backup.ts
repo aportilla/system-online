@@ -7,7 +7,9 @@
 // macintosh-hd/ and the Trash is trash/. A segment is the item's slug plus its
 // extension, suffixed -2, -3 … inside one container, so the exact name lives in
 // the manifest alone. A suitcase's strikes are the system's, so a font is a
-// manifest row with no entry. A row carries its item's place in its
+// manifest row with no entry, and so is a system document, whose words are
+// the system's: its row keeps its key (`builtin`), and a restore gives it the
+// path the site serves it at. A row carries its item's place in its
 // container, when it has one, so Replace puts the icons back where they were.
 //
 // The containers the catalog keeps, the volumes and the System Folder with its
@@ -31,7 +33,7 @@ import {
 } from 'system-online-sdk/pure'
 import type { CatalogState, Item } from 'system-online-sdk/pure'
 import { formerFonts } from './defaults.ts'
-import { TEXT, textData } from './kinds.ts'
+import { TEXT, docPath, textData } from './kinds.ts'
 
 export const MANIFEST_NAME = 'desktop.json'
 export const BACKUP_FORMAT = 'system-online-desktop'
@@ -54,6 +56,7 @@ export interface BackupFolder extends Row {
 }
 export interface BackupText extends Row {
   folder: string | null
+  /** A system document's key, or null for a visitor's text. */
   builtin: string | null
   path: string
 }
@@ -76,10 +79,11 @@ export interface PlanEntry {
   path: string
   id: string
 }
-/** A read backup's rows, each text with its words. */
+/** A read backup's rows, each text with its words: null when its entry is
+ *  absent, as a system document's is. */
 export interface BackupContents {
   folders: BackupFolder[]
-  texts: (BackupText & { text: string })[]
+  texts: (BackupText & { text: string | null })[]
   fonts: BackupFont[]
 }
 
@@ -119,7 +123,8 @@ function segment(used: Set<string>, name: string, ext: string): string {
  * their children, and in each container its folders, then its text files,
  * then its fonts. The kept containers are walked like any folder but have no
  * manifest row, so their items carry the folder id (`"hd"` for Macintosh HD,
- * `"trash"`, `"system-folder"` …) and come back there.
+ * `"trash"`, `"system-folder"` …) and come back there. A system document has
+ * a row and no entry; a visitor's text, an entry of its words.
  */
 export function planBackup(
   state: CatalogState,
@@ -160,7 +165,8 @@ export function planBackup(
     }
     for (const t of kids.filter((i) => i.kind === TEXT)) {
       const path = prefix + segment(used, t.name, '.txt')
-      entries.push({ kind: 'text', path, id: t.id })
+      const { doc, key } = textData(t)
+      if (!doc) entries.push({ kind: 'text', path, id: t.id })
       manifest.texts.push({
         id: t.id,
         name: t.name,
@@ -168,7 +174,7 @@ export function planBackup(
         createdAt: t.createdAt,
         modifiedAt: t.modifiedAt,
         ...placeOf(t),
-        builtin: textData(t).builtin,
+        builtin: key,
         path,
       })
     }
@@ -264,14 +270,16 @@ export function readManifest(text: string): BackupManifest {
 }
 
 /**
- * A read backup as catalog items, for the catalog's import. A text keeps its
- * built-in's key while the app still ships that text, else its words are
- * stored, so nothing is lost. A font whose family the system doesn't serve is
- * skipped and counted. A backup from before the System Folder had Fonts
- * keeps its suitcases in Macintosh HD → Fonts: they come back into Fonts, and
- * that folder, left empty, doesn't come back (formerFonts). `places` keeps
- * each row's place, for Replace; without it the items take their containers'
- * free cells, for Add.
+ * A read backup as catalog items, for the catalog's import. A system document
+ * whose key the site still serves comes back as that key's path. Any other
+ * text comes back with its words, so a system document from an older backup,
+ * whose words are in its entry, keeps them once the site no longer serves its
+ * key; a text with neither is skipped and counted, and so is a font whose
+ * family the system doesn't serve. A backup from before the System Folder had
+ * Fonts keeps its suitcases in Macintosh HD → Fonts: they come back into
+ * Fonts, and that folder, left empty, doesn't come back (formerFonts).
+ * `places` keeps each row's place, for Replace; without it the items take
+ * their containers' free cells, for Add.
  */
 export function itemsOf(
   contents: BackupContents,
@@ -291,9 +299,11 @@ export function itemsOf(
     ...(places ? placeOf(r) : {}),
   })
   const items: Item[] = contents.folders.map((f) => item(f, FOLDER, f.parent))
+  let skipped = 0
   for (const t of contents.texts) {
-    const data = t.builtin != null && shipsText(t.builtin) ? { builtin: t.builtin } : { text: t.text }
-    items.push({ ...item(t, TEXT, t.folder), data })
+    const data = t.builtin != null && shipsText(t.builtin) ? { path: docPath(t.builtin) } : t.text != null ? { text: t.text } : null
+    if (data) items.push({ ...item(t, TEXT, t.folder), data })
+    else skipped++
   }
   const fonts = contents.fonts.filter((t) => shipsFamily(t.family))
   for (const t of fonts) items.push({ ...item(t, FONT_KIND, t.folder), data: { family: t.family } })
@@ -301,6 +311,6 @@ export function itemsOf(
   const filed = new Set(former.suitcases.map((i) => i.id))
   return {
     items: items.filter((i) => i.id !== former.folder).map((i) => (filed.has(i.id) ? { ...i, parent: FONTS } : i)),
-    skipped: contents.fonts.length - fonts.length,
+    skipped: skipped + contents.fonts.length - fonts.length,
   }
 }

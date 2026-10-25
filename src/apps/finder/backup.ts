@@ -3,9 +3,9 @@
 // format. A restore asks whether to Add the backup's files beside the
 // desktop's or Replace the desktop with them, in the Finder's dialogs
 // (dialogs.html). A backup carries files: folders, texts and fonts. It leaves
-// out the applications' icons, which are the system's, and aliases; a Replace
-// puts back the applications' icons and the System Folder's defaults, the
-// alias behind Apple ▸ Control Panels among them.
+// out the applications, and aliases; a Replace leaves no icon of an
+// application, so the shell uninstalls each, and the defaults install the
+// system's applications again, with the System Folder's aliases.
 
 import type { VfButton } from 'vintage-frames'
 import { APP_KIND, TRASH, isKept, itemCount, itemOf } from 'system-online-sdk'
@@ -13,8 +13,9 @@ import type { AppContext, CatalogState, FinderApi } from 'system-online-sdk'
 import { MANIFEST_NAME, backupFilename, itemsOf, planBackup, readManifest } from '../../state/backup.ts'
 import type { BackupContents } from '../../state/backup.ts'
 import { restoreDefaults } from '../../state/defaults.ts'
-import type { Defaults } from '../../state/defaults.ts'
-import { builtinText, textOf } from '../../texts/index.ts'
+import type { Defaults, InstallDefault } from '../../state/defaults.ts'
+import { textData } from '../../state/kinds.ts'
+import { servesText } from '../../texts/index.ts'
 import { unzip, zipStore } from '../../lib/zip.ts'
 import type { ZipEntry } from '../../lib/zip.ts'
 import { downloadBlob } from '../../lib/download.ts'
@@ -23,24 +24,15 @@ import { ask } from '../windows.ts'
 const encode = (s: string) => new TextEncoder().encode(s)
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`
 
-/** Write the catalog as a zip and download it. A text file whose built-in the
- *  app no longer ships is left out of the zip and the manifest. `app`: the
+/** Write the catalog as a zip and download it: a system document is a
+ *  manifest row alone, so only a visitor's texts are entries. `app`: the
  *  version that wrote it. */
 function downloadBackup(state: CatalogState, { app, date = new Date() }: { app: string; date?: Date }) {
   const { manifest, entries } = planBackup(state, { app, date })
-  const zipped: ZipEntry[] = []
-  const gone = new Set<string>()
-  for (const e of entries) {
-    if (e.kind === 'dir') {
-      zipped.push({ name: e.path, bytes: new Uint8Array(0) })
-      continue
-    }
-    const item = itemOf(state, e.id)
-    const text = item ? textOf(item) : null
-    if (text != null) zipped.push({ name: e.path, bytes: encode(text) })
-    else gone.add(e.id)
-  }
-  if (gone.size) manifest.texts = manifest.texts.filter((t) => !gone.has(t.id))
+  const zipped: ZipEntry[] = entries.map((e) => {
+    const item = e.kind === 'text' ? itemOf(state, e.id) : null
+    return { name: e.path, bytes: item ? encode(textData(item).text) : new Uint8Array(0) }
+  })
   const zip = zipStore([{ name: MANIFEST_NAME, bytes: encode(JSON.stringify(manifest, null, 2)) }, ...zipped], {
     date,
   })
@@ -75,12 +67,12 @@ async function readBackup(file: File): Promise<ReadBackup> {
   const texts: BackupContents['texts'] = []
   for (const t of manifest.texts) {
     const bytes = at.get(prefix + t.path)
-    // A built-in's text is the app's, so its entry may be absent.
+    // A system document's words are the system's, so its entry is absent.
     if (!bytes && t.builtin == null) {
       missing++
       continue
     }
-    texts.push({ ...t, text: bytes ? text.decode(bytes) : '' })
+    texts.push({ ...t, text: bytes ? text.decode(bytes) : null })
   }
   return { folders: manifest.folders, texts, fonts: manifest.fonts, exportedAt: manifest.exportedAt, missing }
 }
@@ -95,9 +87,10 @@ function contentsPhrase(read: ReadBackup) {
 }
 
 /** Back Up All Files… and Restore from Backup… in the Finder's Special menu,
- *  and the drop. `defaults`: what a desktop comes with, whose applications'
- *  icons and System Folder a Replace puts back. */
-export function initBackup(finder: FinderApi, ctx: AppContext, defaults: Defaults): void {
+ *  and the drop. `defaults`: what a desktop comes with, whose applications
+ *  and System Folder a Replace puts back, the applications through
+ *  `install`. */
+export function initBackup(finder: FinderApi, ctx: AppContext, defaults: Defaults, install: InstallDefault): void {
   const { catalog } = finder
   const question = ctx.dialog('restore')
   const replace = question.querySelector('vf-button[value="replace"]') as VfButton
@@ -143,14 +136,14 @@ export function initBackup(finder: FinderApi, ctx: AppContext, defaults: Default
     const answer = await ask(ctx, question, restoreQuestion(file.name, read, here))
     if (answer !== 'add' && answer !== 'replace') return
     const { items, skipped } = itemsOf(read, {
-      shipsText: (key) => builtinText(key) != null,
+      shipsText: servesText,
       shipsFamily: (family) => ctx.fonts.family(family) != null,
       places: answer === 'replace',
     })
     try {
       await catalog.import({ items }, { mode: answer === 'replace' ? 'replace' : 'merge' })
       // The backup's files stand as they are; the system's own come back.
-      if (answer === 'replace') await restoreDefaults(catalog, { ...defaults, texts: [], families: [] })
+      if (answer === 'replace') await restoreDefaults(catalog, { ...defaults, texts: [], families: [] }, { install })
     } catch (err) {
       say(`Restore failed: ${(err as Error).message}.`)
       return

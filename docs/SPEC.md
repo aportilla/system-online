@@ -1,11 +1,12 @@
 # The desktop — what's on it and why
 
-`index.html`, `src/` and `apps/`, served by `vite` from the repo root. A
-System 7 desktop with five applications (the Finder, the Text Viewer, Desktop
-Patterns, the Font Viewer and Meteors) over the shell of the published
-`system-online-sdk` package, drawn with the published `vintage-frames`
-elements, with SystemOnline's own app files, and held to the same contract as
-anyone else's site. The shell's own behavior (the window manager, the menu
+`index.html`, `src/`, `apps/` and `public/`, served by `vite` from the repo
+root. A System 7 desktop with six applications (the Finder, the App Store,
+the Text Viewer, Desktop Patterns, the Font Viewer and Meteors) over the
+shell of the published `system-online-sdk` package, drawn with the published
+`vintage-frames` elements, the Finder built in and the rest installed from
+SystemOnline's own app files, and held to the same contract as anyone else's
+site. The shell's own behavior (the window manager, the menu
 bar, the catalog and its System Folder, the stock Finder, the system's fonts,
 the saved session) is the SDK's and documented there, in its `docs/SHELL.md`;
 this spec covers what SystemOnline puts on it.
@@ -15,34 +16,38 @@ this spec covers what SystemOnline puts on it.
 `index.html` is one `<vf-desktop>`: the menu bar with the Apple menu, the
 desktop's icon field and the About box, under the kit's page-drawn cursor and
 a startup curtain that lifts once the kit's faces have loaded. `src/main.ts`
-starts the shell over it with the five applications and the system's fonts
-(`src/fonts.ts`), fitted to the viewport, the catalog in IndexedDB (database
-`system-online`) and the session in localStorage (`system-online:desktop`),
-and gives it SystemOnline's trust, its public key (clause 11), and the index
-of app files at `apps.portill.io`, which the shell hands applications
-(`VITE_INDEX` names another at build).
+starts the shell over it with the Finder and the system's fonts
+(`src/fonts.ts`), fitted to the viewport, the catalog and the installed
+applications in IndexedDB (database `system-online`) and the session in
+localStorage (`system-online:desktop`), and gives it SystemOnline's trust,
+its public key (clause 11), and the index of app files at `apps.portill.io`,
+which the shell hands applications (`VITE_INDEX` names another at build).
 
 1. **Applications.** The Finder is the one directory under `src/apps/`
    (`finder`): SystemOnline's configuration of the SDK's stock Finder
-   (clause 11), its alerts asked through `src/apps/windows.ts`. No
-   application calls another. **The Text Viewer**, **Desktop Patterns**,
-   **the Font Viewer** and **Meteors** come from their app files,
-   `apps/Text Viewer.png`, `apps/Desktop Patterns.png`,
-   `apps/Font Viewer.png` and `apps/Meteors.png`, each built in its own repo
-   (text-viewer-app, desktop-patterns-app, font-viewer-app, meteors-app): a
-   PNG whose picture is its box and whose chunks carry its manifest, icon and
-   code. The SDK's `appFiles()` (`vite.config.ts`) builds each in, refusing a
-   file built at an app API level this site's SDK doesn't run, and the page's
-   one copy of the kit and the SDK serves its code. The Finder's defaults
-   take Desktop Patterns' and Meteors' ids and names from their manifests,
-   and the Text Viewer is handed the built-in texts' words (clause 12).
-   More install from app files (clause 11).
+   (clause 11), its alerts asked through `src/apps/windows.ts`, and the one
+   application the shell is handed. No application calls another, and none
+   other is built in: **the App Store**, **the Text Viewer**, **Desktop
+   Patterns**, **the Font Viewer** and **Meteors** are installed at runtime
+   from their app files, `apps/App Store.png`, `apps/Text Viewer.png`,
+   `apps/Desktop Patterns.png`, `apps/Font Viewer.png` and
+   `apps/Meteors.png`, each built in its own repo
+   (system-online-app-store-app, text-viewer-app, desktop-patterns-app,
+   font-viewer-app, meteors-app) and each the index's signed copy: a PNG
+   whose picture is its box and whose chunks carry its manifest, icon, code
+   and signature. The SDK's `appFiles()` (`vite.config.ts`) serves each byte
+   for byte with its manifest (`?app-file`), refusing a file built at an app
+   API level this site's SDK doesn't run or whose signature doesn't hold,
+   and the defaults install each (clause 8); its code loads against the
+   page's one copy of the kit and the SDK. More install from app files
+   (clause 11).
 2. **The menu bar** holds the Apple menu, then the front application's menus,
    then the clock. The front application is the active window's, or the Finder
    while none is active.
 
    ```
    Finder            │ Apple  File  Edit  View  Special          5:31 PM │
+   App Store         │ Apple  File  View                         5:31 PM │
    Text Viewer       │ Apple  File  Edit  View                   5:31 PM │
    Desktop Patterns  │ Apple  File  View                         5:31 PM │
    Font Viewer       │ Apple  File  Edit  View  Size             5:31 PM │
@@ -58,7 +63,9 @@ of app files at `apps.portill.io`, which the shell hands applications
    A new desktop's Apple Menu Items holds an alias of the System Folder's
    Control Panels, so the menu reads Apple ▸ Control Panels ▸ Desktop
    Patterns, as System 7.5's did: control panels lived in the Control Panels
-   folder, and the Apple menu reached them through its alias. Choosing an
+   folder, and the Apple menu reached them through its alias. Beside it is
+   App Store…, an alias of the store's icon, as today's macOS has the item.
+   Choosing an
    entry opens it as a double-click would. What Startup Items holds opens at
    every boot; a new desktop's is empty.
 4. **Windows.** A window that shows a file, or an application opened from its
@@ -71,15 +78,18 @@ of app files at `apps.portill.io`, which the shell hands applications
 5. **The session** keeps every window's box, which were open and which was
    active, the desktop pattern, the About box's Show at startup (`greet`),
    whether the desktop has been given the System Folder's defaults
-   (`system-folder`, clause 8) and had its suitcases filed in Fonts
-   (`fonts-folder`, clause 8), and Meteors' best score (`meteors-best`).
+   (`system-folder`, clause 8), had its suitcases filed in Fonts
+   (`fonts-folder`, clause 8) and been moved onto installed applications
+   (`apps-installed`, clause 8), and Meteors' best score (`meteors-best`).
    A reload reopens the windows that were open. `?fresh=1` neither reads nor
    writes it, and keeps the catalog in memory: the desktop a first visit
    sees, gone on a reload.
 6. **The About box** (Apple menu → About SystemOnline…, `src/about.ts`) is a
    `frame="plain" light-dismiss` dialog with the version and HEAD's commit
    date, a link button to Vintage Frames on npm, and **Show at startup**,
-   which greets a load that reopens no window.
+   which greets a load that reopens no window, decided once a desktop from
+   before has been brought up to date (clause 8), since its windows reopen
+   as its applications install.
 
 ## The library
 
@@ -90,34 +100,54 @@ and the shell's own three: `app`, an application's icon, which opens it,
 `alias`, which stands for another item and opens it, and `font`, a font
 suitcase.
 
-7. **A text file** (kind `text`) keeps its words, or the key of a text the app
-   ships (`src/texts/`), whose words are always the app's. **A font
+7. **A text file** (kind `text`) keeps its own words, or, for a system
+   document, the path the site serves its words at: Read Me and About the
+   Fonts, the system's documentation, listed in `src/texts/` and served from
+   `public/texts/` at `/texts/<key>.txt`, revalidated at every fetch
+   (`public/_headers`), so their words are always this deploy's. **A font
    suitcase** (kind `font`, the shell's) keeps its family, which is the
    system's: SystemOnline serves every family of its collection
    (`src/fonts.ts`), each strike from `public/fonts/imported/`, and a
    suitcase's size is its strikes' bytes. One directly in the System Folder's
    Fonts installs its family; one anywhere else is a file the Font Viewer
    still opens.
-8. **The defaults** (`src/state/defaults.ts`): Read Me and Meteors' icon on
-   the desktop; About the Fonts in Macintosh HD; one suitcase per family in
-   the System Folder's Fonts; and in the System Folder a Control Panels folder
-   holding Desktop Patterns' icon, which Apple Menu Items holds an alias of.
-   They are the catalog's seed, stored once; **Special → Restore Default
-   Files** stores any missing since, a trashed or renamed one counting as
-   present, a suitcase back in Fonts, and makes the Control Panels folder
-   again where it is gone. The alias counts while it stands for a folder
-   named Control Panels, wherever either is. A desktop from before the System
-   Folder is given its defaults once, at its first boot after it, so its
-   Apple menu keeps Desktop Patterns. A desktop from before Fonts kept its
+8. **The defaults** (`src/state/defaults.ts`): Read Me, Meteors and the App
+   Store on the desktop; About the Fonts, the Text Viewer and the Font Viewer
+   in Macintosh HD; one suitcase per family in the System Folder's Fonts; and
+   in the System Folder a Control Panels folder holding Desktop Patterns,
+   which Apple Menu Items holds an alias of, beside App Store…, an alias of
+   the store's icon. Each application is installed from its app file at its
+   home, its icon named by its manifest. They are the catalog's seed, stored
+   once; **Special → Restore Default Files** stores any missing since, an
+   application installed again from its file, a trashed or renamed one
+   counting as present, a suitcase back in Fonts, and makes the Control
+   Panels folder again where it is gone. An alias counts while it stands for
+   a folder named Control Panels, or an icon of the store, wherever either
+   is. A desktop from before the System Folder is given its defaults once, at
+   its first boot after it, so its Apple menu keeps Desktop Patterns. A
+   desktop from before nothing was built in had Meteors' and Desktop
+   Patterns' icons with no file, and its system documents by key: at its
+   first boot after it, once the boot is done, its keys become paths, those
+   icons are given their files, keeping their places, their aliases and
+   Meteors' best score, and the Text Viewer, the Font Viewer and the App
+   Store are installed at their homes, with App Store…, once. An application
+   the visitor removed stays removed, and one the visitor installed stays as
+   it is. Each application's windows from the last visit reopen as it
+   installs. A desktop from before Fonts kept its
    suitcases in a Fonts folder in Macintosh HD: at its first boot after it,
    once, each suitcase directly in that folder moves into the System Folder's
    Fonts, keeping its id and its place, so an open font window and its
    aliases follow, and the folder, emptied, goes to the Trash. One that still
    holds anything else stays, and a suitcase anywhere else stays where it is.
 9. **Back Up All Files…** downloads the library as one zip whose tree reads as
-   the desktop (`macintosh-hd/`, `trash/`, folders as directories, texts as
-   `.txt`) with a `desktop.json` manifest (`src/state/backup.ts`); fonts are
-   manifest rows alone, and each row keeps its icon's place. **Restore from
+   the desktop (`macintosh-hd/`, `trash/`, folders as directories, a
+   visitor's texts as `.txt`) with a `desktop.json` manifest
+   (`src/state/backup.ts`); fonts and system documents are manifest rows
+   alone, a document's keeping its key, and each row keeps its icon's place.
+   A restore gives a system document the path the site serves its key at; an
+   older backup's, whose words are in its entry, keeps its words once the
+   site no longer serves its key, and one with neither is left out and
+   counted. **Restore from
    Backup…**, or the zip dropped on the page, asks whether to Add it beside
    the desktop, at free cells, or Replace the desktop with it, at its places.
    The manifest names Macintosh HD `hd`, so backups from before the catalog
@@ -126,10 +156,10 @@ suitcase.
    comes back into them. A backup from before Fonts restores the suitcases
    in its Macintosh HD → Fonts into Fonts, and leaves that folder out when
    nothing else is in it. A suitcase whose family the system doesn't serve
-   is left out and counted. An application's icon is the system's, not a
-   file: a backup leaves it out, and a Replace puts it back at a free cell,
-   with the System Folder's defaults. Aliases are left out too, and a Replace
-   puts back the defaults' alone.
+   is left out and counted. A backup carries no applications yet: a Replace
+   leaves no icon of any, so the shell uninstalls each, and the defaults
+   install the system's again at their homes. Aliases are left out too, and a
+   Replace puts back the defaults' alone.
 10. Without IndexedDB (a private window) the desktop holds Macintosh HD, its
     System Folder and the Trash, and every command that would store explains
     why it can't.
@@ -156,19 +186,23 @@ suitcase.
     it and that it can read and change everything on the desktop, Cancel
     the default. One whose application is already here asks to replace it,
     saying when the copy won't be offered updates; one the shell refuses
-    says why, a copy of a built-in application among them, and so does an
-    application's icon that won't open. Empty Trash with an installed
-    application's last icon in it uninstalls it. A backup doesn't carry
-    installed applications yet, so a Replace uninstalls them.
+    says why, and so does an application's icon that won't open. Empty
+    Trash with an application's last icon in it uninstalls it; its documents
+    stay where they are, drawn plain, and opening one says the application
+    that opens it could not be found, until it's installed again. A backup
+    doesn't carry applications yet, so a Replace uninstalls them, and the
+    defaults come back (clause 9).
 
 ## The Text Viewer
 
-Built in from `apps/Text Viewer.png`. Its source is the text-viewer-app
-repo's `src/`. It registers the `text` kind and opens it, and SystemOnline
-hands it the built-in texts' words (`textViewer({ builtinText })`, from
-`src/texts/`); opening a built-in the site no longer ships says so in its
-alert. It opens from its text files, so SystemOnline puts no icon of it on
-the desktop.
+Installed from `apps/Text Viewer.png`, its icon in Macintosh HD, beside
+About the Fonts. Its source is the text-viewer-app repo's `src/`. It
+registers the `text` kind and opens it, and is handed nothing: a system
+document's words it fetches from the document's path at each open,
+revalidating, so a deploy's edit shows at the next. One the site no longer
+serves says in its alert that its text is no longer part of this desktop,
+and one it can't reach, offline say, that it can't be read now. A system
+document weighs nothing in Empty Trash's alert.
 
 12. One window per text file: `movable outline-drag resizable zoomable
     scrollbars="vertical"`, 440 × 320, the text verbatim in one body-face
@@ -179,7 +213,7 @@ the desktop.
 
 ## Desktop Patterns
 
-Built in from `apps/Desktop Patterns.png`. Its source, and the files named
+Installed from `apps/Desktop Patterns.png`. Its source, and the files named
 here, are the desktop-patterns-app repo's `src/`.
 
 13. Desktop Patterns' icon in the System Folder's Control Panels
@@ -195,8 +229,9 @@ here, are the desktop-patterns-app repo's `src/`.
 
 ## The Font Viewer
 
-Built in from `apps/Font Viewer.png`. Its source, and the files named here,
-are the font-viewer-app repo's `src/`. It opens the shell's `font` kind
+Installed from `apps/Font Viewer.png`, its icon in Macintosh HD. Its source,
+and the files named here, are the font-viewer-app repo's `src/`. It opens
+the shell's `font` kind
 without owning it, and takes each family and its strikes from the system
 (`ctx.fonts`), so it carries no strikes of its own.
 
@@ -219,7 +254,7 @@ without owning it, and takes each family and its strikes from the system
 
 ## Meteors
 
-Built in from `apps/Meteors.png`. Its source, and the files named here, are
+Installed from `apps/Meteors.png`. Its source, and the files named here, are
 the meteors-app repo's `src/`.
 
 16. Meteors' icon on the desktop (`art/meteors.png`: a ship firing at a rock
@@ -258,6 +293,30 @@ the meteors-app repo's `src/`.
     its screen has the keyboard focus: losing it to another window, the
     desktop, a menu, the alert or another tab pauses the game, as **P** does,
     and P or a click on the screen resumes it.
+
+## The App Store
+
+Installed from `apps/App Store.png`, its icon on the desktop and App Store…
+in the Apple menu. Its source, and the files named here, are the
+system-online-app-store-app repo's `src/`. It holds no URL or key of its
+own: the shell hands it the index at `apps.portill.io`, and it installs and
+uninstalls through the shell's door, under SystemOnline's trust (clause 11).
+
+19. One window, **App Store**, two lists, each a page of a mail-order
+    catalog, an application a row: its box at the left, the file's own
+    picture in color, on the grid (`picture.ts`), and at the right its name,
+    version and author, its description, its size and its buttons.
+    **Available** is every application in the index, offering the newest
+    build this desktop runs and saying when a newer one needs a newer
+    system, each reading **Install**, **Update** (an older version
+    installed, signed by SystemOnline's key) or **Installed**. **Installed**
+    is every application installed here, from the index or not, each with
+    **Uninstall…**, which asks first; those with an update come first, with
+    **Update All**. A fetched file is checked against the index's size and
+    SHA-256 before its box is drawn or it's installed. The index is read
+    when the window opens and once after the boot, so the window opens on
+    Installed when the index has an update. File: _Close_, _Quit_. View:
+    _Available_, _Installed_, _Arrange Windows_.
 
 ## The one CSS rule
 

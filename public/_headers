@@ -1,0 +1,4 @@
+# The system's documents are revalidated at every fetch, so a deploy's edit
+# shows at the next open (src/texts/index.ts).
+/texts/*
+  Cache-Control: no-cache

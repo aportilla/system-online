@@ -2,7 +2,7 @@
 
 A Mac OS System 7 desktop in the browser: a menu bar, a Finder with folders,
 aliases, a System Folder and a Trash, windows that open out of their icons,
-and five applications, all on the 1-bit grid at true 72dpi size.
+and six applications, all on the 1-bit grid at true 72dpi size.
 
 Use it at <https://system-online.portill.io/>.
 
@@ -12,9 +12,14 @@ the System 7 component kit, and the desktop runs on
 shell: the window manager, the menu bar, the catalog of files with its System
 Folder, the stock Finder, and the fonts every application sets type in. Both
 are installed from npm like any other dependency. This repo is the *site*:
-the applications, the shell's configuration, their content, and the imported
-strike collection it serves as the system's fonts. Applications built in
-repos of their own arrive as app files in `apps/`: the Text Viewer, from
+the shell's configuration, the system's documents, and the imported strike
+collection it serves as the system's fonts. Nothing but the Finder is built
+in: every other application is built in a repo of its own as an app file,
+published signed to [the index](https://apps.portill.io/index.json), and
+installed at runtime. A new desktop installs each from its signed copy in
+`apps/`: the App Store, from
+[system-online-app-store-app](https://github.com/aportilla/system-online-app-store-app),
+the Text Viewer, from
 [text-viewer-app](https://github.com/aportilla/text-viewer-app), Desktop
 Patterns, from
 [desktop-patterns-app](https://github.com/aportilla/desktop-patterns-app),
@@ -40,11 +45,12 @@ npm run dev        # http://localhost:5173/
 
 | | |
 | --- | --- |
-| **Finder** | the SDK's stock Finder (icons, folder windows, rename, filing by drag, aliases, the System Folder, the Trash, Copy and Paste, Clean Up), plus Back Up All Files… and Restore from Backup…, Restore Default Files |
-| **Text Viewer** | read-me files, read-only, built in from its app file, `apps/Text Viewer.png` |
-| **Desktop Patterns** | Apple menu → Control Panels → Desktop Patterns: the kit's 38 patterns for the desktop, built in from its app file, `apps/Desktop Patterns.png` |
-| **Font Viewer** | a font suitcase's sample line in every strike, and every character of one, built in from its app file, `apps/Font Viewer.png` |
-| **Meteors** | its icon on the desktop: an Asteroids-style game on a 320 × 240 1-bit screen, built in from its app file, `apps/Meteors.png` |
+| **Finder** | the SDK's stock Finder (icons, folder windows, rename, filing by drag, aliases, the System Folder, the Trash, Copy and Paste, Clean Up), plus Back Up All Files… and Restore from Backup…, Restore Default Files; built in, the system's |
+| **App Store** | Apple menu → App Store…, or its icon on the desktop: the index's applications, each in its box, to install, update and uninstall; `apps/App Store.png` |
+| **Text Viewer** | read-me files, read-only, its icon in Macintosh HD; `apps/Text Viewer.png` |
+| **Desktop Patterns** | Apple menu → Control Panels → Desktop Patterns: the kit's 38 patterns for the desktop; `apps/Desktop Patterns.png` |
+| **Font Viewer** | a font suitcase's sample line in every strike, and every character of one, its icon in Macintosh HD; `apps/Font Viewer.png` |
+| **Meteors** | its icon on the desktop: an Asteroids-style game on a 320 × 240 1-bit screen; `apps/Meteors.png` |
 
 Whichever window is in front, its application owns the menu bar. The Apple
 menu lists what the System Folder's Apple Menu Items holds, what Startup
@@ -54,21 +60,26 @@ in the browser's IndexedDB, and the windows and the desktop pattern in
 localStorage; a reload reopens what was open. `?fresh=1` boots the desktop a
 first visit sees, and saves nothing.
 
-An app file dropped on the desktop installs its application. One
-SystemOnline signed installs at once; any other asks first, since an
-application can read and change everything on the desktop.
+An app file dropped on the desktop installs its application, and emptying
+the Trash with its last icon in it uninstalls it. One SystemOnline signed
+installs at once; any other asks first, since an application can read and
+change everything on the desktop. Read Me and About the Fonts are the
+system's documents: their words are served from `public/texts/` and read at
+every open, so each deploy updates them on every desktop.
 
 ## Layout
 
 ```
 index.html               the skeleton: desktop, menu bar, icon field, About box
-src/main.ts              the composition root: the shell, its applications, its fonts and its trust
+src/main.ts              the composition root: the shell and the Finder, its fonts, its trust and its index
 src/about.ts             the About box and the boot greeting
 src/fonts.ts             the system's fonts: every family of the strike collection
 src/apps/finder/         the Finder: its art, defaults, dialogs, backups and install alerts
-apps/                    app files of applications built in their own repos (Desktop Patterns.png, Font Viewer.png, Meteors.png, Text Viewer.png)
-src/state/               the library's kinds, its defaults, the backup format
-src/texts/               the built-in read-me files
+apps/                    the default applications' app files, the index's signed copies (App Store.png, Desktop Patterns.png, Font Viewer.png, Meteors.png, Text Viewer.png)
+src/state/               the library's kinds, its defaults and the one-time moves, the backup format
+src/texts/               the system's documents: each one's key, name and home
+public/texts/            their words, served at /texts/<key>.txt
+public/_headers          the host's headers: the documents revalidated at every fetch
 src/desktop.css          LAYOUT only
 src/page.css             page-level CSS the components can't reach from a shadow root
 public/icons/            icon art served verbatim

@@ -1,18 +1,20 @@
 // Composition root: the shell (system-online-sdk) over the page's desktop,
-// with SystemOnline's five applications and its system's fonts (fonts.ts),
-// the About box, and the startup curtain lifted once the desktop is composed.
-// The Text Viewer, Desktop Patterns, the Font Viewer and Meteors come from
-// their app files in apps/, built in by vite.config.ts's appFiles(); the Text
-// Viewer is handed the built-in texts' words (texts/). An app file dropped or
-// pasted in the Finder installs, through the shell's trust: one SystemOnline
-// signed without asking, any other once the visitor says so.
+// with the Finder and the system's fonts (fonts.ts), the About box, and the
+// startup curtain lifted once the desktop is composed. Nothing else is built
+// in: every other application is an app file installed at runtime, through
+// the shell's trust, one SystemOnline signed without asking and any other
+// once the visitor says so. A new desktop installs the defaults from their
+// files in apps/ (apps/finder/), and a file dropped or pasted in the Finder
+// installs the same way.
 //
-// The shell fits the desktop to the viewport, keeps the catalog in IndexedDB
-// and the session in localStorage, and reopens the last session's windows.
-// ?fresh=1 boots the desktop a first visit sees: the catalog in memory, the
-// session neither read nor written, so a reload forgets both. A desktop from
-// before the System Folder is given its defaults once, after the boot, and
-// one from before its Fonts has its suitcases filed there once.
+// The shell fits the desktop to the viewport, keeps the catalog and what's
+// installed in IndexedDB and the session in localStorage, and reopens the
+// last session's windows. ?fresh=1 boots the desktop a first visit sees: the
+// catalog in memory, the session neither read nor written, so a reload
+// forgets both. Once the boot is done, a desktop from before the System
+// Folder is given its defaults, one from before its Fonts has its suitcases
+// filed there, and one from before nothing was built in is moved onto
+// installed applications, each once.
 
 // Imported first: boot/curtain.ts lifts the curtain on window load even if this
 // module throws.
@@ -25,12 +27,7 @@ import './page.css'
 import './desktop.css'
 import { GREET, initAbout } from './about.ts'
 import { FONT_FAMILIES } from './fonts.ts'
-import { FONTS_FILED, SYSTEM_GIVEN, fileFonts, finder, giveSystemFolder } from './apps/finder/index.ts'
-import { builtinText } from './texts/index.ts'
-import textViewer from '../apps/Text Viewer.png?app'
-import desktopPatterns from '../apps/Desktop Patterns.png?app'
-import fontViewer from '../apps/Font Viewer.png?app'
-import meteors from '../apps/Meteors.png?app'
+import { APPS_INSTALLED, FONTS_FILED, SYSTEM_GIVEN, fileFonts, finder, giveSystemFolder, installApps } from './apps/finder/index.ts'
 
 const fresh = new URLSearchParams(location.search).get('fresh') === '1'
 const desktop = document.getElementById('desktop') as VfDesktop
@@ -51,16 +48,10 @@ document.addEventListener('gesturestart', onGestureStart)
 
 // The session reads ?fresh=1 itself.
 const state = localStorageState('system-online:desktop', {
-  extra: { [GREET]: true, [SYSTEM_GIVEN]: false, [FONTS_FILED]: false },
+  extra: { [GREET]: true, [SYSTEM_GIVEN]: false, [FONTS_FILED]: false, [APPS_INSTALLED]: false },
 })
 const shell = createShell(desktop, {
-  apps: [
-    finder({ storage: fresh ? memoryStorage() : indexedDbStorage('system-online') }),
-    textViewer({ builtinText }),
-    desktopPatterns(),
-    fontViewer(),
-    meteors(),
-  ],
+  apps: [finder({ storage: fresh ? memoryStorage() : indexedDbStorage('system-online') })],
   fonts: FONT_FAMILIES,
   fit: 'viewport',
   state,
@@ -73,16 +64,20 @@ const about = initAbout(desktop, state)
 // on IndexedDB and is not awaited.
 void liftCurtain()
 
-// A load that reopens no window greets with the About box.
-void shell.ready.then(() => {
+// The seed never runs again for a desktop from before, so the Finder brings
+// it up to date, each step once, in order: what it lacks of the System
+// Folder's defaults, the suitcases of one from before Fonts filed there, and
+// its applications installed. A step that fails says so, and the next boot
+// tries it again. Then a load that reopens no window greets with the About
+// box: after the steps, since a desktop from before reopens its windows as
+// its applications install.
+void shell.ready.then(async () => {
+  const moves = [() => giveSystemFolder(shell, state), () => fileFonts(shell.catalog, state), () => installApps(shell, state)]
+  for (const move of moves) {
+    await move().catch((err: Error) => console.warn(`SystemOnline: a desktop from before wasn’t brought up to date: ${err.message}`))
+  }
   if (about.greets() && !desktop.stackingOrder.some((w) => w instanceof VfWindow)) about.show()
 })
-
-// The seed never runs again for a desktop from before the System Folder, so
-// the Finder stores what it lacks of the System Folder's defaults, once, and
-// files the suitcases of one from before its Fonts there, once.
-void shell.ready.then(() => giveSystemFolder(shell.catalog, state))
-void shell.ready.then(() => fileFonts(shell.catalog, state))
 
 // HMR teardown. Vite re-runs this module without unloading the old instance,
 // so everything wired above is disposed.

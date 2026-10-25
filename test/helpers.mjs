@@ -15,8 +15,9 @@ export const KEPT = [
 /** A catalog state: the kept containers, then `items`. */
 export const listing = (...items) => ({ available: true, items: [...KEPT, ...items] })
 
-/** What state/defaults.ts asks of the shell's catalog, get() and create(),
- *  over a listing, with counting ids. The listing is exposed for edits. */
+/** What state/defaults.ts asks of the shell's catalog, get(), create() and
+ *  update(), over a listing, with counting ids. The listing is exposed for
+ *  edits. */
 export function catalog(...items) {
   let n = 0
   const state = listing(...items)
@@ -29,5 +30,21 @@ export function catalog(...items) {
       state.items = [...state.items, item]
       return item
     },
+    async update(id, data) {
+      const item = state.items.find((i) => i.id === id)
+      if (item) item.data = data
+      return item != null
+    },
   }
 }
+
+/** The defaults' install over a catalog, as the shell's would leave it: a
+ *  new icon of the application in `parent`, or, with `replace`, the icons it
+ *  has. Each call is recorded in `calls`; an application in `refuse` rejects. */
+export const installer =
+  (c, calls = [], { refuse = [] } = {}) =>
+  async ({ app }, { parent = null, replace = false }) => {
+    calls.push(`${replace ? 'replace' : 'install'} ${app}`)
+    if (refuse.includes(app)) throw new Error(`${app} was refused`)
+    if (!replace) await c.create({ name: app, kind: 'app', parent, data: { app } })
+  }

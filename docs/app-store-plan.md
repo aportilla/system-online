@@ -11,7 +11,11 @@ still built in. Step 5's store was written that day too, and its 0.1.0
 published to the index, signed, with Meteors 0.4.0, Desktop Patterns 0.3.0
 and the Font Viewer 0.3.0, whose signed copies SystemOnline builds in. The
 rest of step 4 is planned in §3.6 and §4 since that day, with decisions 24
-to 27.
+to 27. On 2026-10-24 the Text Viewer 0.3.0 was published, signed, and the
+switch built here, step 4's third part: nothing built in but the Finder,
+the five installed as defaults at their homes, the system's documentation
+by path, and the one-time move for a desktop from before. Eye checks 2 and
+3 passed against the production build.
 On 2026-10-11 the shell and app files moved to system-online-sdk, and
 SystemOnline with them. The store's asks are the SDK's now. App files are
 format 2, at app API level 3: a build's `requires` names the SDK range it was
@@ -646,21 +650,30 @@ green in the repo it touches.
    2. **The Text Viewer 0.3.0**, in text-viewer-app: a document's words
       from `{ text }` or `{ path }`, and no `builtinText` (§3.6). Its dev
       desktop serves a system document of its own by path. Signed and
-      published, as the other four were.
+      published, as the other four were. _Done 2026-10-24: a 404, a 410 or
+      a page (a host's fallback to its index, which Cloudflare Pages gives
+      a path it doesn't serve) reads as a path no longer served._
    3. **The switch, one deploy here** (decision 27): the system's
       documentation by path; nothing built in, the five installed as
       defaults at their homes, the store's alias among them; Restore
       Default Files installing; and the one-time move for a desktop from
       before (§3.6). Eye checks 2 and 3 (§8) pass against the production
-      build before it's pushed.
+      build before it's pushed. _Built 2026-10-24, and eye checks 2 and 3
+      passed against the production build, a desktop made by the deployed
+      build among them; Restore Default Files and a backup's Replace
+      install too. Backups take a system document as a row alone in it
+      already (decision 26), since a document by path has no words of its
+      own to write. The About box greets once the move is done, so it never
+      covers windows reopening. Not deployed yet._
    4. **Backups carry installed applications** (§3.4), a deploy after the
       switch, and eye check 4.
 5. **The App Store** (§3.2, §3.3): its repo, built as meteors-app is, with
    `listing.ts` and its tests; signed and published to the index; installed
    by default here, with its icon on a new desktop and App Store… in the
    Apple menu. _Begun 2026-10-18 in system-online-app-store-app, and its
-   0.1.0 published to the index, signed, that day; its install by default
-   here waits on step 4's rest._
+   0.1.0 published to the index, signed, that day; installed by default
+   here with the switch, built 2026-10-24. Its own icon and box art are to
+   come: both are SystemOnline's stand-in, `public/icons/app-icon.png`._
 6. **Updates** (§3.5): the store's check after the boot, the updates it
    lists, Update and Update All, the alert at the boot when something no
    longer runs, the system putting back its own store, and `npm run

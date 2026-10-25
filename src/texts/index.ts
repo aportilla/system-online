@@ -1,29 +1,19 @@
-// Built-in text files, imported whole with Vite's ?raw. A seeded text file
-// stores the key alone, so every one opens the text shipped here: main.ts
-// hands builtinText to the Text Viewer, and the backup writes textOf. A key
+// The system's documents: texts whose words are the system's, updated with
+// it. Each one's words are served from public/texts/, at its key's path
+// (docPath), and a text file holds the path, so the Text Viewer reads this
+// deploy's words at every open, on every desktop. A key, and so its path,
 // never changes once shipped.
 //
-// To add one, put the .txt here and list it below with a new key, its name and
-// its home. An existing profile gets it from Special → Restore Default Files.
+// To add one, put its words at public/texts/<key>.txt and list it below with
+// a new key, its name and its home. An existing desktop gets it from
+// Special → Restore Default Files.
 
-import type { Item } from 'system-online-sdk'
-import readMe from './read-me.txt?raw'
-import aboutTheFonts from './about-the-fonts.txt?raw'
 import type { TextDefault } from '../state/defaults.ts'
-import { textData } from '../state/kinds.ts'
 
-export const TEXTS: (TextDefault & { text: string })[] = [
-  { key: 'read-me', name: 'Read Me', home: 'desktop', text: readMe },
-  { key: 'about-the-fonts', name: 'About the Fonts', home: 'disk', text: aboutTheFonts },
+export const TEXTS: TextDefault[] = [
+  { key: 'read-me', name: 'Read Me', home: 'desktop' },
+  { key: 'about-the-fonts', name: 'About the Fonts', home: 'disk' },
 ]
 
-/** A built-in's text by key, or null. */
-export const builtinText = (key: string): string | null =>
-  TEXTS.find((t) => t.key === key)?.text ?? null
-
-/** A text file's words: a built-in's are the app's, else its own. Null for a
- *  built-in the app no longer ships. */
-export function textOf(item: Item): string | null {
-  const { builtin, text } = textData(item)
-  return builtin != null ? builtinText(builtin) : text
-}
+/** Whether the site serves the system document `key`. */
+export const servesText = (key: string): boolean => TEXTS.some((t) => t.key === key)

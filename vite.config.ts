@@ -39,9 +39,10 @@ function fontBytes(): Record<string, number> {
 }
 
 // Served at the root of system-online.portill.io, so Vite's default base holds.
-// The SDK's appFiles() builds the applications in apps/ in from their app
-// files (`import meteors from '../apps/Meteors.png?app'`), refusing one built
-// at an app API level this SDK doesn't run.
+// The SDK's appFiles() serves each app file in apps/ byte for byte, with its
+// manifest, for the defaults to install (`import meteors, { manifest } from
+// '../apps/Meteors.png?app-file'`), refusing one built at an app API level
+// this SDK doesn't run or whose signature doesn't hold.
 export default defineConfig({
   plugins: [appFiles()],
   define: {
