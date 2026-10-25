@@ -15,7 +15,8 @@ to 27. On 2026-10-24 the Text Viewer 0.3.0 was published, signed, and the
 switch built here, step 4's third part: nothing built in but the Finder,
 the five installed as defaults at their homes, the system's documentation
 by path, and the one-time move for a desktop from before. Eye checks 2 and
-3 passed against the production build.
+3 passed against the production build, and it went live the same day
+(e9f52a0), checked again on the live site.
 On 2026-10-11 the shell and app files moved to system-online-sdk, and
 SystemOnline with them. The store's asks are the SDK's now. App files are
 format 2, at app API level 3: a build's `requires` names the SDK range it was
@@ -634,7 +635,7 @@ green in the repo it touches.
    on 2026-10-18, and `npm run add` signs since that day. Signed builds
    published the same day: the App Store 0.1.0, Meteors 0.4.0, Desktop
    Patterns 0.3.0 and the Font Viewer 0.3.0. The Text Viewer's, which reads
-   a system document by its path, is to come._
+   a system document by its path, on 2026-10-24._
 4. **SystemOnline installs at runtime** (§3.4, §3.6, §3.7): a dropped app
    file installs, your key's without asking and anyone else's after the
    alert, and Empty Trash uninstalls it; every application becomes an
@@ -664,7 +665,10 @@ green in the repo it touches.
       install too. Backups take a system document as a row alone in it
       already (decision 26), since a document by path has no words of its
       own to write. The About box greets once the move is done, so it never
-      covers windows reopening. Not deployed yet._
+      covers windows reopening. Live 2026-10-24 (e9f52a0), and checked
+      there: each app file served byte for byte and trusted, a desktop the
+      deploy before made moved, a new desktop, Restore Default Files and a
+      Replace._
    4. **Backups carry installed applications** (§3.4), a deploy after the
       switch, and eye check 4.
 5. **The App Store** (§3.2, §3.3): its repo, built as meteors-app is, with
@@ -672,7 +676,7 @@ green in the repo it touches.
    by default here, with its icon on a new desktop and App Store… in the
    Apple menu. _Begun 2026-10-18 in system-online-app-store-app, and its
    0.1.0 published to the index, signed, that day; installed by default
-   here with the switch, built 2026-10-24. Its own icon and box art are to
+   here with the switch, live 2026-10-24. Its own icon and box art are to
    come: both are SystemOnline's stand-in, `public/icons/app-icon.png`._
 6. **Updates** (§3.5): the store's check after the boot, the updates it
    lists, Update and Update All, the alert at the boot when something no
