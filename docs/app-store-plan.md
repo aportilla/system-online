@@ -16,7 +16,14 @@ switch built here, step 4's third part: nothing built in but the Finder,
 the five installed as defaults at their homes, the system's documentation
 by path, and the one-time move for a desktop from before. Eye checks 2 and
 3 passed against the production build, and it went live the same day
-(e9f52a0), checked again on the live site.
+(e9f52a0), checked again on the live site. On 2026-10-25
+system-online-sdk 0.3.1 shipped `restart` and `beforeQuit` (ask 15), and
+the store's 0.1.2 was built on it, the first of step 6: an update restarts a
+running application on its new code, its windows back where they were,
+rather than leaving it to the next load (§3.5, decision 9). The same day
+the store's 0.1.2 was signed and published to the index, and this site
+moved to 0.3.1 with its copy in `apps/`, eye check 13 passing against the
+production build.
 On 2026-10-11 the shell and app files moved to system-online-sdk, and
 SystemOnline with them. The store's asks are the SDK's now. App files are
 format 2, at app API level 3: a build's `requires` names the SDK range it was
@@ -30,8 +37,9 @@ alone, and §9 left the others for later: _"Go ahead and do all our other
 apps as well."_
 Decisions 1, 2, 6, 9 and 17, 11's sideloading and 4's repo were taken
 2026-10-10, 5, 7, 8 and 18 to 22 on 2026-10-17, and 10, 11's asking first,
-12 and 13 on 2026-10-18, as SDK 0.3.0 shipped them, and 24 to 27 on
-2026-10-24; the rest are recommended (§6). Decision 8 now builds nothing in, the Text Viewer
+12 and 13 on 2026-10-18, as SDK 0.3.0 shipped them, 24 to 27 on
+2026-10-24, and 9's restart on 2026-10-25, as SDK 0.3.1 shipped it; the
+rest are recommended (§6). Decision 8 now builds nothing in, the Text Viewer
 included, and 20 keeps the Finder the system's. Decision 22 meets a
 system update that breaks applications at the boot, and 7 says what this
 desktop can't run rather than hiding it. Decision 6 makes the store an
@@ -307,7 +315,8 @@ Meteors', and is yours to draw.
 - **What it reads from the SDK** (asks 7 and 14): the site's index URL, and
   each installed application's manifest, its signature's standing and
   whether it loaded, with a signal when that changes. It installs with
-  `ctx.install` and uninstalls with `ctx.uninstall` (ask 1).
+  `ctx.install` and uninstalls with `ctx.uninstall` (ask 1), and restarts
+  an updated application with `ctx.restart` (ask 15).
 - **One window, two lists** (decision 19), each scrolling, laid out as a
   page of a mail-order catalog: each application a row, its box at the
   left, and at the right its name, version and author, its description,
@@ -400,12 +409,21 @@ the same door as an install (§3.4).
 - **One the boot skipped** for its `api` loads as its update installs,
   so its icon opens this session. Until then, opening it says why (ask 5),
   and when the store lists its update, offers the App Store.
-- **One that loaded** takes the new file at once, and its new code runs
-  from the next load.
+- **One that loaded** takes the new file at once, and the store restarts it
+  on the new code without a reload (ask 15): at once while none of its
+  windows is open, and otherwise at a Restart its row offers, so a game in
+  progress doesn't end under the visitor's hand. Its windows close and come
+  back where they were, at their depths, and one holding something unsaved
+  offers to save it first; a Cancel there leaves it running, its row still
+  offering Restart. On a desktop whose SDK has no `restart`, the new code
+  runs from the next load.
 - **One added by hand**, unsigned or signed by a key the site doesn't hold,
   is offered no update. It's replaced by hand (§3.4).
-- **The store itself** is listed like any application, and updating it is
-  a click too; its new code runs from the next load.
+- **The store itself** is updated from a bar across its window's top, a
+  click too, and restarts at once on its new code, since its window is the
+  one the visitor pressed in: the window closes and comes back where it
+  was, and the bar is gone. While its new code waits, the bar offers
+  Restart App Store.
 - Applications the index doesn't list are left alone, and a check that
   can't reach the index says nothing: the next boot tries again.
 
@@ -681,15 +699,26 @@ green in the repo it touches.
 6. **Updates** (§3.5): the store's check after the boot, the updates it
    lists, Update and Update All, the alert at the boot when something no
    longer runs, the system putting back its own store, and `npm run
-   check-index` for an SDK release that raises `APP_API_OLDEST`.
+   check-index` for an SDK release that raises `APP_API_OLDEST`. _Begun
+   2026-10-25: system-online-sdk 0.3.1 shipped `restart` and `beforeQuit`
+   (ask 15), and the store's 0.1.2, built on it with `requires` left at
+   `^0.3.0`, restarts an application on its update (§3.5). The same day,
+   the store's 0.1.2 signed and published to the index, and this site on
+   `^0.3.1` with that copy in `apps/`. Eye check 13 passed against the
+   production build, with the index local and a test key added to its
+   trust; its case of Meteors in front can't be reached from the store,
+   whose Restart brings it forward, and the SDK's `verify:installs` checks
+   it. A desktop the deploy before made, its store at 0.1.0, took both
+   updates through that store, each running from the next load, and
+   restarts from then on._
 
 ## 5. SDK asks
 
 Each goes to system-online-sdk as `feature-requests/<name>.md`; they were
 the kit's until the shell moved there, and the store's helpers (10 to 12)
 shipped in the kit. Asks 1 to 5 and 9 are the packages plan's (4, 5 and 8
-to 11 there), made concrete by the store; 6 to 8 and 14 are new, and 13 is
-12 there.
+to 11 there), made concrete by the store; 6 to 8, 14 and 15 are new, and
+13 is 12 there.
 
 For installing at runtime, in one minor (step 3):
 
@@ -721,8 +750,9 @@ For installing at runtime, in one minor (step 3):
    an icon keeps the icon, its place and the session's windows, and
    replaces the file, or gives the icon the file it lacked, only when told
    to, so the site can ask first. A loaded application takes the new code
-   at its next load; one the boot skipped loads at once, and its windows
-   from the last visit reopen. Uninstalling while running is 13 there.
+   at its next load, or once it restarts (ask 15); one the boot skipped
+   loads at once, and its windows from the last visit reopen. Uninstalling
+   while running is 13 there.
 7. **What's installed**, on the shell and on `ctx`: each installed
    application's manifest, and whether it loaded or why not, with a signal
    when that changes, and when the boot is done. The store's lists, its
@@ -763,6 +793,18 @@ from the first, and the store can be an app file:
     index's URL beside its trust, and `ctx` hands it on, so a store in an
     app file holds no URL of its own and keeps every rule an app file
     keeps.
+
+After the store, in a patch (step 6), as `restart-application.md`:
+
+15. **Restarting in place**: `restart(id)`, on the shell and on `ctx`, runs
+    an installed application's kept file in place of the code running,
+    without a reload. Its windows close and reopen on the new code at their
+    boxes and depths, the desktop and every other application untouched,
+    and the old code runs on if the new fails. Before it quits, an
+    application holding something unsaved offers to save it, through
+    `ctx.beforeQuit`, which also makes leaving the page ask first.
+    _Shipped in system-online-sdk 0.3.1 on 2026-10-25, the app API staying
+    at 3._
 
 ## 6. Decisions
 
@@ -813,14 +855,22 @@ from the first, and the store can be an app file:
    apps are app images"._
 9. **Updates when asked** (§3.5): the store lists the updates for
    applications your key signed, forward only but for the rollback case,
-   and a click installs one, or Update All every one listed; the new code
-   runs from the next load. An application added by hand is offered none,
-   and is replaced by hand. _Taken 2026-10-10, over updates on their own:
-   "i don't ever want to update apps without asking - the app store should
-   list which apps have updates available... signed apps should install
-   with a click ( either individually or via an 'update all' mechanism )
-   unsigned apps don't get automatic updates because they were manually
-   added by the user. They can be replaced manually though"._
+   and a click installs one, or Update All every one listed. An application
+   added by hand is offered none, and is replaced by hand. _Taken
+   2026-10-10, over updates on their own: "i don't ever want to update apps
+   without asking - the app store should list which apps have updates
+   available... signed apps should install with a click ( either
+   individually or via an 'update all' mechanism ) unsigned apps don't get
+   automatic updates because they were manually added by the user. They
+   can be replaced manually though"._ The new code runs without a reload,
+   the store restarting the application on it, over waiting for the next
+   load. _Taken 2026-10-25, as SDK 0.3.1 shipped `restart`: "trigger the
+   restart of an updated application from the app store - so that after an
+   update the system can update a running app and pick up the new
+   version"._ When: at once while none of its windows is open, and the
+   store at once after its own update; otherwise at a Restart its row
+   offers, so a game in progress doesn't end under the visitor's hand.
+   _Recommended, by the store's ask._
 10. **Installing at runtime waits for the index and step 6, not for the
     shell's status**, which takes back the packages plan's decision 18
     (§3.5). _Taken 2026-10-18, as SDK 0.3.0 shipped it._
@@ -934,6 +984,8 @@ By the policy: contracts, not wiring.
     at a version the index lists is offered an older build, and one at a
     version it doesn't list isn't; Update All's count is the rows reading
     Update;
+  - Restart for an application whose new version waits to run, unless an
+    Update is offered, which restarts it too;
   - the Installed list holds every installed application, the index's or
     not, those with an update first.
 - **The index's build**, in system-online-app-index: a folder of files
@@ -1007,7 +1059,7 @@ After step 6:
 
 9. A newer Meteors published to a local index: after the next boot nothing
    has changed on its own, and the store lists one update, Meteors, above
-   the rest. Update installs it, and the load after runs it, its icon, its
+   the rest. Update installs it and runs it (eye check 13), its icon, its
    window and the best score kept. With two updates listed, Update All
    installs both.
 10. An unsigned build of Meteors, dropped on a desktop that has the signed
@@ -1025,6 +1077,15 @@ After step 6:
     index: the store offers the newest build that runs, and its row says
     a newer version needs a newer system. An application whose every
     build is above it is listed, saying so, with no Install.
+13. Restarting on an update, on SDK 0.3.1, with newer builds of Meteors and
+    the store in a local index signed with a test key. Meteors' window open
+    behind the store, Update installs it and its row offers Restart;
+    pressed, Meteors' window closes and comes back where it was, behind
+    the store, which stays in front with its menus, and the new version
+    runs. The same with Meteors in front: it stays in front. With Meteors'
+    window closed, Update runs the new version at once. Update App Store:
+    the store's window closes and reopens on its new version where it was,
+    and the bar is gone.
 
 ## 9. Follow-ups
 
@@ -1048,11 +1109,14 @@ After step 6:
 **system-online-app-index**, new (step 1): the repo as §3.1 lists it.
 
 **The store's repo**, new (step 5): built as meteors-app is (§3.3), with
-`src/listing.ts` and `test/listing.test.mjs`.
+`src/listing.ts` and `test/listing.test.mjs`. Its 0.1.2 (step 6):
+`restart` read in `src/system.ts`, an update restarting in `src/index.ts`,
+and Restart in the window. _Done 2026-10-25._
 
 **The SDK** (step 3): the ask, as `feature-requests/runtime-installs.md`,
 signatures in it; then its shell, its build entry, their tests, SHELL.md
-and APP-FILES.md. Step 2's `store-helpers.md` shipped in the kit.
+and APP-FILES.md. Step 2's `store-helpers.md` shipped in the kit. Step 6's
+`restart-application.md` shipped in 0.3.1.
 
 **meteors-app**: `src/app.ts` gains its description. _Done, in 0.2.0._
 
@@ -1083,8 +1147,9 @@ two forms of data), and 0.3.0 on SDK `^0.3.0`.
   and `src/texts/index.ts` (a system document by its path);
   `src/apps/finder/backup.ts`
   and `src/state/backup.ts` (installed applications in backups);
-  `package.json` (`check-index`); `docs/SPEC.md`, `README.md`, and `CLAUDE.md` (the
-  installed applications, the store among them, and this plan in "Where
-  things are");
+  `package.json` (`check-index`; system-online-sdk `^0.3.1`, so the
+  desktop hands the store `restart`, done 2026-10-25); `docs/SPEC.md`,
+  `README.md`, and `CLAUDE.md` (the installed applications, the store
+  among them, and this plan in "Where things are");
   `docs/app-packages-plan.md` (Phase 3 and decisions 18 and 19 point
   here).

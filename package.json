@@ -22,7 +22,7 @@
     "charset-manifest": "/tmp/fontenv/bin/python3 fonts/charset-manifest.py"
   },
   "dependencies": {
-    "system-online-sdk": "^0.3.0",
+    "system-online-sdk": "^0.3.1",
     "vintage-frames": "^0.20.0"
   },
   "devDependencies": {

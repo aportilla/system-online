@@ -301,21 +301,24 @@ system-online-app-store-app repo's `src/`. It holds no URL or key of its
 own: the shell hands it the index at `apps.portill.io`, and it installs and
 uninstalls through the shell's door, under SystemOnline's trust (clause 11).
 
-19. One window, **App Store**, two lists, each a page of a mail-order
-    catalog, an application a row: its box at the left, the file's own
-    picture in color, on the grid (`picture.ts`), and at the right its name,
-    version and author, its description, its size and its buttons.
-    **Available** is every application in the index, offering the newest
-    build this desktop runs and saying when a newer one needs a newer
-    system, each reading **Install**, **Update** (an older version
-    installed, signed by SystemOnline's key) or **Installed**. **Installed**
-    is every application installed here, from the index or not, each with
-    **Uninstall…**, which asks first; those with an update come first, with
-    **Update All**. A fetched file is checked against the index's size and
-    SHA-256 before its box is drawn or it's installed. The index is read
-    when the window opens and once after the boot, so the window opens on
-    Installed when the index has an update. File: _Close_, _Quit_. View:
-    _Available_, _Installed_, _Arrange Windows_.
+19. One window, **App Store**, one list, a page of a mail-order catalog:
+    every application in the index but the store itself, a row each, its
+    box at the left, the file's own picture in color, on the grid
+    (`picture.ts`), and at the right its name, version and author, its
+    description, its size and its buttons. Each row offers the newest build
+    this desktop runs, and says when a newer one needs a newer system.
+    **Install** reads **Update** where an older version is installed,
+    signed by SystemOnline's key, and takes no press once that version or a
+    newer one is. An update runs at once, the application restarted on its
+    new version without a reload, while none of its windows is open;
+    otherwise the row offers **Restart**, so a game in progress doesn't end
+    under the visitor's hand, and its windows close and come back where
+    they were, at their depths. **Uninstall…** asks first. The store's own
+    update is a bar across the window's top, **Update App Store**, which
+    restarts the store on its new version at once. A fetched file is
+    checked against the index's size and SHA-256 before its box is drawn or
+    it's installed. The index is read when the window opens. File: _Close_,
+    _Quit_. View: _Arrange Windows_.
 
 ## The one CSS rule
 
