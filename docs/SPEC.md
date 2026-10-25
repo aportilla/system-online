@@ -271,11 +271,10 @@ the meteors-app repo's `src/`.
 17. The title screen offers **New Game** and **Quit**, highlighted by the
     arrows or the pointer and chosen by Return, Space or a click; Quit quits.
     Under them is the best score, once there is one.
-    **Q** or **Escape** in a game stops it and asks _End this game and go
-    back to the main menu?_: Return ends it and goes back to the title
-    screen, Escape or Cancel goes back to the game as it was. Keys held with
-    ⌃, ⌘ or ⌥ are the menu bar's. File: _Close_, _Quit_. View: _Arrange
-    Windows_.
+    **Q** or **Escape** in a game freezes it under END GAME?, offering
+    **Continue** and **Main Menu**, chosen as the title's items are; Escape
+    continues. Keys held with ⌃, ⌘ or ⌥ are the menu bar's. File: _Close_,
+    _Quit_. View: _Arrange Windows_.
 18. A game runs on a fixed 60-a-second step over a field that wraps at every
     edge, its random draws from a generator seeded at New Game. ← and → turn
     the ship, ↑ thrusts it, and it coasts, slowing; Space fires, one shot a
@@ -291,8 +290,8 @@ the meteors-app repo's `src/`.
     over the drifting field, then the title screen, and the game's score
     counts toward the best; a game ended early doesn't. The game runs only while
     its screen has the keyboard focus: losing it to another window, the
-    desktop, a menu, the alert or another tab pauses the game, as **P** does,
-    and P or a click on the screen resumes it.
+    desktop, a menu or another tab pauses the game, as **P** does, and P or
+    a click on the screen resumes it.
 
 ## The App Store
 
