@@ -267,14 +267,21 @@ the meteors-app repo's `src/`.
     px. Every frame is 1-bit, black and white only: the field is drawn into
     a 1-bit raster of the app's own, whole-px lines that wrap at the edges
     (`raster.ts`), and its text is the kit's faces cut into 1-bit glyphs
-    (`screen.ts`). The rules are pure (`game.ts`, `field.ts`).
-17. The title screen offers **New Game** and **Quit**, highlighted by the
-    arrows or the pointer and chosen by Return, Space or a click; Quit quits.
-    Under them is the best score, once there is one.
+    (`screen.ts`). The rules are pure (`game.ts`, `field.ts`). **Full
+    Screen** gives the window the whole screen: the bar, the icons and every
+    other window give way, and the game shows magnified by the largest whole
+    number that fits (`layout.ts`), centered on black in a 1 system px white
+    ring; **Exit Full Screen** gives it back. Full screen isn't kept: a
+    close or a reload comes back in the window.
+17. The title screen offers **New Game**, **Full Screen** and **Quit**,
+    highlighted by the arrows or the pointer and chosen by Return, Space or
+    a click; Quit quits. Under them is the best score, once there is one.
     **Q** or **Escape** in a game freezes it under END GAME?, offering
-    **Continue** and **Main Menu**, chosen as the title's items are; Escape
-    continues. Keys held with ⌃, ⌘ or ⌥ are the menu bar's. File: _Close_,
-    _Quit_. View: _Arrange Windows_.
+    **Continue**, **Full Screen** and **Main Menu**, chosen as the title's
+    items are; Escape continues. Full Screen reads Exit Full Screen while
+    the window has the screen, and choosing it leaves the menu where it was.
+    Keys held with ⌃, ⌘ or ⌥ are the menu bar's: ⌃W and ⌃Q close the window
+    from full screen too. File: _Close_, _Quit_. View: _Arrange Windows_.
 18. A game runs on a fixed 60-a-second step over a field that wraps at every
     edge, its random draws from a generator seeded at New Game. ← and → turn
     the ship, ↑ thrusts it, and it coasts, slowing; Space fires, one shot a
